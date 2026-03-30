@@ -1,7 +1,8 @@
 import type { BodegaCatTheme } from './types';
 
-export const darkTheme: BodegaCatTheme = {
-  name: 'Dark',
+export const voidKittenTheme: BodegaCatTheme = {
+  id: 'voidkitten',
+  name: 'Void Kitten',
   description: 'Dark mode theme with blue and amber accents',
   author: 'Bodega Cat',
   version: '1.0.0',
@@ -13,6 +14,16 @@ export const darkTheme: BodegaCatTheme = {
     '--color-surface': '#1F2937',
     '--color-text': '#F9FAFB',
     '--color-text-secondary': '#D1D5DB',
+    '--color-navbar-bg': '#0F172A',
+    '--color-navbar-text': '#F9FAFB',
+    '--color-hero-from': '#1E3A5F',
+    '--color-hero-to': '#1F2937',
+    '--color-footer-bg': '#0F172A',
+    '--color-footer-text': '#F9FAFB',
+    '--color-footer-text-muted': '#9CA3AF',
+    '--color-footer-border': '#374151',
+    '--color-cta-from': '#1E3A5F',
+    '--color-cta-to': '#374151',
     '--font-heading': '"Inter", system-ui, sans-serif',
     '--font-body': '"Inter", system-ui, sans-serif',
     '--border-radius': '0.5rem',

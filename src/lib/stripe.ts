@@ -157,6 +157,21 @@ function transformStripeProduct(
       category: product.metadata.category,
       brand: product.metadata.brand,
       sku: product.metadata.sku,
+      deliveryType: product.metadata.deliveryType as
+        | "physical"
+        | "digital"
+        | "service"
+        | "booking"
+        | undefined,
+      bookingConfig: product.metadata.bookingConfig
+        ? (() => {
+            try {
+              return JSON.parse(product.metadata.bookingConfig) as import("../types/product").BookingConfig;
+            } catch {
+              return undefined;
+            }
+          })()
+        : undefined,
       weight: product.metadata.weight
         ? parseFloat(product.metadata.weight)
         : undefined,
@@ -174,10 +189,6 @@ function transformStripeProduct(
     slug,
     basePrice: lowestPrice.unit_amount ?? 0,
     currency: baseCurrency,
-    stripeProductId: product.id,
-    stripePriceId: lowestPrice.id,
-    // Store all prices for variations
-    prices: pricesByCurrency[baseCurrency] ?? [],
     // New: robust variation system
     variationDefinitions: variations,
     createdAt: new Date(product.created * 1000),

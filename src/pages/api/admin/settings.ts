@@ -15,18 +15,6 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   const kv = env.SETTINGS_KV;
 
-  if (!kv) {
-    return new Response(
-      JSON.stringify({
-        error: 'SETTINGS_KV not configured. Add a KV namespace binding to wrangler.toml.',
-      }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();

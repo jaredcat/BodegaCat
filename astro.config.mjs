@@ -30,9 +30,9 @@ export default defineConfig({
       global: 'globalThis',
     },
     resolve: {
-      alias: import.meta.env.PROD && {
-        'react-dom/server': 'react-dom/server.edge',
-      },
+      alias: import.meta.env.PROD
+        ? { "react-dom/server": "react-dom/server.edge" }
+        : {},
     },
   },
   output: "server",

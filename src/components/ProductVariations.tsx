@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { addToCart } from "../lib/cartStore";
 import {
   createVariationState,
@@ -19,49 +19,53 @@ export default function ProductVariations({
   product,
   onVariationChange,
 }: Readonly<ProductVariationsProps>) {
-  const [selections, setSelections] = useState<Record<string, string>>({});
+  const autoSelections = useMemo(() => {
+    if (product.variationDefinitions.length !== 1) return {};
+    const variation = product.variationDefinitions[0];
+    if (variation.options.length !== 1) return {};
+    return { [variation.id]: variation.options[0].id };
+  }, [product.variationDefinitions]);
+
+  const [selections, setSelections] = useState(autoSelections);
   const [quantity, setQuantity] = useState(1);
-  const [variationState, setVariationState] = useState(() =>
-    createVariationState(product.variationDefinitions),
+
+  const variationState = useMemo(
+    () => createVariationState(product.variationDefinitions, selections),
+    [product.variationDefinitions, selections],
   );
 
-  // Update variation state when selections change
   useEffect(() => {
-    const newState = createVariationState(
-      product.variationDefinitions,
-      selections,
-    );
-    setVariationState(newState);
-
-    const totalPrice = product.basePrice + newState.totalPrice;
+    const totalPrice = product.basePrice + variationState.totalPrice;
     onVariationChange?.(selections, totalPrice);
   }, [
     selections,
-    product.variationDefinitions,
     product.basePrice,
     onVariationChange,
+    variationState.totalPrice,
   ]);
 
   // Handle selection changes
-  const handleSelectionChange = (variationId: string, optionId: string) => {
-    const newSelections = updateSelection(
-      product.variationDefinitions,
-      selections,
-      variationId,
-      optionId,
-    );
-    setSelections(newSelections);
-  };
+  const handleSelectionChange = useCallback(
+    (variationId: string, optionId: string) => {
+      setSelections((prev) =>
+        updateSelection(
+          product.variationDefinitions,
+          prev,
+          variationId,
+          optionId,
+        ),
+      );
+    },
+    [product.variationDefinitions],
+  );
 
-  // Auto-select if only one option available
+  // Keep selections in sync if product/definitions change and auto-selection applies.
   useEffect(() => {
-    if (product.variationDefinitions.length === 1) {
-      const variation = product.variationDefinitions[0];
-      if (variation.options.length === 1) {
-        handleSelectionChange(variation.id, variation.options[0].id);
-      }
-    }
-  }, [product.variationDefinitions]);
+    if (Object.keys(autoSelections).length === 0) return;
+    queueMicrotask(() => {
+      setSelections((prev) => ({ ...autoSelections, ...prev }));
+    });
+  }, [autoSelections]);
 
   // Handle add to cart
   const handleAddToCart = () => {

@@ -1,0 +1,52 @@
+---
+/**
+ * Paddleboard theme Hero component.
+ *
+ * Drop-in replacement for the default hero section. Adds a wave SVG at the
+ * bottom that transitions into the next section using --color-surface, so it
+ * works with any surface color without extra config.
+ *
+ * Usage in src/pages/index.astro (or any page):
+ *   import Hero from '../themes/paddleboard/Hero.astro';
+ *   <Hero title={siteConfig.name} description={siteConfig.description} ctaHref="/shop" ctaText="Shop Now" />
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  ctaText?: string;
+  ctaHref?: string;
+}
+
+const { title, description, ctaText, ctaHref } = Astro.props;
+---
+
+<section class="hero-section text-white" style="padding-bottom: calc(2.5rem + 60px)">
+  <div class="mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 lg:px-8 pb-0">
+    <h1 class="mb-6 text-4xl font-bold md:text-6xl">{title}</h1>
+    <p class="mx-auto mb-8 max-w-3xl text-xl opacity-90 md:text-2xl">{description}</p>
+    {ctaText && ctaHref && (
+      <a href={ctaHref} class="btn btn-invert px-8 py-4 text-lg font-semibold shadow-lg">
+        {ctaText}
+      </a>
+    )}
+  </div>
+
+  <!-- Wave — fill uses --color-surface so it always matches whatever comes next -->
+  <div class="hero-wave" aria-hidden="true">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1000 100"
+      preserveAspectRatio="none"
+    >
+      <path
+        style="fill: var(--color-surface)"
+        d="M421.9,6.5c22.6-2.5,51.5,0.4,75.5,5.3c23.6,4.9,70.9,23.5,100.5,35.7
+        c75.8,32.2,133.7,44.5,192.6,49.7c23.6,2.1,48.7,3.5,103.4-2.5
+        c54.7-6,106.2-25.6,106.2-25.6V0H0v30.3c0,0,72,32.6,158.4,30.5
+        c39.2-0.7,92.8-6.7,134-22.4c21.2-8.1,52.2-18.2,79.7-24.2
+        C399.3,7.9,411.6,7.5,421.9,6.5z"
+      />
+    </svg>
+  </div>
+</section>

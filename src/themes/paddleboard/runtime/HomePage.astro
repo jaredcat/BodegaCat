@@ -1,0 +1,59 @@
+---
+import type { SiteConfig } from '../../../types/product';
+import type { Translations } from '../../../i18n';
+
+import Hero from '../Hero.astro';
+import FeatureGrid from '../FeatureGrid.astro';
+import CTASection from '../CTASection.astro';
+import Footer from '../Footer.astro';
+
+interface Props {
+  siteConfig: SiteConfig;
+  t: Translations;
+  copyrightYear: number;
+}
+
+const { siteConfig, t, copyrightYear } = Astro.props;
+---
+
+<Hero
+  title={`Welcome to ${siteConfig.name}`}
+  description={siteConfig.description}
+  ctaHref="/shop"
+  ctaText={t.shop.shopNow}
+/>
+
+<FeatureGrid
+  heading={siteConfig.aboutTitle}
+  subheading={siteConfig.aboutText}
+  features={[
+    {
+      title: 'Safety First',
+      description: 'Trusted checkout, clear policies, and reliable support.',
+      icon: '🛟',
+      accentColor: 'primary',
+    },
+    {
+      title: 'Fast & Simple',
+      description: 'A streamlined shopping experience that gets out of your way.',
+      icon: '⚡',
+      accentColor: 'accent',
+    },
+    {
+      title: 'Built for Adventure',
+      description: 'Designed to look great on mobile and desktop.',
+      icon: '🌊',
+      accentColor: 'primary',
+    },
+  ]}
+/>
+
+<CTASection
+  title="Ready for your next adventure?"
+  description="Browse the shop and find something you’ll love."
+  buttonText={t.shop.shopNow}
+  buttonHref="/shop"
+/>
+
+<Footer siteConfig={siteConfig} t={t} copyrightYear={copyrightYear} />
+

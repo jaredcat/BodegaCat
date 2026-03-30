@@ -1,7 +1,8 @@
 import type { BodegaCatTheme } from './types';
 
-export const defaultTheme: BodegaCatTheme = {
-  name: 'Default',
+export const bodegaCatTheme: BodegaCatTheme = {
+  id: 'bodegacat',
+  name: 'Bodega Cat',
   description: 'Clean blue and gray theme with amber accents',
   author: 'Bodega Cat',
   version: '1.0.0',
@@ -13,6 +14,16 @@ export const defaultTheme: BodegaCatTheme = {
     '--color-surface': '#F9FAFB',
     '--color-text': '#111827',
     '--color-text-secondary': '#6B7280',
+    '--color-navbar-bg': '#FFFFFF',
+    '--color-navbar-text': '#111827',
+    '--color-hero-from': '#3B82F6',
+    '--color-hero-to': '#F59E0B',
+    '--color-footer-bg': '#F9FAFB',
+    '--color-footer-text': '#111827',
+    '--color-footer-text-muted': '#6B7280',
+    '--color-footer-border': '#E5E7EB',
+    '--color-cta-from': '#3B82F6',
+    '--color-cta-to': '#F59E0B',
     '--font-heading': '"Inter", system-ui, sans-serif',
     '--font-body': '"Inter", system-ui, sans-serif',
     '--border-radius': '0.5rem',

@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import ProductVariations from '@components/ProductVariations';
+import BookingEmbed from '@components/BookingEmbed';
 import { getSiteConfig } from '@config/site';
 import { formatPrice, getTranslations } from '../../i18n';
 import { getProducts } from '@lib/stripe';
@@ -103,46 +104,64 @@ const productType = siteConfig.productTypes.find(
           )
         }
 
-        <!-- Product Variations -->
-        {
-          product.variationDefinitions.length > 0 && (
-            <ProductVariations product={product} client:load />
+        <!-- Booking or Cart UI -->
+        {product.metadata.deliveryType === 'booking' && product.metadata.bookingConfig
+          ? (
+            <>
+              {/* Product Variations still shown for booking products if present */}
+              {product.variationDefinitions.length > 0 && (
+                <ProductVariations product={product} client:load />
+              )}
+              <BookingEmbed
+                config={product.metadata.bookingConfig}
+                productName={product.name}
+                client:load
+              />
+            </>
+          )
+          : (
+            <>
+              {/* Product Variations */}
+              {product.variationDefinitions.length > 0 && (
+                <ProductVariations product={product} client:load />
+              )}
+
+              {/* Add to Cart */}
+              <div class="border-t pt-6">
+                <div class="mb-4 flex items-center space-x-4">
+                  <label for="quantity" class="text-sm font-medium text-gray-700">
+                    {t.product.quantity}:
+                  </label>
+                  <div class="flex items-center rounded-md border">
+                    <button
+                      type="button"
+                      onclick="updateQuantity(-1)"
+                      class="px-3 py-1 text-gray-600 hover:text-gray-800">
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="quantity"
+                      value="1"
+                      min="1"
+                      class="w-16 border-0 text-center focus:ring-0"
+                    />
+                    <button
+                      type="button"
+                      onclick="updateQuantity(1)"
+                      class="px-3 py-1 text-gray-600 hover:text-gray-800">
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <button onclick="addToCart()" class="btn btn-primary w-full">
+                  {t.product.addToCart}
+                </button>
+              </div>
+            </>
           )
         }
-
-        <!-- Add to Cart -->
-        <div class="border-t pt-6">
-          <div class="mb-4 flex items-center space-x-4">
-            <label for="quantity" class="text-sm font-medium text-gray-700">
-              {t.product.quantity}:
-            </label>
-            <div class="flex items-center rounded-md border">
-              <button
-                type="button"
-                onclick="updateQuantity(-1)"
-                class="px-3 py-1 text-gray-600 hover:text-gray-800">
-                -
-              </button>
-              <input
-                type="number"
-                id="quantity"
-                value="1"
-                min="1"
-                class="w-16 border-0 text-center focus:ring-0"
-              />
-              <button
-                type="button"
-                onclick="updateQuantity(1)"
-                class="px-3 py-1 text-gray-600 hover:text-gray-800">
-                +
-              </button>
-            </div>
-          </div>
-
-          <button onclick="addToCart()" class="btn btn-primary w-full">
-            {t.product.addToCart}
-          </button>
-        </div>
 
         <!-- Product Metadata -->
         <div class="space-y-2 border-t pt-6">

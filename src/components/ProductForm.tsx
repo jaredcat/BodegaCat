@@ -1,5 +1,11 @@
 import { useState } from "react";
-import type { Product, ProductType } from "../types/product";
+import type {
+  BookingConfig,
+  DeliveryType,
+  Product,
+  ProductType,
+} from "../types/product";
+import { BOOKING_PROVIDERS, DELIVERY_TYPES } from "../types/product";
 import VariationManager from "./VariationManager";
 
 interface ProductFormProps {
@@ -27,6 +33,13 @@ export default function ProductForm({
     tags: product?.metadata.tags.join(", ") ?? "",
     active: product?.active ?? true,
     images: product?.images ?? [],
+    deliveryType: product?.metadata.deliveryType,
+  });
+
+  const [bookingConfig, setBookingConfig] = useState(() => {
+    const initial =
+      product?.metadata.bookingConfig ?? ({ provider: "calcom", eventSlug: "" } satisfies BookingConfig);
+    return initial;
   });
 
   const [variations, setVariations] = useState(
@@ -81,6 +94,9 @@ export default function ProductForm({
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
+        deliveryType: formData.deliveryType ?? undefined,
+        bookingConfig:
+          formData.deliveryType === "booking" ? bookingConfig : undefined,
       },
       active: formData.active,
       images: formData.images,
@@ -336,8 +352,209 @@ export default function ProductForm({
               Active (available for purchase)
             </label>
           </div>
+
+          <div>
+            <label
+              htmlFor="deliveryType"
+              className="mb-1 block text-sm font-medium"
+            >
+              Delivery Type
+            </label>
+            <select
+              id="deliveryType"
+              value={formData.deliveryType}
+              onChange={(e) => {
+                const next = e.target.value as DeliveryType | "";
+                setFormData((prev) => ({
+                  ...prev,
+                  deliveryType: next === "" ? undefined : next,
+                }));
+              }}
+              className="w-full rounded border border-gray-300 px-3 py-2"
+            >
+              <option value="">— not specified —</option>
+              {DELIVERY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
+
+      {/* Booking Configuration */}
+      {formData.deliveryType === "booking" && (
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h3 className="mb-4 text-sm font-semibold">Booking Configuration</h3>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="bookingProvider"
+                className="mb-1 block text-sm font-medium"
+              >
+                Provider
+              </label>
+              <select
+                id="bookingProvider"
+                value={bookingConfig.provider}
+                onChange={(e) => {
+                  const provider = e.target.value as BookingConfig["provider"];
+                  if (provider === "calcom") {
+                    setBookingConfig({ provider: "calcom", eventSlug: "" });
+                  } else if (provider === "calendly") {
+                    setBookingConfig({ provider: "calendly", url: "" });
+                  } else {
+                    setBookingConfig({ provider: "url", url: "" });
+                  }
+                }}
+                className="w-full rounded border border-gray-300 px-3 py-2"
+              >
+                {BOOKING_PROVIDERS.map((p) => (
+                  <option key={p} value={p}>
+                    {(() => {
+                      if (p === "calcom") return "Cal.com";
+                      if (p === "calendly") return "Calendly";
+                      return "Custom URL";
+                    })()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {bookingConfig.provider === "calcom" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="calcomEventSlug"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    Event Slug
+                  </label>
+                  <input
+                    id="calcomEventSlug"
+                    type="text"
+                    value={bookingConfig.eventSlug}
+                    onChange={(e) => {
+                    setBookingConfig((prev) => ({
+                      provider: "calcom",
+                      eventSlug: e.target.value,
+                      namespace:
+                        prev.provider === "calcom" ? prev.namespace : undefined,
+                    }));
+                    }}
+                    className="w-full rounded border border-gray-300 px-3 py-2"
+                    placeholder="yourname/event-name"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="calcomNamespace"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    Namespace (optional)
+                  </label>
+                  <input
+                    id="calcomNamespace"
+                    type="text"
+                    value={
+                      "namespace" in bookingConfig
+                        ? (bookingConfig.namespace ?? "")
+                        : ""
+                    }
+                    onChange={(e) => {
+                      setBookingConfig((prev) => ({
+                        provider: "calcom",
+                        eventSlug: prev.provider === "calcom" ? prev.eventSlug : "",
+                        namespace: e.target.value || undefined,
+                      }));
+                    }}
+                    className="w-full rounded border border-gray-300 px-3 py-2"
+                    placeholder="optional-namespace"
+                  />
+                </div>
+              </>
+            )}
+
+            {bookingConfig.provider === "calendly" && (
+              <div>
+                <label
+                  htmlFor="calendlyUrl"
+                  className="mb-1 block text-sm font-medium"
+                >
+                  Calendly URL
+                </label>
+                <input
+                  id="calendlyUrl"
+                  type="url"
+                  value={bookingConfig.url}
+                  onChange={(e) => {
+                    setBookingConfig({
+                      provider: "calendly",
+                      url: e.target.value,
+                    });
+                  }}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                  placeholder="https://calendly.com/yourname/event"
+                />
+              </div>
+            )}
+
+            {bookingConfig.provider === "url" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="bookingUrl"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    Booking URL
+                  </label>
+                  <input
+                    id="bookingUrl"
+                    type="url"
+                    value={bookingConfig.url}
+                    onChange={(e) => {
+                      setBookingConfig((prev) => ({
+                        provider: "url",
+                        url: e.target.value,
+                        label: prev.provider === "url" ? prev.label : undefined,
+                      }));
+                    }}
+                    className="w-full rounded border border-gray-300 px-3 py-2"
+                    placeholder="https://example.com/book"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="bookingUrlLabel"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    Button Label (optional)
+                  </label>
+                  <input
+                    id="bookingUrlLabel"
+                    type="text"
+                    value={
+                      "label" in bookingConfig
+                        ? (bookingConfig.label ?? "")
+                        : ""
+                    }
+                    onChange={(e) => {
+                      setBookingConfig((prev) => ({
+                        provider: "url",
+                        url: prev.provider === "url" ? prev.url : "",
+                        label: e.target.value || undefined,
+                      }));
+                    }}
+                    className="w-full rounded border border-gray-300 px-3 py-2"
+                    placeholder="Book Now"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Product Images */}
       <div>

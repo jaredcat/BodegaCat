@@ -2,22 +2,34 @@
 import { getSiteConfig } from '@config/site';
 import '@styles/global.css';
 import Cart from '../components/Cart';
+import type { SiteConfig } from '../types/product';
 
 export interface Props {
   title: string;
   description?: string;
   image?: string;
+  /** Pass the already-loaded siteConfig from SSR pages so KV theme overrides are applied. */
+  siteConfig?: SiteConfig;
+  /** If false, render using the default theme variables (useful for admin pages). */
+  useSiteTheme?: boolean;
 }
 
-const { title, description } = Astro.props;
-const siteConfig = getSiteConfig();
+const {
+  title,
+  description,
+  siteConfig: propSiteConfig,
+  useSiteTheme = true,
+} = Astro.props;
+// SSR pages pass their KV-loaded config; prerendered pages fall back to the build-time config.
+const siteConfig = propSiteConfig ?? getSiteConfig();
+const themeSiteConfig = useSiteTheme ? siteConfig : getSiteConfig();
 const pageDescription = description ?? siteConfig.description;
 const lang = siteConfig.locale.split('-')[0];
 
 // Build the CSS variable block from the active theme.
 // Any custom variables added by third-party themes are automatically included.
-const themeVars = Object.entries(siteConfig.theme.variables)
-  .map(([k, v]) => `  ${k}: ${v};`)
+const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
+  .map(([k, v]) => `  ${k}: ${String(v)};`)
   .join('\n');
 ---
 
@@ -31,10 +43,10 @@ const themeVars = Object.entries(siteConfig.theme.variables)
     <title>{title} — {siteConfig.name}</title>
 
     <!-- Theme CSS variables -->
-    <style set:html={`:root {\n${themeVars}\n}`} />
+    <style set:html={`:root {\n${activeThemeVars}\n}`} />
 
     <!-- Optional theme-provided CSS (fonts, animations, etc.) -->
-    {siteConfig.theme.css && <style set:html={siteConfig.theme.css} />}
+    {useSiteTheme && siteConfig.theme.css && <style set:html={siteConfig.theme.css} />}
   </head>
   <body>
     <slot />

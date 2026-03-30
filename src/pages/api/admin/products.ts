@@ -66,6 +66,12 @@ export const POST: APIRoute = async ({ request }) => {
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, ""),
+        ...(productData.metadata?.deliveryType && {
+          deliveryType: productData.metadata.deliveryType,
+        }),
+        ...(productData.metadata?.bookingConfig && {
+          bookingConfig: JSON.stringify(productData.metadata.bookingConfig),
+        }),
       },
       active: productData.active,
     });
@@ -145,6 +151,10 @@ export const PUT: APIRoute = async ({ request }) => {
         brand: productData.metadata?.brand ?? "",
         sku: productData.metadata?.sku ?? "",
         tags: JSON.stringify(productData.metadata?.tags ?? []),
+        deliveryType: productData.metadata?.deliveryType ?? "",
+        bookingConfig: productData.metadata?.bookingConfig
+          ? JSON.stringify(productData.metadata.bookingConfig)
+          : "",
       },
       active: productData.active,
     });

@@ -1,10 +1,12 @@
 // @ts-check
 import eslint from "@eslint/js";
 import eslintPluginAstro from "eslint-plugin-astro";
+import astroParser from "astro-eslint-parser";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import reactHooks from "eslint-plugin-react-hooks";
 import sonarjs from "eslint-plugin-sonarjs";
-import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
   eslint.configs.recommended,
@@ -12,6 +14,7 @@ export default defineConfig([
   tseslint.configs.stylisticTypeChecked,
   // @ts-expect-error - sonarjs v4 types are incompatible with ESLint flat config types
   sonarjs.configs.recommended,
+  reactHooks.configs.flat.recommended,
   jsxA11y.flatConfigs.recommended,
   eslintPluginAstro.configs.recommended,
   {
@@ -55,6 +58,10 @@ export default defineConfig([
   },
   {
     files: ["**/*.astro"],
+    languageOptions: {
+      // Ensure Astro files are parsed with the Astro parser, not the TS program parser.
+      parser: astroParser,
+    },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-misused-promises": "off",

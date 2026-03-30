@@ -1,0 +1,85 @@
+---
+/**
+ * Paddleboard theme Footer component.
+ *
+ * Dark footer (--color-footer-bg) with site name, description, quick links,
+ * social links, and a contact email. Matches the anybodypaddlesports.com footer.
+ *
+ * Usage:
+ *   import Footer from '../themes/paddleboard/Footer.astro';
+ *   <Footer siteConfig={siteConfig} t={t} copyrightYear={new Date().getFullYear()} />
+ */
+
+import type { SiteConfig } from '../../types/product';
+import type { Translations } from '../../i18n';
+
+interface Props {
+  siteConfig: SiteConfig;
+  t: Translations;
+  copyrightYear?: number;
+}
+
+const { siteConfig, t, copyrightYear = new Date().getFullYear() } = Astro.props;
+---
+
+<footer class="site-footer py-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <!-- Brand -->
+      <div>
+        <h3 class="mb-4 text-xl font-bold">{siteConfig.name}</h3>
+        <p class="mb-4 max-w-sm text-muted">{siteConfig.description}</p>
+        {siteConfig.contactEmail && (
+          <a
+            href={`mailto:${siteConfig.contactEmail}`}
+            class="text-muted hover:text-primary text-sm">
+            {siteConfig.contactEmail}
+          </a>
+        )}
+      </div>
+
+      <!-- Quick Links -->
+      {siteConfig.footerLinks.length > 0 && (
+        <div>
+          <h4 class="mb-4 text-lg font-semibold">{t.footer.quickLinks}</h4>
+          <ul class="space-y-2">
+            {siteConfig.footerLinks.map((link) => (
+              <li>
+                <a href={link.href} class="text-muted hover:text-primary transition-colors">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <!-- Social Links -->
+      {siteConfig.socialLinks.length > 0 && (
+        <div>
+          <h4 class="mb-4 text-lg font-semibold">Follow Us</h4>
+          <ul class="space-y-2">
+            {siteConfig.socialLinks.map((link) => (
+              <li>
+                <a
+                  href={link.url}
+                  class="text-muted hover:text-primary transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label ?? link.platform}>
+                  {link.label ?? link.platform}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    <div
+      class="mt-8 border-t pt-8 text-center text-muted"
+      style="border-color: var(--color-footer-border)">
+      &copy; {copyrightYear} {siteConfig.name}. {t.footer.allRightsReserved}
+    </div>
+  </div>
+</footer>

@@ -1,4 +1,3 @@
-import type Stripe from "stripe";
 import type { BodegaCatTheme } from "../themes/types";
 
 // ─── Product Types (variation templates) ──────────────────────────────────────
@@ -7,26 +6,11 @@ export interface ProductType {
   id: string;
   name: string;
   description?: string;
-  // Legacy variation system used by the ProductType template UI.
-  // New products should use ProductVariationDefinition[] instead.
-  variations: VariationConfig[];
-}
-
-/** @legacy Use ProductVariationDefinition for new product variations. */
-export interface VariationConfig {
-  id: string;
-  name: string;
-  type: "select" | "radio" | "checkbox";
-  required: boolean;
-  options: VariationOption[];
-}
-
-/** @legacy Use ProductVariationOptionDefinition for new variation options. */
-export interface VariationOption {
-  id: string;
-  name: string;
-  priceModifier: number;
-  enabled: boolean;
+  /**
+   * Variation template shown in the admin UI when creating/editing a product.
+   * Stored and edited using the same robust variation schema as products.
+   */
+  variationDefinitions: ProductVariationDefinition[];
 }
 
 // ─── Robust variation system ───────────────────────────────────────────────────
@@ -80,6 +64,25 @@ export interface ProductVariationOption {
 
 // ─── Product ───────────────────────────────────────────────────────────────────
 
+/**
+ * All supported delivery types. Add new values here — the type is derived
+ * automatically everywhere it's used.
+ */
+export const DELIVERY_TYPES = ["physical", "digital", "service", "booking"] as const;
+export type DeliveryType = (typeof DELIVERY_TYPES)[number];
+
+/**
+ * All supported booking providers. Add new values here — the discriminated
+ * union type is derived automatically.
+ */
+export const BOOKING_PROVIDERS = ["calcom", "calendly", "url"] as const;
+export type BookingProvider = (typeof BOOKING_PROVIDERS)[number];
+
+export type BookingConfig =
+  | { provider: "calcom"; eventSlug: string; namespace?: string }
+  | { provider: "calendly"; url: string }
+  | { provider: "url"; url: string; label?: string };
+
 export interface ProductMetadata {
   productTypeId: string;
   tags: string[];
@@ -87,7 +90,12 @@ export interface ProductMetadata {
   brand?: string;
   sku?: string;
   /** How the product is delivered. Determines which fields and UI are shown. */
-  deliveryType?: "physical" | "digital" | "service";
+  deliveryType?: DeliveryType;
+  /**
+   * External booking provider config. Only used when deliveryType is 'booking'.
+   * The product page renders a BookingEmbed instead of the Add to Cart flow.
+   */
+  bookingConfig?: BookingConfig;
   /** Physical dimensions — only relevant when deliveryType is 'physical'. */
   weight?: number;
   dimensions?: {
@@ -107,9 +115,6 @@ export interface Product {
   slug: string;
   basePrice: number;
   currency: string;
-  stripeProductId?: string;
-  stripePriceId?: string;
-  prices?: Stripe.Price[];
   variationDefinitions: ProductVariationDefinition[];
   createdAt: Date;
   updatedAt: Date;
@@ -147,6 +152,7 @@ export interface SocialLink {
   /** Accessible label for screen readers. Defaults to platform if omitted. */
   label?: string;
 }
+
 
 export interface SiteConfig {
   // ─── Identity ───────────────────────────────────────────────────────────

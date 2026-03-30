@@ -18,6 +18,12 @@
  *   In src/config/site.ts, set `theme: myTheme` in your site config.
  */
 export interface BodegaCatTheme {
+  /**
+   * Stable identifier for the theme (useful for routing to theme runtimes).
+   * For built-in themes this matches the built-in theme key (e.g. 'voidkitten').
+   * Third-party themes should use a package-scoped id (e.g. '@acme/my-theme').
+   */
+  id?: string;
   /** Display name shown in the admin panel */
   name: string;
   description?: string;
@@ -57,6 +63,34 @@ export interface ThemeVariables {
   '--color-surface': string;
   '--color-text': string;
   '--color-text-secondary': string;
+
+  // ─── Navigation ───────────────────────────────────────────────────────────
+  /** Navbar background color. Defaults to white if unset. */
+  '--color-navbar-bg': string;
+  /** Navbar foreground/text color. Defaults to --color-text if unset. */
+  '--color-navbar-text': string;
+
+  // ─── Hero Section ─────────────────────────────────────────────────────────
+  /** Start color of the hero gradient. Defaults to --color-primary. */
+  '--color-hero-from': string;
+  /** End color of the hero gradient. Defaults to --color-accent. */
+  '--color-hero-to': string;
+
+  // ─── Footer ───────────────────────────────────────────────────────────────
+  /** Footer background color. Defaults to --color-surface. */
+  '--color-footer-bg': string;
+  /** Footer text color. Defaults to --color-text. */
+  '--color-footer-text': string;
+  /** Footer muted/secondary text (links, sub-labels). */
+  '--color-footer-text-muted': string;
+  /** Footer top border color. */
+  '--color-footer-border': string;
+
+  // ─── CTA Section ──────────────────────────────────────────────────────────
+  /** Start color of the CTA banner gradient. Defaults to --color-primary. */
+  '--color-cta-from': string;
+  /** End color of the CTA banner gradient. Defaults to --color-accent. */
+  '--color-cta-to': string;
 
   // ─── Typography ───────────────────────────────────────────────────────────
   /** Full font-family stack for headings, e.g. "Playfair Display, serif" */

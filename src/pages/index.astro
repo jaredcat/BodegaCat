@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import { Image } from 'astro:assets';
 import Navbar from '../components/Navbar';
 import { getEffectiveConfig } from '../config/site';
@@ -6,6 +8,7 @@ import { getTranslations, formatPrice } from '../i18n';
 import Layout from '../layouts/Layout.astro';
 import { getProducts } from '../lib/stripe';
 import { env } from 'cloudflare:workers';
+import ThemeHomePage from '../themes/runtime/HomePage.astro';
 
 const kv = env.SETTINGS_KV;
 const siteConfig = await getEffectiveConfig(kv);
@@ -16,23 +19,24 @@ const featuredProducts = products.slice(0, 6);
 const copyrightYear = new Date().getFullYear();
 ---
 
-<Layout title="Home">
+<Layout title="Home" siteConfig={siteConfig}>
   <Navbar siteConfig={siteConfig} client:load />
 
-  <!-- Hero Section -->
-  <section class="from-primary to-accent bg-gradient-to-r py-20 text-white">
-    <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-      <h1 class="mb-6 text-4xl font-bold md:text-6xl">
-        Welcome to {siteConfig.name}
-      </h1>
-      <p class="mx-auto mb-8 max-w-3xl text-xl md:text-2xl">
-        {siteConfig.description}
-      </p>
-      <a href="/shop" class="btn text-primary bg-white px-8 py-3 text-lg hover:bg-gray-100">
-        {t.shop.shopNow}
-      </a>
-    </div>
-  </section>
+  <ThemeHomePage siteConfig={siteConfig} t={t} copyrightYear={copyrightYear}>
+    <!-- Default (theme-agnostic) homepage sections -->
+      <section class="hero-section py-20 text-white">
+        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <h1 class="mb-6 text-4xl font-bold md:text-6xl">
+            Welcome to {siteConfig.name}
+          </h1>
+          <p class="mx-auto mb-8 max-w-3xl text-xl opacity-90 md:text-2xl">
+            {siteConfig.description}
+          </p>
+          <a href="/shop" class="btn btn-invert px-8 py-3 text-lg">
+            {t.shop.shopNow}
+          </a>
+        </div>
+      </section>
 
   <!-- Featured Products -->
   <section class="bg-surface py-16">
@@ -74,83 +78,83 @@ const copyrightYear = new Date().getFullYear();
         )
       }
 
-      {
-        products.length > 6 && (
-          <div class="mt-12 text-center">
-            <a href="/shop" class="btn btn-outline px-8 py-3">
-              {t.shop.viewAll}
-            </a>
-          </div>
-        )
-      }
+      {products.length > 6 && (
+        <div class="mt-12 text-center">
+          <a href="/shop" class="btn btn-outline px-8 py-3">
+            {t.shop.viewAll}
+          </a>
+        </div>
+      )}
     </div>
   </section>
 
-  <!-- About Section -->
-  <section class="bg-background py-16">
-    <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-      <h2 class="mb-8 text-3xl font-bold">{siteConfig.aboutTitle}</h2>
-      <p class="text-muted text-lg leading-relaxed">{siteConfig.aboutText}</p>
-    </div>
-  </section>
+    <section class="bg-background py-16">
+      <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+        <h2 class="mb-8 text-3xl font-bold">{siteConfig.aboutTitle}</h2>
+        <p class="text-muted text-lg leading-relaxed">{siteConfig.aboutText}</p>
+      </div>
+    </section>
 
   <!-- Footer -->
-  <footer class="bg-surface border-t border-gray-200 py-12">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-        <div>
-          <h3 class="mb-4 text-lg font-semibold">{siteConfig.name}</h3>
-          <p class="text-muted">{siteConfig.description}</p>
-          {siteConfig.contactEmail && (
-            <a
-              href={`mailto:${siteConfig.contactEmail}`}
-              class="text-muted hover:text-primary mt-2 block text-sm">
-              {siteConfig.contactEmail}
-            </a>
+    <footer class="site-footer border-t py-12">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div>
+            <h3 class="mb-4 text-lg font-semibold">{siteConfig.name}</h3>
+            <p class="text-muted">{siteConfig.description}</p>
+            {siteConfig.contactEmail && (
+              <a
+                href={`mailto:${siteConfig.contactEmail}`}
+                class="text-muted hover:text-primary mt-2 block text-sm">
+                {siteConfig.contactEmail}
+              </a>
+            )}
+          </div>
+
+          {siteConfig.footerLinks.length > 0 && (
+            <div>
+              <h3 class="mb-4 text-lg font-semibold">{t.footer.quickLinks}</h3>
+              <ul class="space-y-2">
+                {siteConfig.footerLinks.map((link) => (
+                  <li>
+                    <a href={link.href} class="text-muted hover:text-primary">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {siteConfig.socialLinks.length > 0 && (
+            <div>
+              <h3 class="mb-4 text-lg font-semibold">Follow Us</h3>
+              <ul class="space-y-2">
+                {siteConfig.socialLinks.map((link) => (
+                  <li>
+                    <a
+                      href={link.url}
+                      class="text-muted hover:text-primary"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label ?? link.platform}>
+                      {link.label ?? link.platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
 
-        {siteConfig.footerLinks.length > 0 && (
-          <div>
-            <h3 class="mb-4 text-lg font-semibold">{t.footer.quickLinks}</h3>
-            <ul class="space-y-2">
-              {siteConfig.footerLinks.map((link) => (
-                <li>
-                  <a href={link.href} class="text-muted hover:text-primary">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {siteConfig.socialLinks.length > 0 && (
-          <div>
-            <h3 class="mb-4 text-lg font-semibold">Follow Us</h3>
-            <ul class="space-y-2">
-              {siteConfig.socialLinks.map((link) => (
-                <li>
-                  <a
-                    href={link.url}
-                    class="text-muted hover:text-primary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={link.label ?? link.platform}>
-                    {link.label ?? link.platform}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div
+          class="mt-8 border-t pt-8 text-center"
+          style="border-color: var(--color-footer-border)">
+          <p class="text-muted">
+            &copy; {copyrightYear} {siteConfig.name}. {t.footer.allRightsReserved}
+          </p>
+        </div>
       </div>
-
-      <div class="mt-8 border-t border-gray-200 pt-8 text-center">
-        <p class="text-muted">
-          &copy; {copyrightYear} {siteConfig.name}. {t.footer.allRightsReserved}
-        </p>
-      </div>
-    </div>
-  </footer>
+    </footer>
+  </ThemeHomePage>
 </Layout>

@@ -1,0 +1,36 @@
+---
+/**
+ * Paddleboard theme CTASection component.
+ *
+ * A gradient banner (--color-cta-from → --color-cta-to) with a centered
+ * heading, description, and inverted (white) CTA button.
+ *
+ * Usage:
+ *   import CTASection from '../themes/paddleboard/CTASection.astro';
+ *   <CTASection
+ *     title="Ready for Your Adventure?"
+ *     description="Book your experience today."
+ *     buttonText="Book Now"
+ *     buttonHref="/shop"
+ *   />
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  buttonText: string;
+  buttonHref: string;
+}
+
+const { title, description, buttonText, buttonHref } = Astro.props;
+---
+
+<section class="cta-section py-16 lg:py-24">
+  <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+    <h2 class="mb-4 text-3xl font-bold md:text-4xl">{title}</h2>
+    <p class="mb-8 text-xl opacity-90">{description}</p>
+    <a href={buttonHref} class="btn btn-invert px-8 py-4 text-lg font-semibold shadow-lg">
+      {buttonText}
+    </a>
+  </div>
+</section>

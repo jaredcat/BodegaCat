@@ -1,6 +1,6 @@
 import { STRIPE_PUBLISHABLE_KEY } from "astro:env/client";
 import { STRIPE_WEBHOOK_SECRET } from "astro:env/server";
-import { defaultTheme } from "../themes/default";
+import { bodegaCatTheme } from "../themes/bodegacat";
 import type { BodegaCatTheme } from "../themes/types";
 import type {
   EditableSettings,
@@ -19,31 +19,35 @@ export const exampleProductTypes: ProductType[] = [
     id: "clothing",
     name: "Clothing",
     description: "Apparel and accessories",
-    variations: [
+    variationDefinitions: [
       {
         id: "size",
-        name: "Size",
-        type: "select",
+        name: "size",
+        displayName: "Size",
+        type: "independent",
+        order: 1,
         required: true,
         options: [
-          { id: "xs", name: "XS", priceModifier: 0, enabled: true },
-          { id: "s", name: "S", priceModifier: 0, enabled: true },
-          { id: "m", name: "M", priceModifier: 0, enabled: true },
-          { id: "l", name: "L", priceModifier: 0, enabled: true },
-          { id: "xl", name: "XL", priceModifier: 2, enabled: true },
-          { id: "xxl", name: "XXL", priceModifier: 4, enabled: true },
+          { id: "xs", name: "xs", displayName: "XS", priceModifier: 0, available: true },
+          { id: "s", name: "s", displayName: "S", priceModifier: 0, available: true },
+          { id: "m", name: "m", displayName: "M", priceModifier: 0, available: true },
+          { id: "l", name: "l", displayName: "L", priceModifier: 0, available: true },
+          { id: "xl", name: "xl", displayName: "XL", priceModifier: 200, available: true },
+          { id: "xxl", name: "xxl", displayName: "XXL", priceModifier: 400, available: true },
         ],
       },
       {
         id: "color",
-        name: "Color",
-        type: "select",
+        name: "color",
+        displayName: "Color",
+        type: "independent",
+        order: 2,
         required: true,
         options: [
-          { id: "black", name: "Black", priceModifier: 0, enabled: true },
-          { id: "white", name: "White", priceModifier: 0, enabled: true },
-          { id: "navy", name: "Navy", priceModifier: 0, enabled: true },
-          { id: "gray", name: "Gray", priceModifier: 0, enabled: true },
+          { id: "black", name: "black", displayName: "Black", priceModifier: 0, available: true },
+          { id: "white", name: "white", displayName: "White", priceModifier: 0, available: true },
+          { id: "navy", name: "navy", displayName: "Navy", priceModifier: 0, available: true },
+          { id: "gray", name: "gray", displayName: "Gray", priceModifier: 0, available: true },
         ],
       },
     ],
@@ -52,28 +56,32 @@ export const exampleProductTypes: ProductType[] = [
     id: "prints",
     name: "Prints",
     description: "Art prints and posters",
-    variations: [
+    variationDefinitions: [
       {
         id: "size",
-        name: "Size",
-        type: "select",
+        name: "size",
+        displayName: "Size",
+        type: "independent",
+        order: 1,
         required: true,
         options: [
-          { id: "8x10", name: '8" x 10"', priceModifier: 0, enabled: true },
-          { id: "11x14", name: '11" x 14"', priceModifier: 5, enabled: true },
-          { id: "16x20", name: '16" x 20"', priceModifier: 15, enabled: true },
-          { id: "24x36", name: '24" x 36"', priceModifier: 25, enabled: true },
+          { id: "8x10", name: "8x10", displayName: '8" x 10"', priceModifier: 0, available: true },
+          { id: "11x14", name: "11x14", displayName: '11" x 14"', priceModifier: 500, available: true },
+          { id: "16x20", name: "16x20", displayName: '16" x 20"', priceModifier: 1500, available: true },
+          { id: "24x36", name: "24x36", displayName: '24" x 36"', priceModifier: 2500, available: true },
         ],
       },
       {
         id: "material",
-        name: "Material",
-        type: "select",
+        name: "material",
+        displayName: "Material",
+        type: "independent",
+        order: 2,
         required: true,
         options: [
-          { id: "paper", name: "Paper", priceModifier: 0, enabled: true },
-          { id: "canvas", name: "Canvas", priceModifier: 10, enabled: true },
-          { id: "vinyl", name: "Vinyl", priceModifier: 5, enabled: true },
+          { id: "paper", name: "paper", displayName: "Paper", priceModifier: 0, available: true },
+          { id: "canvas", name: "canvas", displayName: "Canvas", priceModifier: 1000, available: true },
+          { id: "vinyl", name: "vinyl", displayName: "Vinyl", priceModifier: 500, available: true },
         ],
       },
     ],
@@ -82,7 +90,7 @@ export const exampleProductTypes: ProductType[] = [
     id: "digital",
     name: "Digital",
     description: "Digital downloads",
-    variations: [],
+    variationDefinitions: [],
   },
 ];
 
@@ -113,7 +121,7 @@ export const defaultSiteConfig: SiteConfig = {
     { label: "Contact", href: "/contact" },
   ],
 
-  theme: defaultTheme,
+  theme: bodegaCatTheme,
 
   // Ship empty by default. Add to exampleProductTypes and import here if you
   // want pre-built variation templates available in the admin UI.
@@ -180,7 +188,6 @@ export async function getEffectiveConfig(
   kv: KVNamespace | undefined,
 ): Promise<SiteConfig> {
   const base = getSiteConfig();
-  if (!kv) return base;
   const overrides: EditableSettings = await getStoredSettings(kv);
   return mergeSettings(base, overrides);
 }
@@ -200,7 +207,16 @@ function mergeSettings(base: SiteConfig, overrides: EditableSettings): SiteConfi
   if (overrides.contactEmail !== undefined) merged.contactEmail = overrides.contactEmail;
   if (overrides.socialLinks !== undefined) merged.socialLinks = overrides.socialLinks;
   if (overrides.footerLinks !== undefined) merged.footerLinks = overrides.footerLinks;
-  if (overrides.theme !== undefined) merged.theme = overrides.theme;
+  if (overrides.theme !== undefined) {
+    merged.theme = {
+      ...base.theme,
+      ...overrides.theme,
+      variables: {
+        ...base.theme.variables,
+        ...overrides.theme.variables,
+      },
+    };
+  }
 
   return merged;
 }
