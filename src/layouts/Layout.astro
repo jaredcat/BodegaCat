@@ -9,50 +9,35 @@ export interface Props {
   image?: string;
 }
 
-const { title, description = 'Your friendly neighborhood store' } = Astro.props;
+const { title, description } = Astro.props;
 const siteConfig = getSiteConfig();
+const pageDescription = description ?? siteConfig.description;
+const lang = siteConfig.locale.split('-')[0];
+
+// Build the CSS variable block from the active theme.
+// Any custom variables added by third-party themes are automatically included.
+const themeVars = Object.entries(siteConfig.theme.variables)
+  .map(([k, v]) => `  ${k}: ${v};`)
+  .join('\n');
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
+    <meta name="description" content={pageDescription} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href={siteConfig.favicon ?? '/favicon.svg'}
-    />
-    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href={siteConfig.favicon ?? '/favicon.svg'} />
+    <title>{title} — {siteConfig.name}</title>
+
+    <!-- Theme CSS variables -->
+    <style set:html={`:root {\n${themeVars}\n}`} />
+
+    <!-- Optional theme-provided CSS (fonts, animations, etc.) -->
+    {siteConfig.theme.css && <style set:html={siteConfig.theme.css} />}
   </head>
   <body>
     <slot />
-
-    <!-- Cart Component -->
     <Cart client:only="react" />
   </body>
 </html>
-
-{/* eslint-disable astro/no-unused-define-vars-in-style */}
-<style
-  define:vars={{
-    '--color-primary': siteConfig.theme.colors.primary,
-    '--color-secondary': siteConfig.theme.colors.secondary,
-    '--color-accent': siteConfig.theme.colors.accent,
-    '--color-background': siteConfig.theme.colors.background,
-    '--color-surface': siteConfig.theme.colors.surface,
-    '--color-text': siteConfig.theme.colors.text,
-    '--color-text-secondary': siteConfig.theme.colors.textSecondary,
-    '--font-heading': siteConfig.theme.fonts.heading,
-    '--font-body': siteConfig.theme.fonts.body,
-    '--border-radius': siteConfig.theme.borderRadius,
-    '--spacing-xs': siteConfig.theme.spacing.xs,
-    '--spacing-sm': siteConfig.theme.spacing.sm,
-    '--spacing-md': siteConfig.theme.spacing.md,
-    '--spacing-lg': siteConfig.theme.spacing.lg,
-    '--spacing-xl': siteConfig.theme.spacing.xl,
-  }}
->
-  @import '../styles/global.css';
-</style>

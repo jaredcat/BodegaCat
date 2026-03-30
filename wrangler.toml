@@ -1,6 +1,5 @@
 name = "bodegacat"
-main = "dist/_worker.js/index.js"
-compatibility_date = "2025-05-05"
+compatibility_date = "2026-02-24"
 compatibility_flags = ["nodejs_compat"]
 
 [env.production]
@@ -19,7 +18,14 @@ custom_domain = true
 [vars]
 NODE_ENV = "production"
 
-# KV bindings for sessions
+# KV: admin settings (store name, theme, copy, etc.)
+# Create with: wrangler kv namespace create SETTINGS_KV
+[[kv_namespaces]]
+binding = "SETTINGS_KV"
+id = "placeholder-settings-id"
+preview_id = "placeholder-settings-preview-id"
+
+# KV: sessions (reserved for future use)
 [[kv_namespaces]]
 binding = "SESSION"
 id = "placeholder-id"

@@ -1,61 +1,20 @@
 import { STRIPE_PUBLISHABLE_KEY } from "astro:env/client";
 import { STRIPE_WEBHOOK_SECRET } from "astro:env/server";
-import type { ProductType, SiteConfig, ThemeConfig } from "../types/product";
+import { defaultTheme } from "../themes/default";
+import type { BodegaCatTheme } from "../themes/types";
+import type {
+  EditableSettings,
+  KVNamespace,
+} from "../lib/settings";
+import { getStoredSettings } from "../lib/settings";
+import type { ProductType, SiteConfig } from "../types/product";
 
-// Default theme configuration
-export const defaultTheme: ThemeConfig = {
-  name: "default",
-  colors: {
-    primary: "#3B82F6",
-    secondary: "#6B7280",
-    accent: "#F59E0B",
-    background: "#FFFFFF",
-    surface: "#F9FAFB",
-    text: "#111827",
-    textSecondary: "#6B7280",
-  },
-  fonts: {
-    heading: "Inter, system-ui, sans-serif",
-    body: "Inter, system-ui, sans-serif",
-  },
-  borderRadius: "0.5rem",
-  spacing: {
-    xs: "0.25rem",
-    sm: "0.5rem",
-    md: "1rem",
-    lg: "1.5rem",
-    xl: "2rem",
-  },
-};
+// ─── Example variation templates ──────────────────────────────────────────────
+// These are starting-point templates shown in the admin UI when creating a product.
+// They are NOT applied automatically. Rename/replace/remove them to suit your store.
+// An empty array means admins start from a blank variation sheet.
 
-// Dark theme
-export const darkTheme: ThemeConfig = {
-  name: "dark",
-  colors: {
-    primary: "#60A5FA",
-    secondary: "#9CA3AF",
-    accent: "#FBBF24",
-    background: "#111827",
-    surface: "#1F2937",
-    text: "#F9FAFB",
-    textSecondary: "#D1D5DB",
-  },
-  fonts: {
-    heading: "Inter, system-ui, sans-serif",
-    body: "Inter, system-ui, sans-serif",
-  },
-  borderRadius: "0.5rem",
-  spacing: {
-    xs: "0.25rem",
-    sm: "0.5rem",
-    md: "1rem",
-    lg: "1.5rem",
-    xl: "2rem",
-  },
-};
-
-// Default product types that can be customized
-export const defaultProductTypes: ProductType[] = [
+export const exampleProductTypes: ProductType[] = [
   {
     id: "clothing",
     name: "Clothing",
@@ -127,47 +86,141 @@ export const defaultProductTypes: ProductType[] = [
   },
 ];
 
-// Default site configuration
+// ─── Default site configuration ───────────────────────────────────────────────
+// These values are used when no environment variable or KV override exists.
+// Override any of these using environment variables (SITE_NAME, etc.) or the
+// admin settings UI (stored in Cloudflare KV).
+
 export const defaultSiteConfig: SiteConfig = {
-  name: "Bodega Cat",
+  name: "My Store",
   description: "Your friendly neighborhood store",
   logo: "/logo.png",
   favicon: "/favicon.ico",
+  contactEmail: undefined,
+
+  locale: "en-US",
+  currency: "USD",
+
+  shopTagline: "Discover our collection of products",
+  aboutTitle: "About Us",
+  aboutText:
+    "Welcome to our store. We're passionate about bringing you quality products.",
+
+  socialLinks: [],
+  footerLinks: [
+    { label: "Shop", href: "/shop" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
+  ],
+
   theme: defaultTheme,
-  productTypes: defaultProductTypes,
+
+  // Ship empty by default. Add to exampleProductTypes and import here if you
+  // want pre-built variation templates available in the admin UI.
+  productTypes: [],
+
   stripe: {
     publishableKey: STRIPE_PUBLISHABLE_KEY,
     webhookSecret: STRIPE_WEBHOOK_SECRET,
   },
 };
 
-// Function to get site config (can be extended to load from database or file)
+// ─── Config loading ────────────────────────────────────────────────────────────
+
+/**
+ * Returns the base site config, merging environment variable overrides over
+ * the coded defaults. This is synchronous and safe to use in statically
+ * prerendered pages (no KV access).
+ *
+ * For dynamic pages that should pick up admin UI changes, use
+ * getEffectiveConfig(kv) instead.
+ */
 export function getSiteConfig(): SiteConfig {
-  // In a real implementation, this would load from a database or configuration file
-  // For now, we'll use environment variables to override defaults
   const config = { ...defaultSiteConfig };
 
-  // Use process.env for these optional environment variables since they're not in our schema
-  const siteName = process.env.SITE_NAME;
-  const siteDescription = process.env.SITE_DESCRIPTION;
-  const siteLogo = process.env.SITE_LOGO;
-  const siteFavicon = process.env.SITE_FAVICON;
+  // Environment variable overrides (optional — set these in .env or Cloudflare dashboard)
+  if (process.env.SITE_NAME) config.name = process.env.SITE_NAME;
+  if (process.env.SITE_DESCRIPTION) config.description = process.env.SITE_DESCRIPTION;
+  if (process.env.SITE_LOGO) config.logo = process.env.SITE_LOGO;
+  if (process.env.SITE_FAVICON) config.favicon = process.env.SITE_FAVICON;
+  if (process.env.SITE_LOCALE) config.locale = process.env.SITE_LOCALE;
+  if (process.env.SITE_CURRENCY) config.currency = process.env.SITE_CURRENCY;
+  if (process.env.SITE_CONTACT_EMAIL) config.contactEmail = process.env.SITE_CONTACT_EMAIL;
 
-  if (siteName) {
-    config.name = siteName;
-  }
-
-  if (siteDescription) {
-    config.description = siteDescription;
-  }
-
-  if (siteLogo) {
-    config.logo = siteLogo;
-  }
-
-  if (siteFavicon) {
-    config.favicon = siteFavicon;
+  // Theme color overrides via environment variables
+  const primaryColor = process.env.SITE_PRIMARY_COLOR;
+  const secondaryColor = process.env.SITE_SECONDARY_COLOR;
+  const accentColor = process.env.SITE_ACCENT_COLOR;
+  if (primaryColor || secondaryColor || accentColor) {
+    config.theme = {
+      ...config.theme,
+      variables: {
+        ...config.theme.variables,
+        ...(primaryColor ? { '--color-primary': primaryColor } : {}),
+        ...(secondaryColor ? { '--color-secondary': secondaryColor } : {}),
+        ...(accentColor ? { '--color-accent': accentColor } : {}),
+      },
+    };
   }
 
   return config;
+}
+
+/**
+ * Returns the site config with Cloudflare KV overrides merged on top.
+ * Use this in dynamic (SSR) pages so admin UI changes take effect immediately
+ * without requiring a redeploy.
+ *
+ * For statically prerendered pages, use getSiteConfig() — KV is not available
+ * at build time and those pages update on the next deploy anyway.
+ *
+ * @param kv - The SETTINGS_KV binding from Astro.locals.runtime.env
+ */
+export async function getEffectiveConfig(
+  kv: KVNamespace | undefined,
+): Promise<SiteConfig> {
+  const base = getSiteConfig();
+  if (!kv) return base;
+  const overrides: EditableSettings = await getStoredSettings(kv);
+  return mergeSettings(base, overrides);
+}
+
+function mergeSettings(base: SiteConfig, overrides: EditableSettings): SiteConfig {
+  const merged = { ...base };
+
+  if (overrides.name !== undefined) merged.name = overrides.name;
+  if (overrides.description !== undefined) merged.description = overrides.description;
+  if (overrides.logo !== undefined) merged.logo = overrides.logo;
+  if (overrides.favicon !== undefined) merged.favicon = overrides.favicon;
+  if (overrides.locale !== undefined) merged.locale = overrides.locale;
+  if (overrides.currency !== undefined) merged.currency = overrides.currency;
+  if (overrides.shopTagline !== undefined) merged.shopTagline = overrides.shopTagline;
+  if (overrides.aboutTitle !== undefined) merged.aboutTitle = overrides.aboutTitle;
+  if (overrides.aboutText !== undefined) merged.aboutText = overrides.aboutText;
+  if (overrides.contactEmail !== undefined) merged.contactEmail = overrides.contactEmail;
+  if (overrides.socialLinks !== undefined) merged.socialLinks = overrides.socialLinks;
+  if (overrides.footerLinks !== undefined) merged.footerLinks = overrides.footerLinks;
+  if (overrides.theme !== undefined) merged.theme = overrides.theme;
+
+  return merged;
+}
+
+// ─── Theme helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Returns a BodegaCatTheme with specific color overrides applied.
+ * Useful for quick customization without creating a full theme package.
+ */
+export function customizeTheme(
+  base: BodegaCatTheme,
+  overrides: Partial<BodegaCatTheme["variables"]>,
+): BodegaCatTheme {
+  // Filter undefined values so Partial<ThemeVariables> doesn't produce string | undefined
+  const definedOverrides = Object.fromEntries(
+    Object.entries(overrides).filter(([, v]) => v !== undefined),
+  ) as unknown as BodegaCatTheme["variables"];
+  return {
+    ...base,
+    variables: { ...base.variables, ...definedOverrides },
+  };
 }

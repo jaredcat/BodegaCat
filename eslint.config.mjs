@@ -4,11 +4,13 @@ import eslintPluginAstro from "eslint-plugin-astro";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import sonarjs from "eslint-plugin-sonarjs";
 import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(
+export default defineConfig([
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
+  // @ts-expect-error - sonarjs v4 types are incompatible with ESLint flat config types
   sonarjs.configs.recommended,
   jsxA11y.flatConfigs.recommended,
   eslintPluginAstro.configs.recommended,
@@ -61,4 +63,4 @@ export default tseslint.config(
       "jsx-a11y/label-has-associated-control": "off",
     },
   },
-);
+]);

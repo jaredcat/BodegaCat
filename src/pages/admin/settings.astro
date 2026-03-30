@@ -1,182 +1,491 @@
 ---
 export const prerender = false;
 
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
+import { builtInThemes } from '../../themes';
+import { defaultTheme } from '../../themes/default';
+import { darkTheme } from '../../themes/dark';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
+const hasKV = !!kv;
+
+const builtInThemeMap: Record<string, string> = {
+  default: defaultTheme.name,
+  dark: darkTheme.name,
+};
+
+// Determine which built-in theme is currently active (if any)
+const activeBuiltInTheme =
+  builtInThemes.find((t) => builtInThemeMap[t] === siteConfig.theme.name) ??
+  'default';
+
+// Cast for safe runtime string indexing of CSS variables in the template
+const themeVars = siteConfig.theme.variables as unknown as Record<string, string>;
 ---
 
 <Layout title="Store Settings">
   <div class="min-h-screen bg-gray-50">
-    <!-- Admin Header -->
     <header class="bg-white shadow">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between py-6">
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Store Settings</h1>
             <p class="text-gray-600">
-              Configure your store settings and preferences
+              Configure your store's identity, copy, theme, and localization
             </p>
           </div>
-          <a href="/admin" class="btn btn-outline"> Back to Dashboard </a>
+          <a href="/admin" class="btn btn-outline">Back to Dashboard</a>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <!-- Store Information -->
-      <div class="mb-8 rounded-lg bg-white shadow">
-        <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-medium text-gray-900">Store Information</h2>
+    {
+      !hasKV && (
+        <div class="mx-auto max-w-4xl px-4 pt-6 sm:px-6 lg:px-8">
+          <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p class="text-sm font-medium text-amber-800">
+              Settings KV not configured — changes cannot be saved yet.
+            </p>
+            <p class="mt-1 text-sm text-amber-700">
+              Add a <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code> binding
+              to your <code class="rounded bg-amber-100 px-1">wrangler.toml</code> to
+              enable live settings editing. Until then, use environment variables to
+              configure your store (see the deployment guide).
+            </p>
+          </div>
         </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      )
+    }
+
+    <main class="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+      <form id="settings-form" class="space-y-8">
+
+        <!-- ── Store Identity ─────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Store Identity</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Basic information shown across your storefront.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
             <div>
-              <label
-                for="store-name"
-                class="mb-2 block text-sm font-medium text-gray-700">
+              <label for="name" class="mb-2 block text-sm font-medium text-gray-700">
                 Store Name
               </label>
               <input
-                id="store-name"
+                id="name"
+                name="name"
                 type="text"
                 value={siteConfig.name}
                 class="input"
-                placeholder="Your store name"
+                placeholder="My Store"
               />
             </div>
             <div>
-              <label
-                for="store-description"
-                class="mb-2 block text-sm font-medium text-gray-700">
-                Store Description
+              <label for="description" class="mb-2 block text-sm font-medium text-gray-700">
+                Tagline / Description
               </label>
               <input
-                id="store-description"
+                id="description"
+                name="description"
                 type="text"
                 value={siteConfig.description}
                 class="input"
-                placeholder="Brief description of your store"
+                placeholder="Your friendly neighborhood store"
               />
             </div>
             <div>
-              <label
-                for="logo-url"
-                class="mb-2 block text-sm font-medium text-gray-700">
+              <label for="logo" class="mb-2 block text-sm font-medium text-gray-700">
                 Logo URL
               </label>
               <input
-                id="logo-url"
+                id="logo"
+                name="logo"
                 type="url"
-                value={siteConfig.logo}
+                value={siteConfig.logo ?? ''}
                 class="input"
                 placeholder="https://example.com/logo.png"
               />
             </div>
             <div>
-              <label
-                for="favicon-url"
-                class="mb-2 block text-sm font-medium text-gray-700">
+              <label for="favicon" class="mb-2 block text-sm font-medium text-gray-700">
                 Favicon URL
               </label>
               <input
-                id="favicon-url"
+                id="favicon"
+                name="favicon"
                 type="url"
-                value={siteConfig.favicon}
+                value={siteConfig.favicon ?? ''}
                 class="input"
                 placeholder="https://example.com/favicon.ico"
               />
             </div>
+            <div class="md:col-span-2">
+              <label for="contactEmail" class="mb-2 block text-sm font-medium text-gray-700">
+                Contact Email <span class="text-gray-400">(optional)</span>
+              </label>
+              <input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={siteConfig.contactEmail ?? ''}
+                class="input"
+                placeholder="hello@mystore.com"
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Theme Settings -->
-      <div class="mb-8 rounded-lg bg-white shadow">
-        <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-medium text-gray-900">Theme Settings</h2>
-        </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- ── Page Copy ──────────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Page Copy</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Customizable text that appears on the homepage and shop page.
+            </p>
+          </div>
+          <div class="space-y-6 p-6">
             <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700">
-                Primary Color
+              <label for="shopTagline" class="mb-2 block text-sm font-medium text-gray-700">
+                Shop Page Tagline
               </label>
-              <div class="flex items-center space-x-2">
-                <input
-                  type="color"
-                  value={siteConfig.theme.colors.primary}
-                  class="h-10 w-12 rounded border"
-                />
-                <input
-                  type="text"
-                  value={siteConfig.theme.colors.primary}
-                  class="input flex-1"
-                  placeholder="#3B82F6"
-                />
-              </div>
+              <input
+                id="shopTagline"
+                name="shopTagline"
+                type="text"
+                value={siteConfig.shopTagline}
+                class="input"
+                placeholder="Discover our collection of products"
+              />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700">
-                Secondary Color
+              <label for="aboutTitle" class="mb-2 block text-sm font-medium text-gray-700">
+                About Section Title
               </label>
-              <div class="flex items-center space-x-2">
-                <input
-                  type="color"
-                  value={siteConfig.theme.colors.secondary}
-                  class="h-10 w-12 rounded border"
-                />
-                <input
-                  type="text"
-                  value={siteConfig.theme.colors.secondary}
-                  class="input flex-1"
-                  placeholder="#6B7280"
-                />
-              </div>
+              <input
+                id="aboutTitle"
+                name="aboutTitle"
+                type="text"
+                value={siteConfig.aboutTitle}
+                class="input"
+                placeholder="About Us"
+              />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700">
-                Accent Color
+              <label for="aboutText" class="mb-2 block text-sm font-medium text-gray-700">
+                About Section Body
               </label>
-              <div class="flex items-center space-x-2">
-                <input
-                  type="color"
-                  value={siteConfig.theme.colors.accent}
-                  class="h-10 w-12 rounded border"
-                />
-                <input
-                  type="text"
-                  value={siteConfig.theme.colors.accent}
-                  class="input flex-1"
-                  placeholder="#F59E0B"
-                />
-              </div>
+              <textarea
+                id="aboutText"
+                name="aboutText"
+                rows="4"
+                class="input"
+                placeholder="Tell customers about your store..."
+                >{siteConfig.aboutText}</textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Localization ───────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Localization</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Language and currency settings for formatting prices and dates.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+            <div>
+              <label for="locale" class="mb-2 block text-sm font-medium text-gray-700">
+                Locale
+              </label>
+              <input
+                id="locale"
+                name="locale"
+                type="text"
+                value={siteConfig.locale}
+                class="input"
+                placeholder="en-US"
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                BCP 47 tag, e.g. <code>en-US</code>, <code>fr-FR</code>, <code>ja-JP</code>
+              </p>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700">
+              <label for="currency" class="mb-2 block text-sm font-medium text-gray-700">
+                Currency
+              </label>
+              <input
+                id="currency"
+                name="currency"
+                type="text"
+                value={siteConfig.currency}
+                class="input"
+                placeholder="USD"
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                ISO 4217 code, e.g. <code>USD</code>, <code>EUR</code>, <code>JPY</code>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Theme ──────────────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Theme</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Choose a built-in theme or install a third-party theme via npm.
+              Custom themes override any color values set below.
+            </p>
+          </div>
+          <div class="space-y-6 p-6">
+            <!-- Built-in theme picker -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-gray-700">
+                Built-in Theme
+              </label>
+              <div class="flex gap-4">
+                {
+                  builtInThemes.map((id) => (
+                    <label class="flex cursor-pointer items-center gap-2">
+                      <input
+                        type="radio"
+                        name="builtInTheme"
+                        value={id}
+                        checked={activeBuiltInTheme === id}
+                        class="accent-primary"
+                      />
+                      <span class="text-sm capitalize">{id}</span>
+                    </label>
+                  ))
+                }
+                <label class="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="builtInTheme"
+                    value="custom"
+                    checked={!builtInThemes.includes(activeBuiltInTheme as any)}
+                    class="accent-primary"
+                  />
+                  <span class="text-sm">Custom (use colors below)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Color overrides -->
+            <div>
+              <p class="mb-3 text-sm font-medium text-gray-700">
+                Color Overrides
+                <span class="ml-2 text-xs font-normal text-gray-400">
+                  Applied on top of the selected theme
+                </span>
+              </p>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {
+                  (
+                    [
+                      ['primaryColor', 'Primary Color', '--color-primary'],
+                      ['secondaryColor', 'Secondary Color', '--color-secondary'],
+                      ['accentColor', 'Accent Color', '--color-accent'],
+                      ['backgroundColor', 'Background', '--color-background'],
+                      ['surfaceColor', 'Surface', '--color-surface'],
+                      ['textColor', 'Text Color', '--color-text'],
+                    ] as [string, string, string][]
+                  ).map(([fieldName, label, cssVar]) => (
+                    <div>
+                      <label class="mb-2 block text-sm text-gray-600">{label}</label>
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="color"
+                          name={`${fieldName}_picker`}
+                          value={themeVars[cssVar] ?? '#000000'}
+                          class="h-9 w-10 cursor-pointer rounded border"
+                          data-target={fieldName}
+                        />
+                        <input
+                          type="text"
+                          id={fieldName}
+                          name={fieldName}
+                          value={themeVars[cssVar] ?? ''}
+                          class="input flex-1 font-mono text-sm"
+                          placeholder="#3B82F6"
+                          pattern="^#[0-9A-Fa-f]{6}$"
+                        />
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+            <!-- Typography -->
+            <div>
+              <p class="mb-3 text-sm font-medium text-gray-700">Typography</p>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="fontHeading" class="mb-2 block text-sm text-gray-600">
+                    Heading Font
+                  </label>
+                  <input
+                    id="fontHeading"
+                    name="fontHeading"
+                    type="text"
+                    value={siteConfig.theme.variables['--font-heading'] ?? ''}
+                    class="input font-mono text-sm"
+                    placeholder='"Inter", system-ui, sans-serif'
+                  />
+                </div>
+                <div>
+                  <label for="fontBody" class="mb-2 block text-sm text-gray-600">
+                    Body Font
+                  </label>
+                  <input
+                    id="fontBody"
+                    name="fontBody"
+                    type="text"
+                    value={siteConfig.theme.variables['--font-body'] ?? ''}
+                    class="input font-mono text-sm"
+                    placeholder='"Inter", system-ui, sans-serif'
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Border radius -->
+            <div>
+              <label for="borderRadius" class="mb-2 block text-sm font-medium text-gray-700">
                 Border Radius
               </label>
-              <select class="input">
-                <option value="0">None</option>
-                <option value="0.25rem">Small</option>
-                <option value="0.5rem" selected>Medium</option>
-                <option value="0.75rem">Large</option>
-                <option value="1rem">Extra Large</option>
+              <select id="borderRadius" name="borderRadius" class="input max-w-xs">
+                {
+                  [
+                    ['0', 'None'],
+                    ['0.25rem', 'Small'],
+                    ['0.5rem', 'Medium'],
+                    ['0.75rem', 'Large'],
+                    ['1rem', 'Extra Large'],
+                    ['9999px', 'Pill'],
+                  ].map(([val, label]) => (
+                    <option
+                      value={val}
+                      selected={siteConfig.theme.variables['--border-radius'] === val}>
+                      {label}
+                    </option>
+                  ))
+                }
               </select>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Stripe Configuration -->
-      <div class="mb-8 rounded-lg bg-white shadow">
-        <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-medium text-gray-900">Payment Settings</h2>
-        </div>
-        <div class="p-6">
-          <div class="space-y-4">
+        <!-- ── Footer Links ───────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Footer Links</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Navigation links shown in the site footer.
+            </p>
+          </div>
+          <div class="p-6">
+            <div id="footer-links" class="space-y-3">
+              {
+                siteConfig.footerLinks.map((link, i) => (
+                  <div class="footer-link-row flex gap-3">
+                    <input
+                      type="text"
+                      name={`footerLinks[${String(i)}][label]`}
+                      value={link.label}
+                      placeholder="Label"
+                      class="input flex-1"
+                    />
+                    <input
+                      type="text"
+                      name={`footerLinks[${String(i)}][href]`}
+                      value={link.href}
+                      placeholder="/page"
+                      class="input flex-1"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500">
+                      ✕
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+            <button
+              type="button"
+              id="add-footer-link"
+              class="btn btn-outline mt-4">
+              + Add Link
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Social Links ───────────────────────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Social Links</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Social media and external profile links shown in the footer.
+            </p>
+          </div>
+          <div class="p-6">
+            <div id="social-links" class="space-y-3">
+              {
+                siteConfig.socialLinks.map((link, i) => (
+                  <div class="social-link-row flex gap-3">
+                    <input
+                      type="text"
+                      name={`socialLinks[${String(i)}][platform]`}
+                      value={link.platform}
+                      placeholder="instagram"
+                      class="input w-36 flex-none"
+                    />
+                    <input
+                      type="url"
+                      name={`socialLinks[${String(i)}][url]`}
+                      value={link.url}
+                      placeholder="https://instagram.com/yourstore"
+                      class="input flex-1"
+                    />
+                    <input
+                      type="text"
+                      name={`socialLinks[${String(i)}][label]`}
+                      value={link.label ?? ''}
+                      placeholder="Label (optional)"
+                      class="input w-40 flex-none"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500">
+                      ✕
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+            <button
+              type="button"
+              id="add-social-link"
+              class="btn btn-outline mt-4">
+              + Add Social Link
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Payment Settings (read-only) ──────────────────────────────── -->
+        <section class="rounded-lg bg-white shadow">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-900">Payment Settings</h2>
+          </div>
+          <div class="space-y-4 p-6">
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-700">
                 Stripe Publishable Key
@@ -184,76 +493,194 @@ const siteConfig = getSiteConfig();
               <input
                 type="text"
                 value={siteConfig.stripe.publishableKey}
-                class="input"
-                placeholder="pk_test_..."
+                class="input bg-gray-50"
                 readonly
               />
-              <p class="mt-1 text-sm text-gray-500">
-                This is configured via environment variables
-              </p>
-            </div>
-            <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700">
-                Webhook Secret
-              </label>
-              <input
-                type="password"
-                value={siteConfig.stripe.webhookSecret}
-                class="input"
-                placeholder="whsec_..."
-                readonly
-              />
-              <p class="mt-1 text-sm text-gray-500">
-                This is configured via environment variables
+              <p class="mt-1 text-xs text-gray-500">
+                Configured via the <code>STRIPE_PUBLISHABLE_KEY</code> environment variable.
               </p>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Product Types -->
-      <div class="mb-8 rounded-lg bg-white shadow">
-        <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-medium text-gray-900">Product Types</h2>
+        <!-- ── Save ────────────────────────────────────────────────────────── -->
+        <div class="flex items-center justify-between">
+          <p id="save-status" class="text-sm text-gray-500"></p>
+          <button
+            type="submit"
+            id="save-btn"
+            class="btn btn-primary px-8"
+            disabled={!hasKV}>
+            {hasKV ? 'Save Settings' : 'KV Not Configured'}
+          </button>
         </div>
-        <div class="p-6">
-          <div class="space-y-4">
-            {
-              siteConfig.productTypes.map((productType) => (
-                <div class="rounded-lg border p-4">
-                  <div class="flex items-start justify-between">
-                    <div>
-                      <h3 class="text-lg font-medium text-gray-900">
-                        {productType.name}
-                      </h3>
-                      <p class="text-sm text-gray-500">
-                        {productType.description}
-                      </p>
-                      {productType.variations.length > 0 && (
-                        <div class="mt-2">
-                          <p class="text-sm text-gray-600">
-                            Variations:{' '}
-                            {productType.variations
-                              .map((v) => v.name)
-                              .join(', ')}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    <button class="btn btn-outline btn-sm">Edit</button>
-                  </div>
-                </div>
-              ))
-            }
-            <button class="btn btn-primary"> Add New Product Type </button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Save Button -->
-      <div class="flex justify-end">
-        <button class="btn btn-primary"> Save Settings </button>
-      </div>
+      </form>
     </main>
   </div>
 </Layout>
+
+<script>
+  import { defaultTheme } from '../../themes/default';
+  import { darkTheme } from '../../themes/dark';
+
+  const themeMap = { default: defaultTheme, dark: darkTheme } as const;
+
+  // ── Color picker sync ──────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLInputElement>('input[type="color"][data-target]').forEach((picker) => {
+    const targetId = picker.dataset.target!;
+    const textInput = document.getElementById(targetId) as HTMLInputElement | null;
+    if (!textInput) return;
+
+    picker.addEventListener('input', () => {
+      textInput.value = picker.value;
+    });
+    textInput.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+        picker.value = textInput.value;
+      }
+    });
+  });
+
+  // ── Add/remove footer links ────────────────────────────────────────────────
+  let footerLinkCount = document.querySelectorAll('.footer-link-row').length;
+
+  document.getElementById('add-footer-link')?.addEventListener('click', () => {
+    const container = document.getElementById('footer-links')!;
+    const row = document.createElement('div');
+    row.className = 'footer-link-row flex gap-3';
+    row.innerHTML = `
+      <input type="text" name="footerLinks[${footerLinkCount}][label]" placeholder="Label" class="input flex-1" />
+      <input type="text" name="footerLinks[${footerLinkCount}][href]" placeholder="/page" class="input flex-1" />
+      <button type="button" class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500">✕</button>
+    `;
+    container.appendChild(row);
+    row.querySelector('.remove-footer-link')?.addEventListener('click', () => row.remove());
+    footerLinkCount++;
+  });
+
+  document.querySelectorAll('.remove-footer-link').forEach((btn) => {
+    btn.addEventListener('click', () => (btn.closest('.footer-link-row') as HTMLElement)?.remove());
+  });
+
+  // ── Add/remove social links ────────────────────────────────────────────────
+  let socialLinkCount = document.querySelectorAll('.social-link-row').length;
+
+  document.getElementById('add-social-link')?.addEventListener('click', () => {
+    const container = document.getElementById('social-links')!;
+    const row = document.createElement('div');
+    row.className = 'social-link-row flex gap-3';
+    row.innerHTML = `
+      <input type="text" name="socialLinks[${socialLinkCount}][platform]" placeholder="instagram" class="input w-36 flex-none" />
+      <input type="url" name="socialLinks[${socialLinkCount}][url]" placeholder="https://..." class="input flex-1" />
+      <input type="text" name="socialLinks[${socialLinkCount}][label]" placeholder="Label (optional)" class="input w-40 flex-none" />
+      <button type="button" class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500">✕</button>
+    `;
+    container.appendChild(row);
+    row.querySelector('.remove-social-link')?.addEventListener('click', () => row.remove());
+    socialLinkCount++;
+  });
+
+  document.querySelectorAll('.remove-social-link').forEach((btn) => {
+    btn.addEventListener('click', () => (btn.closest('.social-link-row') as HTMLElement)?.remove());
+  });
+
+  // ── Form submission ────────────────────────────────────────────────────────
+  document.getElementById('settings-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+    const status = document.getElementById('save-status')!;
+    saveBtn.disabled = true;
+    status.textContent = 'Saving...';
+    status.className = 'text-sm text-gray-500';
+
+    try {
+      const form = e.target as HTMLFormElement;
+      const data = new FormData(form);
+
+      // Build the theme from the selected built-in + color overrides
+      const builtInThemeId = data.get('builtInTheme') as string;
+      const baseTheme = (builtInThemeId in themeMap)
+        ? themeMap[builtInThemeId as keyof typeof themeMap]
+        : themeMap.default;
+
+      const colorFields: Record<string, string> = {
+        '--color-primary': 'primaryColor',
+        '--color-secondary': 'secondaryColor',
+        '--color-accent': 'accentColor',
+        '--color-background': 'backgroundColor',
+        '--color-surface': 'surfaceColor',
+        '--color-text': 'textColor',
+      };
+
+      const variableOverrides: Record<string, string> = {};
+      for (const [cssVar, fieldName] of Object.entries(colorFields)) {
+        const val = (data.get(fieldName) as string)?.trim();
+        if (val) variableOverrides[cssVar] = val;
+      }
+
+      const fontHeading = (data.get('fontHeading') as string)?.trim();
+      const fontBody = (data.get('fontBody') as string)?.trim();
+      const borderRadius = (data.get('borderRadius') as string)?.trim();
+      if (fontHeading) variableOverrides['--font-heading'] = fontHeading;
+      if (fontBody) variableOverrides['--font-body'] = fontBody;
+      if (borderRadius) variableOverrides['--border-radius'] = borderRadius;
+
+      // Collect footer links
+      const footerLinks: { label: string; href: string }[] = [];
+      document.querySelectorAll('.footer-link-row').forEach((row) => {
+        const inputs = row.querySelectorAll<HTMLInputElement>('input[type="text"]');
+        const label = inputs[0]?.value.trim() ?? '';
+        const href = inputs[1]?.value.trim() ?? '';
+        if (label && href) footerLinks.push({ label, href });
+      });
+
+      // Collect social links
+      const socialLinks: { platform: string; url: string; label?: string }[] = [];
+      document.querySelectorAll('.social-link-row').forEach((row) => {
+        const inputs = row.querySelectorAll<HTMLInputElement>('input');
+        const platform = inputs[0]?.value.trim() ?? '';
+        const url = inputs[1]?.value.trim() ?? '';
+        const label = inputs[2]?.value.trim() || undefined;
+        if (platform && url) socialLinks.push({ platform, url, label });
+      });
+
+      const payload = {
+        name: (data.get('name') as string)?.trim(),
+        description: (data.get('description') as string)?.trim(),
+        logo: (data.get('logo') as string)?.trim() || undefined,
+        favicon: (data.get('favicon') as string)?.trim() || undefined,
+        contactEmail: (data.get('contactEmail') as string)?.trim() || undefined,
+        locale: (data.get('locale') as string)?.trim(),
+        currency: (data.get('currency') as string)?.trim().toUpperCase(),
+        shopTagline: (data.get('shopTagline') as string)?.trim(),
+        aboutTitle: (data.get('aboutTitle') as string)?.trim(),
+        aboutText: (data.get('aboutText') as string)?.trim(),
+        footerLinks,
+        socialLinks,
+        theme: {
+          ...baseTheme,
+          variables: { ...baseTheme.variables, ...variableOverrides },
+        },
+      };
+
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      status.textContent = 'Settings saved!';
+      status.className = 'text-sm text-green-600';
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'Failed to save. Check the console for details.';
+      status.className = 'text-sm text-red-600';
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+</script>

@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Theme Variables */
-:root {
+@theme {
   --color-primary: #3b82f6;
   --color-secondary: #6b7280;
   --color-accent: #f59e0b;
@@ -9,6 +8,10 @@
   --color-surface: #f9fafb;
   --color-text: #111827;
   --color-text-secondary: #6b7280;
+}
+
+/* Non-color theme variables (not needed as Tailwind utilities) */
+:root {
   --font-heading: "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --border-radius: 0.5rem;

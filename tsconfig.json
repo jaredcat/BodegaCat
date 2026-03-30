@@ -5,22 +5,21 @@
   "compilerOptions": {
     "plugins": [
       {
-        "name": "@astrojs/ts-plugin"
-      }
+        "name": "@astrojs/ts-plugin",
+      },
     ],
     "verbatimModuleSyntax": true,
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@components/*": ["src/components/*"],
-      "@layouts/*": ["src/layouts/*"],
-      "@lib/*": ["src/lib/*"],
-      "@config/*": ["src/config/*"],
-      "@types/*": ["src/types/*"],
-      "@styles/*": ["src/styles/*"]
-    }
-  }
+      "@components/*": ["./src/components/*"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@config/*": ["./src/config/*"],
+      "@types/*": ["./src/types/*"],
+      "@styles/*": ["./src/styles/*"],
+    },
+  },
 }

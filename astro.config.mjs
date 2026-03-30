@@ -65,7 +65,7 @@ export default defineConfig({
       STRIPE_API_VERSION: envField.string({
         context: "client",
         access: "public",
-        default: "2025-06-30.basil",
+        default: "2026-03-25.dahlia",
       }),
     },
   },

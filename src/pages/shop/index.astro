@@ -2,27 +2,31 @@
 import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar';
-import { getSiteConfig } from '../../config/site';
+import { getEffectiveConfig } from '../../config/site';
+import { getTranslations, formatPrice } from '../../i18n';
 import { getProducts } from '../../lib/stripe';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
+const t = getTranslations(siteConfig.locale);
+
 const products = await getProducts();
 
-// Get unique categories and tags for filtering
 const categories = [
   ...new Set(products.map((p) => p.metadata.category).filter(Boolean)),
 ];
 const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 ---
 
-<Layout title="Shop">
+<Layout title={t.shop.title}>
   <Navbar siteConfig={siteConfig} client:load />
 
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="mb-4 text-3xl font-bold">Shop</h1>
-      <p class="text-muted">Discover our collection of amazing products</p>
+      <h1 class="mb-4 text-3xl font-bold">{t.shop.title}</h1>
+      <p class="text-muted">{siteConfig.shopTagline}</p>
     </div>
 
     <!-- Filters and Products Grid -->
@@ -30,17 +34,16 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
       <!-- Filters Sidebar -->
       <div class="lg:col-span-1">
         <div class="card sticky top-8">
-          <h3 class="mb-4 text-lg font-semibold">Filters</h3>
+          <h3 class="mb-4 text-lg font-semibold">{t.shop.filters}</h3>
 
           <!-- Search -->
           <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">
               Search
-
               <input
                 type="text"
                 id="search"
-                placeholder="Search products..."
+                placeholder={t.shop.search}
                 class="input"
               />
             </label>
@@ -50,7 +53,7 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
           {
             categories.length > 0 && (
               <div class="mb-6">
-                <h4 class="mb-3 font-medium">Categories</h4>
+                <h4 class="mb-3 font-medium">{t.shop.categories}</h4>
                 <div class="space-y-2">
                   {categories.map((category) => (
                     <label class="flex items-center">
@@ -67,7 +70,7 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
           {
             tags.length > 0 && (
               <div class="mb-6">
-                <h4 class="mb-3 font-medium">Tags</h4>
+                <h4 class="mb-3 font-medium">{t.shop.tags}</h4>
                 <div class="space-y-2">
                   {tags.map((tag) => (
                     <label class="flex items-center">
@@ -82,18 +85,17 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 
           <!-- Price Range -->
           <div class="mb-6">
-            <h4 class="mb-3 font-medium">Price Range</h4>
+            <h4 class="mb-3 font-medium">{t.shop.priceRange}</h4>
             <div class="space-y-2">
               <input type="range" min="0" max="1000" class="w-full" />
               <div class="text-muted flex justify-between text-sm">
-                <span>$0</span>
-                <span>$1000</span>
+                <span>{formatPrice(0, siteConfig.currency, siteConfig.locale)}</span>
+                <span>{formatPrice(100000, siteConfig.currency, siteConfig.locale)}</span>
               </div>
             </div>
           </div>
 
-          <!-- Clear Filters -->
-          <button class="btn btn-outline w-full"> Clear Filters </button>
+          <button class="btn btn-outline w-full">{t.shop.clearFilters}</button>
         </div>
       </div>
 
@@ -114,11 +116,8 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
                     />
                   )}
                   <h3 class="mb-2 text-lg font-semibold">{product.name}</h3>
-                  <p class="text-muted mb-4 line-clamp-2">
-                    {product.description}
-                  </p>
+                  <p class="text-muted mb-4 line-clamp-2">{product.description}</p>
 
-                  {/* Tags */}
                   {product.metadata.tags.length > 0 && (
                     <div class="mb-4 flex flex-wrap gap-1">
                       {product.metadata.tags.slice(0, 3).map((tag) => (
@@ -131,10 +130,10 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 
                   <div class="flex items-center justify-between">
                     <span class="text-primary text-xl font-bold">
-                      ${(product.basePrice / 100).toFixed(2)}
+                      {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
                     </span>
                     <a href={`/shop/${product.slug}`} class="btn btn-primary">
-                      View Details
+                      {t.shop.viewDetails}
                     </a>
                   </div>
                 </div>
@@ -142,7 +141,7 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
             </div>
           ) : (
             <div class="py-12 text-center">
-              <p class="text-muted text-lg">No products found.</p>
+              <p class="text-muted text-lg">{t.shop.noProducts}</p>
             </div>
           )
         }
@@ -153,5 +152,4 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 
 <script>
   // Client-side filtering logic will go here
-  // This will be enhanced with React components for better interactivity
 </script>

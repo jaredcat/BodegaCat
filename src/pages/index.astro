@@ -1,13 +1,19 @@
 ---
 import { Image } from 'astro:assets';
 import Navbar from '../components/Navbar';
-import { getSiteConfig } from '../config/site';
+import { getEffectiveConfig } from '../config/site';
+import { getTranslations, formatPrice } from '../i18n';
 import Layout from '../layouts/Layout.astro';
 import { getProducts } from '../lib/stripe';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
+const t = getTranslations(siteConfig.locale);
+
 const products = await getProducts();
-const featuredProducts = products.slice(0, 6); // Show first 6 products as featured
+const featuredProducts = products.slice(0, 6);
+const copyrightYear = new Date().getFullYear();
 ---
 
 <Layout title="Home">
@@ -22,10 +28,8 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
       <p class="mx-auto mb-8 max-w-3xl text-xl md:text-2xl">
         {siteConfig.description}
       </p>
-      <a
-        href="/shop"
-        class="btn text-primary bg-white px-8 py-3 text-lg hover:bg-gray-100">
-        Shop Now
+      <a href="/shop" class="btn text-primary bg-white px-8 py-3 text-lg hover:bg-gray-100">
+        {t.shop.shopNow}
       </a>
     </div>
   </section>
@@ -33,7 +37,7 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
   <!-- Featured Products -->
   <section class="bg-surface py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <h2 class="mb-12 text-center text-3xl font-bold">Featured Products</h2>
+      <h2 class="mb-12 text-center text-3xl font-bold">{t.shop.featured}</h2>
 
       {
         featuredProducts.length > 0 ? (
@@ -51,15 +55,13 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
                   />
                 )}
                 <h3 class="mb-2 text-xl font-semibold">{product.name}</h3>
-                <p class="text-muted mb-4 line-clamp-2">
-                  {product.description}
-                </p>
+                <p class="text-muted mb-4 line-clamp-2">{product.description}</p>
                 <div class="flex items-center justify-between">
                   <span class="text-primary text-2xl font-bold">
-                    ${(product.basePrice / 100).toFixed(2)}
+                    {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
                   </span>
                   <a href={`/shop/${product.slug}`} class="btn btn-primary">
-                    View Details
+                    {t.shop.viewDetails}
                   </a>
                 </div>
               </div>
@@ -67,7 +69,7 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
           </div>
         ) : (
           <div class="py-12 text-center">
-            <p class="text-muted text-lg">No products available yet.</p>
+            <p class="text-muted text-lg">{t.shop.noFeatured}</p>
           </div>
         )
       }
@@ -76,7 +78,7 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
         products.length > 6 && (
           <div class="mt-12 text-center">
             <a href="/shop" class="btn btn-outline px-8 py-3">
-              View All Products
+              {t.shop.viewAll}
             </a>
           </div>
         )
@@ -87,12 +89,8 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
   <!-- About Section -->
   <section class="bg-background py-16">
     <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-      <h2 class="mb-8 text-3xl font-bold">About {siteConfig.name}</h2>
-      <p class="text-muted text-lg leading-relaxed">
-        We're passionate about bringing you the best products with exceptional
-        service. Our carefully curated selection is designed to meet your needs
-        and exceed your expectations.
-      </p>
+      <h2 class="mb-8 text-3xl font-bold">{siteConfig.aboutTitle}</h2>
+      <p class="text-muted text-lg leading-relaxed">{siteConfig.aboutText}</p>
     </div>
   </section>
 
@@ -103,33 +101,54 @@ const featuredProducts = products.slice(0, 6); // Show first 6 products as featu
         <div>
           <h3 class="mb-4 text-lg font-semibold">{siteConfig.name}</h3>
           <p class="text-muted">{siteConfig.description}</p>
+          {siteConfig.contactEmail && (
+            <a
+              href={`mailto:${siteConfig.contactEmail}`}
+              class="text-muted hover:text-primary mt-2 block text-sm">
+              {siteConfig.contactEmail}
+            </a>
+          )}
         </div>
-        <div>
-          <h3 class="mb-4 text-lg font-semibold">Quick Links</h3>
-          <ul class="space-y-2">
-            <li>
-              <a href="/shop" class="text-muted hover:text-primary">Shop</a>
-            </li>
-            <li>
-              <a href="/about" class="text-muted hover:text-primary">About</a>
-            </li>
-            <li>
-              <a href="/contact" class="text-muted hover:text-primary"
-                >Contact</a
-              >
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="mb-4 text-lg font-semibold">Contact</h3>
-          <p class="text-muted">
-            Get in touch with us for any questions or support.
-          </p>
-        </div>
+
+        {siteConfig.footerLinks.length > 0 && (
+          <div>
+            <h3 class="mb-4 text-lg font-semibold">{t.footer.quickLinks}</h3>
+            <ul class="space-y-2">
+              {siteConfig.footerLinks.map((link) => (
+                <li>
+                  <a href={link.href} class="text-muted hover:text-primary">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {siteConfig.socialLinks.length > 0 && (
+          <div>
+            <h3 class="mb-4 text-lg font-semibold">Follow Us</h3>
+            <ul class="space-y-2">
+              {siteConfig.socialLinks.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    class="text-muted hover:text-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label ?? link.platform}>
+                    {link.label ?? link.platform}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
+
       <div class="mt-8 border-t border-gray-200 pt-8 text-center">
         <p class="text-muted">
-          &copy; 2024 {siteConfig.name}. All rights reserved.
+          &copy; {copyrightYear} {siteConfig.name}. {t.footer.allRightsReserved}
         </p>
       </div>
     </div>

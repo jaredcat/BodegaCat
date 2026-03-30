@@ -6,3 +6,4 @@ node_modules
 .cloudflareaccess
 dist
 .dev.vars
+.DS_Store

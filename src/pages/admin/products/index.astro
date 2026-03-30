@@ -275,6 +275,8 @@ const products = await getProducts();
       window.location.reload();
     }
   }
+  // Expose as global so onclick="toggleProductStatus(...)" can call it
+  Object.assign(window, { toggleProductStatus });
 
   // Bulk selection functionality
   const selectAllCheckbox = document.getElementById(
