@@ -22,8 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const cfAccessEmail = context.request.headers.get("cf-access-user-email");
 
       if (!cfAccessJwt || !cfAccessEmail) {
-        // Redirect to Cloudflare Access login
-        return context.redirect("/.cloudflareaccess/");
+        return new Response("Unauthorized", { status: 403 });
       }
 
       // Add user info to context for use in admin pages
