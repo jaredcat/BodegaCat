@@ -39,33 +39,38 @@ export interface KVNamespace {
   put(key: string, value: string): Promise<void>;
 }
 
-/**
- * Read stored settings from KV. Returns an empty object if KV is not
- * configured or the key doesn't exist yet.
- */
-export async function getStoredSettings(
-  kv: KVNamespace | undefined,
-): Promise<EditableSettings> {
-  if (!kv) {
-    try {
-      const raw = getDevStore().get(SETTINGS_KEY);
-      if (!raw) return {};
-      const parsed = JSON.parse(raw) as unknown;
-      return parsed as EditableSettings;
-    } catch {
-      return {};
-    }
-  }
+function getFromDevStore(): EditableSettings {
   try {
-    const raw = await kv.get(SETTINGS_KEY, 'json');
-    return raw as EditableSettings;
+    const raw = getDevStore().get(SETTINGS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as EditableSettings;
   } catch {
     return {};
   }
 }
 
 /**
+ * Read stored settings from KV. Returns an empty object if KV is not
+ * configured or the key doesn't exist yet.
+ * Falls back to the in-memory dev store when KV is absent or fails
+ * (e.g. placeholder IDs in wrangler.toml during local dev).
+ */
+export async function getStoredSettings(
+  kv: KVNamespace | undefined,
+): Promise<EditableSettings> {
+  if (!kv) return getFromDevStore();
+  try {
+    const raw = await kv.get(SETTINGS_KEY, 'json');
+    return (raw as EditableSettings) ?? {};
+  } catch {
+    // KV unavailable (e.g. placeholder namespace IDs in dev) — use in-memory store
+    return getFromDevStore();
+  }
+}
+
+/**
  * Persist settings to KV. Only stores fields that are actually provided.
+ * Falls back to the in-memory dev store when KV is absent or fails.
  */
 export async function saveSettings(
   kv: KVNamespace | undefined,
@@ -80,5 +85,10 @@ export async function saveSettings(
     return;
   }
 
-  await kv.put(SETTINGS_KEY, next);
+  try {
+    await kv.put(SETTINGS_KEY, next);
+  } catch {
+    // KV unavailable — persist to in-memory dev store as fallback
+    getDevStore().set(SETTINGS_KEY, next);
+  }
 }
