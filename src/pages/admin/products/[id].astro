@@ -321,7 +321,7 @@ if (!product) {
                 cannot be undone.
               </p>
             </div>
-            <button onclick="confirmDelete()" class="btn btn-danger">
+            <button onclick="confirmDelete()" data-product-id={product.id} class="btn btn-danger">
               Delete Product
             </button>
           </div>
@@ -331,17 +331,23 @@ if (!product) {
   </div>
 
   <script is:inline>
-    function confirmDelete() {
-      if (
-        confirm(
-          'Are you sure you want to delete this product? This action cannot be undone.',
-        )
-      ) {
-        // This would call an API endpoint to delete the product
-        console.log('Deleting product:', '${product.id}');
+    async function confirmDelete() {
+      const btn = document.querySelector('[data-product-id]');
+      const productId = btn && btn.getAttribute('data-product-id');
+      if (!productId) return;
 
-        alert('Product deletion would be implemented here.');
+      if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+
+      try {
+        const res = await fetch('/api/admin/products', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: productId }),
+        });
+        if (!res.ok) throw new Error('Delete failed');
         window.location.href = '/admin/products';
+      } catch (err) {
+        alert('Failed to delete product. Please try again.');
       }
     }
   </script>
