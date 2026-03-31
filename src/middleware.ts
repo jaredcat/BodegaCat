@@ -1,5 +1,15 @@
 import { defineMiddleware } from "astro:middleware";
 
+function parseAccessJwtEmail(token: string | undefined): string | null {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return typeof payload.email === "string" ? payload.email : null;
+  } catch {
+    return null;
+  }
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
@@ -18,8 +28,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
       };
     } else {
       // In production, use Cloudflare Access
-      const cfAccessJwt = context.request.headers.get("cf-access-jwt-assertion");
-      const cfAccessEmail = context.request.headers.get("cf-access-user-email");
+      // Headers are injected on traditional Access; cookie is used for workers.dev one-click Access
+      const cfAccessJwt =
+        context.request.headers.get("cf-access-jwt-assertion") ??
+        context.cookies.get("CF_Authorization")?.value;
+      const cfAccessEmail = context.request.headers.get("cf-access-user-email") ??
+        parseAccessJwtEmail(cfAccessJwt);
 
       if (!cfAccessJwt || !cfAccessEmail) {
         return new Response("Unauthorized", { status: 403 });
