@@ -42,6 +42,10 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("No signature provided", { status: 400 });
   }
 
+  if (!siteConfig.stripe.webhookSecret) {
+    return new Response("Stripe not configured", { status: 503 });
+  }
+
   let event;
 
   try {

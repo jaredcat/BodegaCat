@@ -61,6 +61,7 @@ export default defineConfig({
       STRIPE_PUBLISHABLE_KEY: envField.string({
         context: "client",
         access: "public",
+        optional: true,
       }),
       STRIPE_API_VERSION: envField.string({
         context: "client",

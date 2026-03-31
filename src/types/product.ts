@@ -193,7 +193,7 @@ export interface SiteConfig {
 
   // ─── Stripe (env-var only — never set these in admin UI) ────────────────
   stripe: {
-    publishableKey: string;
-    webhookSecret: string;
+    publishableKey: string | undefined;
+    webhookSecret: string | undefined;
   };
 }
