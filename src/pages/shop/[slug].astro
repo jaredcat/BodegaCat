@@ -11,17 +11,18 @@ import { formatPrice, getTranslations } from '../../i18n';
 import { getProducts } from '@lib/stripe';
 import type { Product } from '../../types/product';
 
+/**
+ * Pre-rendered at **build** time (unlike `/` and `/shop`, which use runtime SSR).
+ * The deploy pipeline must have `STRIPE_SECRET_KEY` (and working Stripe API access)
+ * when `astro build` runs — Worker runtime secrets alone do not generate these files.
+ * Errors from `getProducts()` must fail the build; do not catch and return [].
+ */
 export async function getStaticPaths() {
-  try {
-    const products = await getProducts();
-    return products.map((product) => ({
-      params: { slug: product.slug },
-      props: { product },
-    }));
-  } catch (error) {
-    console.error('Error generating static paths for products:', error);
-    return [];
-  }
+  const products = await getProducts();
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
 }
 
 interface Props {

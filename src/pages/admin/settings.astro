@@ -1,14 +1,14 @@
 ---
 export const prerender = false;
 
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { builtInThemes } from '../../themes';
-import type { BuiltInThemeName } from '../../themes';
-import { bodegaCatTheme } from '../../themes/bodegacat';
-import { voidKittenTheme } from '../../themes/voidkitten';
-import { paddleboardTheme } from '../../themes/paddleboard/index';
-import { env } from 'cloudflare:workers';
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { builtInThemes } from "../../themes";
+import type { BuiltInThemeName } from "../../themes";
+import { bodegaCatTheme } from "../../themes/bodegacat";
+import { voidKittenTheme } from "../../themes/voidkitten";
+import { paddleboardTheme } from "../../themes/paddleboard/index";
+import { env } from "cloudflare:workers";
 
 const kv = env.SETTINGS_KV;
 const siteConfig = await getEffectiveConfig(kv);
@@ -24,7 +24,7 @@ const builtInThemeMap: Record<BuiltInThemeName, string> = {
 // Determine which built-in theme is currently active (if any)
 const activeBuiltInTheme =
   builtInThemes.find((t) => builtInThemeMap[t] === siteConfig.theme.name) ??
-  'bodegacat';
+  "bodegacat";
 
 const isCustomTheme = !builtInThemes.some(
   (t) => builtInThemeMap[t] === siteConfig.theme.name,
@@ -64,17 +64,17 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
               {import.meta.env.DEV ? (
                 <>
                   You’re in dev mode — changes will be saved in memory (reset on
-                  server restart). Bind{' '}
-                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code> in{' '}
-                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{' '}
+                  server restart). Bind{" "}
+                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code> in{" "}
+                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{" "}
                   for real persistence.
                 </>
               ) : (
                 <>
-                  Add a{' '}
-                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code>{' '}
-                  binding to your{' '}
-                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{' '}
+                  Add a{" "}
+                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code>{" "}
+                  binding to your{" "}
+                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{" "}
                   to enable live settings editing. Until then, use environment
                   variables to configure your store (see the deployment guide).
                 </>
@@ -103,7 +103,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="name"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Store Name
               </label>
               <input
@@ -118,7 +119,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="description"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Tagline / Description
               </label>
               <input
@@ -133,14 +135,15 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="logo"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Logo URL
               </label>
               <input
                 id="logo"
                 name="logo"
                 type="text"
-                value={siteConfig.logo ?? ''}
+                value={siteConfig.logo ?? ""}
                 class="input"
                 placeholder="https://example.com/logo.png"
               />
@@ -148,14 +151,15 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="favicon"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Favicon URL
               </label>
               <input
                 id="favicon"
                 name="favicon"
                 type="text"
-                value={siteConfig.favicon ?? ''}
+                value={siteConfig.favicon ?? ""}
                 class="input"
                 placeholder="https://example.com/favicon.ico"
               />
@@ -163,14 +167,15 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div class="md:col-span-2">
               <label
                 for="contactEmail"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Contact Email <span class="text-gray-400">(optional)</span>
               </label>
               <input
                 id="contactEmail"
                 name="contactEmail"
                 type="email"
-                value={siteConfig.contactEmail ?? ''}
+                value={siteConfig.contactEmail ?? ""}
                 class="input"
                 placeholder="hello@mystore.com"
               />
@@ -190,7 +195,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="shopTagline"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Shop Page Tagline
               </label>
               <input
@@ -205,7 +211,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="aboutTitle"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 About Section Title
               </label>
               <input
@@ -220,7 +227,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="aboutText"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 About Section Body
               </label>
               <textarea
@@ -247,7 +255,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="locale"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Locale
               </label>
               <input
@@ -270,7 +279,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="currency"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Currency
               </label>
               <input
@@ -346,16 +356,16 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                 {
                   (
                     [
-                      ['primaryColor', 'Primary Color', '--color-primary'],
+                      ["primaryColor", "Primary Color", "--color-primary"],
                       [
-                        'secondaryColor',
-                        'Secondary Color',
-                        '--color-secondary',
+                        "secondaryColor",
+                        "Secondary Color",
+                        "--color-secondary",
                       ],
-                      ['accentColor', 'Accent Color', '--color-accent'],
-                      ['backgroundColor', 'Background', '--color-background'],
-                      ['surfaceColor', 'Surface', '--color-surface'],
-                      ['textColor', 'Text Color', '--color-text'],
+                      ["accentColor", "Accent Color", "--color-accent"],
+                      ["backgroundColor", "Background", "--color-background"],
+                      ["surfaceColor", "Surface", "--color-surface"],
+                      ["textColor", "Text Color", "--color-text"],
                     ] as [string, string, string][]
                   ).map(([fieldName, label, cssVar]) => (
                     <div>
@@ -366,7 +376,7 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                         <input
                           type="color"
                           name={`${fieldName}_picker`}
-                          value={themeVars[cssVar] ?? '#000000'}
+                          value={themeVars[cssVar] ?? "#000000"}
                           class="h-9 w-10 cursor-pointer rounded border"
                           data-target={fieldName}
                         />
@@ -374,7 +384,7 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                           type="text"
                           id={fieldName}
                           name={fieldName}
-                          value={themeVars[cssVar] ?? ''}
+                          value={themeVars[cssVar] ?? ""}
                           class="input flex-1 font-mono text-sm"
                           placeholder="#3B82F6"
                           pattern="^#[0-9A-Fa-f]{6}$"
@@ -393,14 +403,15 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                 <div>
                   <label
                     for="fontHeading"
-                    class="mb-2 block text-sm text-gray-600">
+                    class="mb-2 block text-sm text-gray-600"
+                  >
                     Heading Font
                   </label>
                   <input
                     id="fontHeading"
                     name="fontHeading"
                     type="text"
-                    value={siteConfig.theme.variables['--font-heading']}
+                    value={siteConfig.theme.variables["--font-heading"]}
                     class="input font-mono text-sm"
                     placeholder='"Inter", system-ui, sans-serif'
                   />
@@ -408,14 +419,15 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                 <div>
                   <label
                     for="fontBody"
-                    class="mb-2 block text-sm text-gray-600">
+                    class="mb-2 block text-sm text-gray-600"
+                  >
                     Body Font
                   </label>
                   <input
                     id="fontBody"
                     name="fontBody"
                     type="text"
-                    value={siteConfig.theme.variables['--font-body']}
+                    value={siteConfig.theme.variables["--font-body"]}
                     class="input font-mono text-sm"
                     placeholder='"Inter", system-ui, sans-serif'
                   />
@@ -427,27 +439,30 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div>
               <label
                 for="borderRadius"
-                class="mb-2 block text-sm font-medium text-gray-700">
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Border Radius
               </label>
               <select
                 id="borderRadius"
                 name="borderRadius"
-                class="input max-w-xs">
+                class="input max-w-xs"
+              >
                 {
                   [
-                    ['0', 'None'],
-                    ['0.25rem', 'Small'],
-                    ['0.5rem', 'Medium'],
-                    ['0.75rem', 'Large'],
-                    ['1rem', 'Extra Large'],
-                    ['9999px', 'Pill'],
+                    ["0", "None"],
+                    ["0.25rem", "Small"],
+                    ["0.5rem", "Medium"],
+                    ["0.75rem", "Large"],
+                    ["1rem", "Extra Large"],
+                    ["9999px", "Pill"],
                   ].map(([val, label]) => (
                     <option
                       value={val}
                       selected={
-                        siteConfig.theme.variables['--border-radius'] === val
-                      }>
+                        siteConfig.theme.variables["--border-radius"] === val
+                      }
+                    >
                       {label}
                     </option>
                   ))
@@ -486,7 +501,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                     />
                     <button
                       type="button"
-                      class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500">
+                      class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500"
+                    >
                       ✕
                     </button>
                   </div>
@@ -496,7 +512,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <button
               type="button"
               id="add-footer-link"
-              class="btn btn-outline mt-4">
+              class="btn btn-outline mt-4"
+            >
               + Add Link
             </button>
           </div>
@@ -532,13 +549,14 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
                     <input
                       type="text"
                       name={`socialLinks[${String(i)}][label]`}
-                      value={link.label ?? ''}
+                      value={link.label ?? ""}
                       placeholder="Label (optional)"
                       class="input w-40 flex-none"
                     />
                     <button
                       type="button"
-                      class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500">
+                      class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500"
+                    >
                       ✕
                     </button>
                   </div>
@@ -548,7 +566,8 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <button
               type="button"
               id="add-social-link"
-              class="btn btn-outline mt-4">
+              class="btn btn-outline mt-4"
+            >
               + Add Social Link
             </button>
           </div>
@@ -585,8 +604,9 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             type="submit"
             id="save-btn"
             class="btn btn-primary px-8"
-            disabled={!canSave}>
-            {canSave ? 'Save Settings' : 'KV Not Configured'}
+            disabled={!canSave}
+          >
+            {canSave ? "Save Settings" : "KV Not Configured"}
           </button>
         </div>
       </form>
@@ -595,9 +615,9 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
 </Layout>
 
 <script>
-  import { bodegaCatTheme } from '../../themes/bodegacat';
-  import { paddleboardTheme } from '../../themes/paddleboard/index';
-  import { voidKittenTheme } from '../../themes/voidkitten';
+  import { bodegaCatTheme } from "../../themes/bodegacat";
+  import { paddleboardTheme } from "../../themes/paddleboard/index";
+  import { voidKittenTheme } from "../../themes/voidkitten";
 
   const themeMap = {
     bodegacat: bodegaCatTheme,
@@ -609,16 +629,16 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
 
   const customBaseThemeInput = (() => {
     const el = document.getElementById(
-      'customBaseTheme',
+      "customBaseTheme",
     ) as HTMLInputElement | null;
     if (el) return el;
-    const hidden = document.createElement('input');
-    hidden.type = 'hidden';
-    hidden.id = 'customBaseTheme';
-    hidden.name = 'customBaseTheme';
+    const hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.id = "customBaseTheme";
+    hidden.name = "customBaseTheme";
     // Default is replaced below using the currently selected preset (if any).
-    hidden.value = 'bodegacat';
-    document.getElementById('settings-form')?.appendChild(hidden);
+    hidden.value = "bodegacat";
+    document.getElementById("settings-form")?.appendChild(hidden);
     return hidden;
   })();
 
@@ -626,13 +646,13 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
   // 1) pick Void Kitten, then 2) tweak a color => switches to Custom but stays based on Void Kitten.
   const activeTheme =
     (document
-      .getElementById('settings-form')
-      ?.getAttribute('data-active-theme') as ThemeId | null) ?? null;
+      .getElementById("settings-form")
+      ?.getAttribute("data-active-theme") as ThemeId | null) ?? null;
   if (activeTheme && activeTheme in themeMap) {
     customBaseThemeInput.value = activeTheme;
   }
 
-  function setThemeRadio(value: ThemeId | 'custom') {
+  function setThemeRadio(value: ThemeId | "custom") {
     const input = document.querySelector<HTMLInputElement>(
       `input[name="builtInTheme"][value="${value}"]`,
     );
@@ -641,12 +661,12 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
 
   function applyThemeToInputs(theme: (typeof themeMap)[ThemeId]) {
     const colorFields: Record<string, string> = {
-      '--color-primary': 'primaryColor',
-      '--color-secondary': 'secondaryColor',
-      '--color-accent': 'accentColor',
-      '--color-background': 'backgroundColor',
-      '--color-surface': 'surfaceColor',
-      '--color-text': 'textColor',
+      "--color-primary": "primaryColor",
+      "--color-secondary": "secondaryColor",
+      "--color-accent": "accentColor",
+      "--color-background": "backgroundColor",
+      "--color-surface": "surfaceColor",
+      "--color-text": "textColor",
     };
 
     for (const [cssVar, fieldName] of Object.entries(colorFields)) {
@@ -667,13 +687,13 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
     const fontBody = document.querySelector<HTMLInputElement>(
       'input[name="fontBody"]',
     );
-    if (fontHeading) fontHeading.value = theme.variables['--font-heading'];
-    if (fontBody) fontBody.value = theme.variables['--font-body'];
+    if (fontHeading) fontHeading.value = theme.variables["--font-heading"];
+    if (fontBody) fontBody.value = theme.variables["--font-body"];
 
     const radius = document.querySelector<HTMLSelectElement>(
       'select[name="borderRadius"]',
     );
-    if (radius) radius.value = theme.variables['--border-radius'];
+    if (radius) radius.value = theme.variables["--border-radius"];
   }
 
   // ── Color picker sync ──────────────────────────────────────────────────────
@@ -686,10 +706,10 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
       ) as HTMLInputElement | null;
       if (!textInput) return;
 
-      picker.addEventListener('input', () => {
+      picker.addEventListener("input", () => {
         textInput.value = picker.value;
       });
-      textInput.addEventListener('input', () => {
+      textInput.addEventListener("input", () => {
         if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
           picker.value = textInput.value;
         }
@@ -702,9 +722,9 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
   document
     .querySelectorAll<HTMLInputElement>('input[name="builtInTheme"]')
     .forEach((radio) => {
-      radio.addEventListener('change', () => {
-        const val = radio.value as ThemeId | 'custom';
-        if (val === 'custom') return;
+      radio.addEventListener("change", () => {
+        const val = radio.value as ThemeId | "custom";
+        if (val === "custom") return;
         customBaseThemeInput.value = val;
         applyThemeToInputs(themeMap[val]);
       });
@@ -723,21 +743,21 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
   ];
 
   for (const sel of themeFieldSelectors) {
-    document.querySelector(sel)?.addEventListener('input', () => {
-      setThemeRadio('custom');
+    document.querySelector(sel)?.addEventListener("input", () => {
+      setThemeRadio("custom");
     });
-    document.querySelector(sel)?.addEventListener('change', () => {
-      setThemeRadio('custom');
+    document.querySelector(sel)?.addEventListener("change", () => {
+      setThemeRadio("custom");
     });
   }
 
   // ── Add/remove footer links ────────────────────────────────────────────────
-  let footerLinkCount = document.querySelectorAll('.footer-link-row').length;
+  let footerLinkCount = document.querySelectorAll(".footer-link-row").length;
 
-  document.getElementById('add-footer-link')?.addEventListener('click', () => {
-    const container = document.getElementById('footer-links')!;
-    const row = document.createElement('div');
-    row.className = 'footer-link-row flex gap-3';
+  document.getElementById("add-footer-link")?.addEventListener("click", () => {
+    const container = document.getElementById("footer-links")!;
+    const row = document.createElement("div");
+    row.className = "footer-link-row flex gap-3";
     row.innerHTML = `
       <input type="text" name="footerLinks[${footerLinkCount}][label]" placeholder="Label" class="input flex-1" />
       <input type="text" name="footerLinks[${footerLinkCount}][href]" placeholder="/page" class="input flex-1" />
@@ -745,24 +765,24 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
     `;
     container.appendChild(row);
     row
-      .querySelector('.remove-footer-link')
-      ?.addEventListener('click', () => row.remove());
+      .querySelector(".remove-footer-link")
+      ?.addEventListener("click", () => row.remove());
     footerLinkCount++;
   });
 
-  document.querySelectorAll('.remove-footer-link').forEach((btn) => {
-    btn.addEventListener('click', () =>
-      (btn.closest('.footer-link-row') as HTMLElement)?.remove(),
+  document.querySelectorAll(".remove-footer-link").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      (btn.closest(".footer-link-row") as HTMLElement)?.remove(),
     );
   });
 
   // ── Add/remove social links ────────────────────────────────────────────────
-  let socialLinkCount = document.querySelectorAll('.social-link-row').length;
+  let socialLinkCount = document.querySelectorAll(".social-link-row").length;
 
-  document.getElementById('add-social-link')?.addEventListener('click', () => {
-    const container = document.getElementById('social-links')!;
-    const row = document.createElement('div');
-    row.className = 'social-link-row flex gap-3';
+  document.getElementById("add-social-link")?.addEventListener("click", () => {
+    const container = document.getElementById("social-links")!;
+    const row = document.createElement("div");
+    row.className = "social-link-row flex gap-3";
     row.innerHTML = `
       <input type="text" name="socialLinks[${socialLinkCount}][platform]" placeholder="instagram" class="input w-36 flex-none" />
       <input type="url" name="socialLinks[${socialLinkCount}][url]" placeholder="https://..." class="input flex-1" />
@@ -771,28 +791,28 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
     `;
     container.appendChild(row);
     row
-      .querySelector('.remove-social-link')
-      ?.addEventListener('click', () => row.remove());
+      .querySelector(".remove-social-link")
+      ?.addEventListener("click", () => row.remove());
     socialLinkCount++;
   });
 
-  document.querySelectorAll('.remove-social-link').forEach((btn) => {
-    btn.addEventListener('click', () =>
-      (btn.closest('.social-link-row') as HTMLElement)?.remove(),
+  document.querySelectorAll(".remove-social-link").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      (btn.closest(".social-link-row") as HTMLElement)?.remove(),
     );
   });
 
   // ── Form submission ────────────────────────────────────────────────────────
   document
-    .getElementById('settings-form')
-    ?.addEventListener('submit', async (e) => {
+    .getElementById("settings-form")
+    ?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
-      const status = document.getElementById('save-status')!;
+      const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+      const status = document.getElementById("save-status")!;
       saveBtn.disabled = true;
-      status.textContent = 'Saving...';
-      status.className = 'text-sm text-gray-500';
+      status.textContent = "Saving...";
+      status.className = "text-sm text-gray-500";
 
       try {
         const form = e.target as HTMLFormElement;
@@ -801,9 +821,9 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
         // Theme behavior:
         // - Presets (bodegacat/voidkitten/paddleboard): store the preset theme exactly.
         // - Custom: store "Custom" theme built on top of last selected preset.
-        const selectedTheme = data.get('builtInTheme') as string;
+        const selectedTheme = data.get("builtInTheme") as string;
         const customBaseId =
-          (data.get('customBaseTheme') as string) || 'bodegacat';
+          (data.get("customBaseTheme") as string) || "bodegacat";
         const customBaseTheme =
           customBaseId in themeMap
             ? themeMap[customBaseId as ThemeId]
@@ -814,16 +834,16 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             : themeMap.bodegacat;
 
         const colorFields: Record<string, string> = {
-          '--color-primary': 'primaryColor',
-          '--color-secondary': 'secondaryColor',
-          '--color-accent': 'accentColor',
-          '--color-background': 'backgroundColor',
-          '--color-surface': 'surfaceColor',
-          '--color-text': 'textColor',
+          "--color-primary": "primaryColor",
+          "--color-secondary": "secondaryColor",
+          "--color-accent": "accentColor",
+          "--color-background": "backgroundColor",
+          "--color-surface": "surfaceColor",
+          "--color-text": "textColor",
         };
 
         const variableOverrides: Record<string, string> = {};
-        if (selectedTheme === 'custom') {
+        if (selectedTheme === "custom") {
           for (const [cssVar, fieldName] of Object.entries(colorFields)) {
             const val = (data.get(fieldName) as string)?.trim();
             if (!val) continue;
@@ -837,71 +857,71 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
           }
         }
 
-        const fontHeading = (data.get('fontHeading') as string)?.trim();
-        const fontBody = (data.get('fontBody') as string)?.trim();
-        const borderRadius = (data.get('borderRadius') as string)?.trim();
-        if (selectedTheme === 'custom') {
+        const fontHeading = (data.get("fontHeading") as string)?.trim();
+        const fontBody = (data.get("fontBody") as string)?.trim();
+        const borderRadius = (data.get("borderRadius") as string)?.trim();
+        if (selectedTheme === "custom") {
           if (
             fontHeading &&
-            fontHeading !== customBaseTheme.variables['--font-heading']
+            fontHeading !== customBaseTheme.variables["--font-heading"]
           ) {
-            variableOverrides['--font-heading'] = fontHeading;
+            variableOverrides["--font-heading"] = fontHeading;
           }
           if (
             fontBody &&
-            fontBody !== customBaseTheme.variables['--font-body']
+            fontBody !== customBaseTheme.variables["--font-body"]
           ) {
-            variableOverrides['--font-body'] = fontBody;
+            variableOverrides["--font-body"] = fontBody;
           }
           if (
             borderRadius &&
-            borderRadius !== customBaseTheme.variables['--border-radius']
+            borderRadius !== customBaseTheme.variables["--border-radius"]
           ) {
-            variableOverrides['--border-radius'] = borderRadius;
+            variableOverrides["--border-radius"] = borderRadius;
           }
         }
 
         // Collect footer links
         const footerLinks: { label: string; href: string }[] = [];
-        document.querySelectorAll('.footer-link-row').forEach((row) => {
+        document.querySelectorAll(".footer-link-row").forEach((row) => {
           const inputs =
             row.querySelectorAll<HTMLInputElement>('input[type="text"]');
-          const label = inputs[0]?.value.trim() ?? '';
-          const href = inputs[1]?.value.trim() ?? '';
+          const label = inputs[0]?.value.trim() ?? "";
+          const href = inputs[1]?.value.trim() ?? "";
           if (label && href) footerLinks.push({ label, href });
         });
 
         // Collect social links
         const socialLinks: { platform: string; url: string; label?: string }[] =
           [];
-        document.querySelectorAll('.social-link-row').forEach((row) => {
-          const inputs = row.querySelectorAll<HTMLInputElement>('input');
-          const platform = inputs[0]?.value.trim() ?? '';
-          const url = inputs[1]?.value.trim() ?? '';
+        document.querySelectorAll(".social-link-row").forEach((row) => {
+          const inputs = row.querySelectorAll<HTMLInputElement>("input");
+          const platform = inputs[0]?.value.trim() ?? "";
+          const url = inputs[1]?.value.trim() ?? "";
           const label = inputs[2]?.value.trim() || undefined;
           if (platform && url) socialLinks.push({ platform, url, label });
         });
 
         const payload = {
-          name: (data.get('name') as string)?.trim(),
-          description: (data.get('description') as string)?.trim(),
-          logo: (data.get('logo') as string)?.trim() || undefined,
-          favicon: (data.get('favicon') as string)?.trim() || undefined,
+          name: (data.get("name") as string)?.trim(),
+          description: (data.get("description") as string)?.trim(),
+          logo: (data.get("logo") as string)?.trim() || undefined,
+          favicon: (data.get("favicon") as string)?.trim() || undefined,
           contactEmail:
-            (data.get('contactEmail') as string)?.trim() || undefined,
-          locale: (data.get('locale') as string)?.trim(),
-          currency: (data.get('currency') as string)?.trim().toUpperCase(),
-          shopTagline: (data.get('shopTagline') as string)?.trim(),
-          aboutTitle: (data.get('aboutTitle') as string)?.trim(),
-          aboutText: (data.get('aboutText') as string)?.trim(),
+            (data.get("contactEmail") as string)?.trim() || undefined,
+          locale: (data.get("locale") as string)?.trim(),
+          currency: (data.get("currency") as string)?.trim().toUpperCase(),
+          shopTagline: (data.get("shopTagline") as string)?.trim(),
+          aboutTitle: (data.get("aboutTitle") as string)?.trim(),
+          aboutText: (data.get("aboutText") as string)?.trim(),
           footerLinks,
           socialLinks,
           theme:
-            selectedTheme === 'custom'
+            selectedTheme === "custom"
               ? {
                   ...customBaseTheme,
-                  name: 'Custom',
-                  description: 'Custom theme overrides',
+                  name: "Custom",
+                  description: "Custom theme overrides",
                   variables: {
                     ...customBaseTheme.variables,
                     ...variableOverrides,
@@ -910,22 +930,22 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
               : presetTheme,
         };
 
-        const res = await fetch('/api/admin/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/admin/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        status.textContent = 'Settings saved!';
-        status.className = 'text-sm text-green-600';
+        status.textContent = "Settings saved!";
+        status.className = "text-sm text-green-600";
         // Reload so the page (and theme vars) reflect the saved settings.
         queueMicrotask(() => window.location.reload());
       } catch (err) {
         console.error(err);
-        status.textContent = 'Failed to save. Check the console for details.';
-        status.className = 'text-sm text-red-600';
+        status.textContent = "Failed to save. Check the console for details.";
+        status.className = "text-sm text-red-600";
       } finally {
         saveBtn.disabled = false;
       }

@@ -8,7 +8,9 @@ import type {
 } from "../types/product";
 
 if (!STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY environment variable is required");
+  throw new Error(
+    "STRIPE_SECRET_KEY is required: set it for the Worker at runtime and for `astro build` so static /shop/[slug] pages can be generated.",
+  );
 }
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
