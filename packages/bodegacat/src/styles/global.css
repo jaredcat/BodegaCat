@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Scan all framework source in this package (required when the Astro app lives in another workspace folder or in node_modules after publish). */
+@source "../**/*.{astro,html,js,jsx,ts,tsx,mdx}";
+
 @theme {
   --color-primary: #3b82f6;
   --color-secondary: #6b7280;

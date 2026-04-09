@@ -1,20 +1,13 @@
-name = "bodegacat"
+name = "my-store"
 compatibility_date = "2026-02-24"
 compatibility_flags = ["nodejs_compat"]
 
-[env.production]
-name = "bodegacat-prod"
+# Cloudflare Access configuration for admin routes (optional; set zone to your domain)
+# [[env.production.routes]]
+# pattern = "/admin/*"
+# zone_name = "your-domain.com"
+# custom_domain = true
 
-[env.staging]
-name = "bodegacat-staging"
-
-# Cloudflare Access configuration for admin routes
-[[env.production.routes]]
-pattern = "/admin/*"
-zone_name = "your-domain.com"
-custom_domain = true
-
-# Environment variables
 [vars]
 NODE_ENV = "production"
 
@@ -28,9 +21,9 @@ preview_id = "placeholder-settings-preview-id"
 # KV: sessions (reserved for future use)
 [[kv_namespaces]]
 binding = "SESSION"
-id = "placeholder-id"
-preview_id = "placeholder-preview-id"
+id = "placeholder-session-id"
+preview_id = "placeholder-session-preview-id"
 
-# Secrets (set these via wrangler secret put)
+# Secrets (set these via wrangler secret put or the Cloudflare dashboard)
 # STRIPE_SECRET_KEY
 # STRIPE_WEBHOOK_SECRET

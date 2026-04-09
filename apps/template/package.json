@@ -1,0 +1,31 @@
+{
+  "name": "@bodegacat/template",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Minimal Astro app shell for a Bodega Cat store (publish as a GitHub template)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "pnpm -s astro build && wrangler dev --local --config dist/server/wrangler.json",
+    "preview:simple": "astro preview",
+    "deploy": "pnpm -s astro build && wrangler deploy --config dist/server/wrangler.json",
+    "astro": "astro",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.1.8",
+    "@astrojs/react": "^5.0.3",
+    "astro": "^6.1.5",
+    "bodegacat": "workspace:*",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/ts-plugin": "^1.10.7",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.81.1"
+  }
+}
