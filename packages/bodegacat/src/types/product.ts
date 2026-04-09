@@ -86,6 +86,11 @@ export type BookingConfig =
 export interface ProductMetadata {
   productTypeId: string;
   tags: string[];
+  /**
+   * When false, the product is hidden from the public storefront (still editable in admin).
+   * Stored in Stripe as `bodegacat_published`. Omitted or true means visible.
+   */
+  publishedToStorefront?: boolean;
   category?: string;
   brand?: string;
   sku?: string;

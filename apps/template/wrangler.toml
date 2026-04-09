@@ -10,6 +10,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 NODE_ENV = "production"
+# Local wrangler preview only: set BODEGACAT_ADMIN_LOCAL_BYPASS=true in `.dev.vars` (not here) to
+# open `/admin` without Cloudflare Access on localhost. Never enable on production.
 
 # KV: admin settings (store name, theme, copy, etc.)
 # Create with: wrangler kv namespace create SETTINGS_KV

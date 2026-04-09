@@ -179,8 +179,7 @@ export function getSiteConfig(): SiteConfig {
  * Use this in dynamic (SSR) pages so admin UI changes take effect immediately
  * without requiring a redeploy.
  *
- * For statically prerendered pages, use getSiteConfig() — KV is not available
- * at build time and those pages update on the next deploy anyway.
+ * For routes that cannot access KV (e.g. rare static-only pages), use getSiteConfig().
  *
  * @param kv - The SETTINGS_KV binding from Astro.locals.runtime.env
  */

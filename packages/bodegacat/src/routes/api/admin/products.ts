@@ -57,6 +57,10 @@ export const POST: APIRoute = async ({ request }) => {
       images: productData.images,
       metadata: {
         bodegacat_active: productData.active ? "true" : "false",
+        bodegacat_published:
+          productData.metadata?.publishedToStorefront === false
+            ? "false"
+            : "true",
         productTypeId: productData.metadata?.productTypeId ?? "",
         category: productData.metadata?.category ?? "",
         brand: productData.metadata?.brand ?? "",
@@ -139,14 +143,22 @@ export const PUT: APIRoute = async ({ request }) => {
       );
     }
 
-    // Update product in Stripe
+    const existing = await stripe.products.retrieve(id);
+    const m = existing.metadata;
+    const publishedRaw =
+      productData.metadata?.publishedToStorefront === false ? "false" : "true";
+
+    // Update product in Stripe (merge metadata so slugs and other keys are preserved)
     const updatedProduct = await stripe.products.update(id, {
       name: productData.name,
       description: productData.description,
       images: productData.images,
       metadata: {
+        ...m,
         bodegacat_active: productData.active ? "true" : "false",
-        productTypeId: productData.metadata?.productTypeId ?? "",
+        bodegacat_published: publishedRaw,
+        productTypeId:
+          productData.metadata?.productTypeId ?? m.productTypeId ?? "",
         category: productData.metadata?.category ?? "",
         brand: productData.metadata?.brand ?? "",
         sku: productData.metadata?.sku ?? "",

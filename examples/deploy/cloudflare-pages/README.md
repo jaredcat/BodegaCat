@@ -2,6 +2,8 @@
 
 This guide is for a **standalone store app** that depends on **`bodegacat`** from npm (same shape as `apps/template` in the bodegacat monorepo). You deploy with **Cloudflare Pages** (recommended) or **`wrangler`**; no GitHub Actions are required.
 
+**Monorepo contributors** testing `apps/template` locally (`pnpm dev`, admin without Access, `.env` location): see **`docs/LOCAL_DEVELOPMENT.md`** in the bodegacat repository — not repeated here.
+
 ## 1. Create the app
 
 - Add dependencies: `astro`, `@astrojs/cloudflare`, `@astrojs/react`, `react`, `react-dom`, and **`bodegacat`**.
@@ -21,7 +23,7 @@ The integration defines an Astro **env schema** (Stripe keys, optional build hoo
 | Purpose | Notes |
 |--------|--------|
 | `STRIPE_PUBLISHABLE_KEY` | Client + build |
-| `STRIPE_SECRET_KEY` | Server + **required at build** for prerendered `/shop/[slug]` |
+| `STRIPE_SECRET_KEY` | Server + build (bundled); **runtime** required for `/shop` and `/shop/[slug]` (SSR) |
 | `STRIPE_WEBHOOK_SECRET` | Server webhook route |
 | Optional `BUILD_HOOK_URL` | If you trigger rebuilds from Stripe |
 
@@ -46,7 +48,7 @@ pnpm run build
 pnpm exec wrangler pages deploy ./dist --project-name=YOUR_PAGES_PROJECT_NAME
 ```
 
-Use a **Pages API token** or `wrangler login`. Match **vars/secrets** to production so prerender and runtime behave the same as in CI.
+Use a **Pages API token** or `wrangler login`. Match **vars/secrets** to production so build and Worker runtime match CI.
 
 ## 6. Admin routes and Cloudflare Access (optional)
 
@@ -54,9 +56,30 @@ Use a **Pages API token** or `wrangler login`. Match **vars/secrets** to product
 
 ## 7. Local preview
 
-- **Dev:** `pnpm dev` (or `astro dev`).
-- **Production build locally:** `pnpm run build` then `pnpm exec wrangler dev` / `wrangler pages dev` pointing at **`dist`** as in the template scripts.
+- **Dev server:** `pnpm dev` / `astro dev` in your app (see **`docs/LOCAL_DEVELOPMENT.md`** if you use the monorepo template).
+- **Production-shaped preview:** `pnpm run build`, then `wrangler dev` / `wrangler pages dev` against the built **`dist`** (see `preview` in `apps/template/package.json`). Wrangler reads **secrets from `.dev.vars`**, not `.env`, unless your app copies them — match production Workers.
 
 ---
 
 For a minimal file layout, mirror **`apps/template`** in the bodegacat repository.
+
+## 8. Troubleshooting: `sharp` fails during `pnpm install`
+
+Astro’s **Cloudflare adapter** with **`imageService: "compile"`** (as in the template) pulls **`sharp`**, which runs an **install script** (native binaries or a **node-gyp** build). If install fails with *“Attempting to build from source”* / *“Please add node-addon-api”*:
+
+1. **Use an active Node LTS** (20 or 22) — odd Node versions often lack prebuilt `sharp` binaries.
+2. **macOS:** Install system libs so a source build can succeed:
+   ```bash
+   xcode-select --install   # if Command Line Tools are missing
+   brew install vips
+   ```
+3. **Satisfy the error message:** add the helper once, then reinstall:
+   ```bash
+   pnpm add -D node-addon-api
+   rm -rf node_modules && pnpm install
+   ```
+4. **pnpm** may block install scripts until approved — allow `sharp` (and friends) when prompted, or see [pnpm approve-builds](https://pnpm.io/cli/approve-builds).
+5. **Optional:** if you don’t need compile-time image processing, in **your** `astro.config.mjs` you can try `adapter: cloudflare({ imageService: "passthrough" })` instead of `"compile"` to avoid the `sharp` path (verify [Astro + Cloudflare image docs](https://docs.astro.build/en/guides/images/) for your version).
+
+`npm warn Unknown env config …` lines during `sharp`’s script usually come from **extra `NPM_CONFIG_*` environment variables** in your shell or tooling; they’re noisy but unrelated to the failure — fix the items above first.
+

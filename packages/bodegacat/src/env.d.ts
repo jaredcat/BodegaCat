@@ -1,5 +1,22 @@
 /// <reference types="astro/client" />
 
+/**
+ * Mirrors `astro:env` output for the schema defined in `integration.ts`.
+ * The consuming app also generates `.astro/env.d.ts`; these declarations let
+ * the package typecheck before/with that file.
+ */
+declare module "astro:env/client" {
+  export const STRIPE_PUBLISHABLE_KEY: string;
+  export const STRIPE_API_VERSION: string;
+}
+
+declare module "astro:env/server" {
+  export const STRIPE_SECRET_KEY: string;
+  export const STRIPE_WEBHOOK_SECRET: string;
+  export const BUILD_HOOK_URL: string | undefined;
+  export const BODEGACAT_ADMIN_LOCAL_BYPASS: string | undefined;
+}
+
 declare module "cloudflare:workers" {
   const env: {
     SETTINGS_KV?: CloudflareKVNamespace;
@@ -12,6 +29,7 @@ interface ImportMetaEnv {
   readonly STRIPE_SECRET_KEY: string;
   readonly STRIPE_PUBLISHABLE_KEY: string;
   readonly STRIPE_WEBHOOK_SECRET: string;
+  readonly BODEGACAT_ADMIN_LOCAL_BYPASS?: string;
   readonly SITE_NAME?: string;
   readonly SITE_DESCRIPTION?: string;
   readonly SITE_LOGO?: string;
@@ -42,6 +60,13 @@ declare namespace App {
       email: string;
       jwt: string;
       isDevelopment?: boolean;
+      /** Mock admin via BODEGACAT_ADMIN_LOCAL_BYPASS on localhost wrangler preview */
+      localPreviewBypass?: boolean;
     };
+    /**
+     * True when this request may include unpublished products (`bodegacat_published=false`).
+     * Requires `?preview=1` or preview cookie, plus Cloudflare Access in production.
+     */
+    storefrontPreview?: boolean;
   }
 }

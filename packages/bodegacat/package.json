@@ -1,0 +1,66 @@
+{
+  "name": "bodegacat",
+  "type": "module",
+  "version": "0.3.0",
+  "description": "Astro integration for Bodega Cat e-commerce stores (Cloudflare + Stripe)",
+  "license": "AGPL-3.0",
+  "author": "JaredCat",
+  "organization": "CodeKitties",
+  "organizationUrl": "https://codekitties.com",
+  "keywords": [
+    "ecommerce",
+    "astro",
+    "astro-integration",
+    "stripe",
+    "cloudflare"
+  ],
+  "exports": {
+    ".": "./src/integration.ts",
+    "./package.json": "./package.json",
+    "./themes": "./src/themes/index.ts",
+    "./themes/types": "./src/themes/types.ts",
+    "./themes/*": "./src/themes/*",
+    "./types/product": "./src/types/product.ts",
+    "./models/product": "./src/types/product.ts",
+    "./types/*": "./src/types/*",
+    "./config/site": "./src/config/site.ts",
+    "./i18n": "./src/i18n/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@astrojs/cloudflare": "^13.0.0",
+    "@astrojs/react": "^5.0.0",
+    "astro": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@nanostores/react": "^1.1.0",
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.1.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "nanostores": "^1.2.0",
+    "stripe": "^22.0.1",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/react": "^5.0.3",
+    "@astrojs/ts-plugin": "^1.10.7",
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^6.1.5",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "typescript": "^6.0.2"
+  }
+}

@@ -4,13 +4,11 @@
   "type": "module",
   "description": "Monorepo for the bodegacat Astro integration and reference app template",
   "scripts": {
-    "dev": "pnpm --filter @bodegacat/template dev",
     "build": "pnpm --filter @bodegacat/template build",
     "build:with-products": "node scripts/build-with-products.js",
     "test:stripe": "node scripts/test-stripe.js",
     "setup:stripe": "node scripts/setup-stripe-products.js",
     "preview": "pnpm --filter @bodegacat/template preview",
-    "preview:simple": "pnpm --filter @bodegacat/template preview:simple",
     "deploy": "pnpm --filter @bodegacat/template deploy",
     "astro": "pnpm --filter @bodegacat/template astro",
     "lint": "eslint packages/bodegacat/src",

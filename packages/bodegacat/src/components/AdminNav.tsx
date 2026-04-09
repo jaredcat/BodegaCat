@@ -15,6 +15,11 @@ export default function AdminNav({
     { href: "/admin/products/new", label: "Add Product", icon: "➕" },
     { href: "/admin/settings", label: "Settings", icon: "⚙️" },
     { href: "/", label: "View Store", icon: "🏪" },
+    {
+      href: "/shop?preview=1",
+      label: "Storefront preview",
+      icon: "👁️",
+    },
   ];
 
   return (

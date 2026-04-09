@@ -15,6 +15,7 @@ const siteConfig = getSiteConfig();
     <!-- Development Mode Indicator -->
     <DevIndicator
       isDevelopment={Astro.locals.user?.isDevelopment}
+      localPreviewBypass={Astro.locals.user?.localPreviewBypass}
       client:load
     />
 

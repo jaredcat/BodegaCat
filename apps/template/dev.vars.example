@@ -1,0 +1,9 @@
+# Copy to `.dev.vars` for `pnpm preview` / `wrangler dev` (local Worker runtime).
+# Do not commit `.dev.vars`.
+
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Open /admin without Cloudflare Access on localhost only (127.0.0.1 / localhost).
+BODEGACAT_ADMIN_LOCAL_BYPASS=true

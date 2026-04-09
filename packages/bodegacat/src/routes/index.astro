@@ -14,12 +14,18 @@ const kv = env.SETTINGS_KV;
 const siteConfig = await getEffectiveConfig(kv);
 const t = getTranslations(siteConfig.locale);
 
-const products = await getProducts();
+const includeUnpublished = Astro.locals.storefrontPreview === true;
+const products = await getProducts({ includeUnpublished });
+const previewQuery = includeUnpublished ? "?preview=1" : "";
 const featuredProducts = products.slice(0, 6);
 const copyrightYear = new Date().getFullYear();
 ---
 
-<Layout title="Home" siteConfig={siteConfig}>
+<Layout
+  title="Home"
+  siteConfig={siteConfig}
+  storefrontPreview={Astro.locals.storefrontPreview}
+>
   <Navbar siteConfig={siteConfig} client:load />
 
   <ThemeHomePage siteConfig={siteConfig} t={t} copyrightYear={copyrightYear}>
@@ -64,7 +70,7 @@ const copyrightYear = new Date().getFullYear();
                   <span class="text-primary text-2xl font-bold">
                     {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
                   </span>
-                  <a href={`/shop/${product.slug}`} class="btn btn-primary">
+                  <a href={`/shop/${product.slug}${previewQuery}`} class="btn btn-primary">
                     {t.shop.viewDetails}
                   </a>
                 </div>

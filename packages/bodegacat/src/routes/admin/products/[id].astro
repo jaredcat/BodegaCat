@@ -27,6 +27,7 @@ if (!product) {
     <!-- Development Mode Indicator -->
     <DevIndicator
       isDevelopment={Astro.locals.user?.isDevelopment}
+      localPreviewBypass={Astro.locals.user?.localPreviewBypass}
       client:load
     />
 
@@ -41,7 +42,7 @@ if (!product) {
           </div>
           <div class="flex space-x-3">
             <a
-              href={`/shop/${product.slug}`}
+              href={`/shop/${product.slug}?preview=1`}
               class="btn btn-outline"
               target="_blank">
               View Product

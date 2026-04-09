@@ -17,6 +17,18 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
 });
 
+/** Public storefront hides products with `metadata.bodegacat_published === "false"`. */
+export function isPublishedOnStorefront(
+  metadata: Stripe.Metadata | Record<string, string>,
+): boolean {
+  return metadata.bodegacat_published !== "false";
+}
+
+export interface GetProductsOptions {
+  /** Include products not yet published to the public storefront (preview mode). */
+  includeUnpublished?: boolean;
+}
+
 // Function to generate a slug from a product name
 function generateSlug(name: string): string {
   return name
@@ -29,7 +41,10 @@ function generateSlug(name: string): string {
     .replace(/-$/, ""); // Remove trailing hyphen
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(
+  options: GetProductsOptions = {},
+): Promise<Product[]> {
+  const { includeUnpublished = false } = options;
   const products = await stripe.products.list({
     active: true,
     expand: ["data.default_price"],
@@ -38,6 +53,7 @@ export async function getProducts(): Promise<Product[]> {
   const productsWithPrices = await Promise.all(
     products.data
       .filter((product) => product.metadata.bodegacat_active === "true")
+      .filter((product) => includeUnpublished || isPublishedOnStorefront(product.metadata))
       .map(async (product) => {
         // Get all prices for this product
         const prices = await stripe.prices.list({
@@ -54,7 +70,11 @@ export async function getProducts(): Promise<Product[]> {
     .map(({ product, prices }) => transformStripeProduct(product, prices));
 }
 
-export async function getProduct(slug: string): Promise<Product | null> {
+export async function getProduct(
+  slug: string,
+  options: GetProductsOptions = {},
+): Promise<Product | null> {
+  const { includeUnpublished = false } = options;
   const products = await stripe.products.list({
     active: true,
     expand: ["data.default_price"],
@@ -62,7 +82,10 @@ export async function getProduct(slug: string): Promise<Product | null> {
 
   const product = products.data.find((p) => {
     const productSlug = p.metadata.slug || generateSlug(p.name);
-    return productSlug === slug && p.metadata.bodegacat_active === "true";
+    const activeOk = p.metadata.bodegacat_active === "true";
+    const publishedOk =
+      includeUnpublished || isPublishedOnStorefront(p.metadata);
+    return productSlug === slug && activeOk && publishedOk;
   });
 
   if (!product) return null;
@@ -153,6 +176,7 @@ function transformStripeProduct(
     description: product.description ?? "",
     metadata: {
       productTypeId: product.metadata.productTypeId,
+      publishedToStorefront: isPublishedOnStorefront(product.metadata),
       tags: (product.metadata.tags
         ? JSON.parse(product.metadata.tags)
         : []) as string[],

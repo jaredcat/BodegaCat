@@ -2,6 +2,7 @@
 import { getSiteConfig } from '@config/site';
 import '@styles/global.css';
 import Cart from '../components/Cart';
+import StorefrontPreviewBanner from '../components/StorefrontPreviewBanner.astro';
 import type { SiteConfig } from '../types/product';
 
 export interface Props {
@@ -12,6 +13,8 @@ export interface Props {
   siteConfig?: SiteConfig;
   /** If false, render using the default theme variables (useful for admin pages). */
   useSiteTheme?: boolean;
+  /** Set when `/` or `/shop` runs in preview mode (`?preview=1` + Access in production). */
+  storefrontPreview?: boolean;
 }
 
 const {
@@ -19,6 +22,7 @@ const {
   description,
   siteConfig: propSiteConfig,
   useSiteTheme = true,
+  storefrontPreview = false,
 } = Astro.props;
 // SSR pages pass their KV-loaded config; prerendered pages fall back to the build-time config.
 const siteConfig = propSiteConfig ?? getSiteConfig();
@@ -49,6 +53,7 @@ const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
     {useSiteTheme && siteConfig.theme.css && <style set:html={siteConfig.theme.css} />}
   </head>
   <body>
+    {storefrontPreview && <StorefrontPreviewBanner />}
     <slot />
     <Cart client:only="react" />
   </body>

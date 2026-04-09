@@ -1,45 +1,46 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import { Image } from 'astro:assets';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import ProductVariations from '@components/ProductVariations';
 import BookingEmbed from '@components/BookingEmbed';
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import { formatPrice, getTranslations } from '@i18n';
-import { getProducts } from '@lib/stripe';
-import type { Product } from '@models/product';
+import { getProduct } from '@lib/stripe';
+import { env } from 'cloudflare:workers';
 
 /**
- * Pre-rendered at **build** time (unlike `/` and `/shop`, which use runtime SSR).
- * The deploy pipeline must have `STRIPE_SECRET_KEY` (and working Stripe API access)
- * when `astro build` runs — Worker runtime secrets alone do not generate these files.
- * Errors from `getProducts()` must fail the build; do not catch and return [].
+ * SSR (same data path as `/shop`) so catalog and detail URLs never diverge:
+ * whatever appears on the shop index has a working `/shop/[slug]` without redeploying
+ * after Stripe changes.
  */
-export async function getStaticPaths() {
-  const products = await getProducts();
-  return products.map((product) => ({
-    params: { slug: product.slug },
-    props: { product },
-  }));
+const slug = Astro.params.slug;
+if (!slug) {
+  return Astro.redirect('/shop');
 }
 
-interface Props {
-  product: Product;
-}
-
-const { product }: Props = Astro.props;
-// Static pages use getSiteConfig() — KV is not available at build time.
-const siteConfig = getSiteConfig();
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
 const t = getTranslations(siteConfig.locale);
+
+const includeUnpublished = Astro.locals.storefrontPreview === true;
+const product = await getProduct(slug, { includeUnpublished });
+if (!product) {
+  return Astro.redirect('/shop');
+}
 
 const productType = siteConfig.productTypes.find(
   (pt) => pt.id === product.metadata.productTypeId,
 );
 ---
 
-<Layout title={product.name} description={product.description}>
+<Layout
+  title={product.name}
+  description={product.description}
+  storefrontPreview={Astro.locals.storefrontPreview}
+>
   <Navbar siteConfig={siteConfig} client:load />
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">

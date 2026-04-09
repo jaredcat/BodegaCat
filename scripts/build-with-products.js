@@ -57,33 +57,15 @@ try {
     fs.rmSync(appDist, { recursive: true, force: true });
   }
 
-  console.log("🔨 Building site with static product pages...");
+  console.log(
+    "🔨 Building site (shop index and /shop/[slug] use runtime Stripe + KV)...",
+  );
   execSync("pnpm run build", { stdio: "inherit", cwd: appDir });
 
-  const shopDir = path.join(appDir, "dist", "shop");
-  if (fs.existsSync(shopDir)) {
-    const productDirs = fs
-      .readdirSync(shopDir, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name);
-
-    console.log(`\n✅ Build completed successfully!`);
-    console.log(`📦 Generated ${productDirs.length} product pages:`);
-
-    if (productDirs.length > 0) {
-      productDirs.forEach((dir) => {
-        console.log(`   - /shop/${dir}/`);
-      });
-    } else {
-      console.log(
-        "   (No products found in Stripe - add some products to see pages generated)",
-      );
-    }
-  } else {
-    console.log(
-      "\n⚠️  No shop directory found. This might be normal if no products exist.",
-    );
-  }
+  console.log(`\n✅ Build completed successfully!`);
+  console.log(
+    "📦 Product detail URLs are rendered on the Worker (not emitted as static HTML per slug).",
+  );
 
   console.log("\n🎉 Build process completed!");
   console.log("💡 To preview the site, run: pnpm preview");

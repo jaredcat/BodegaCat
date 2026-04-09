@@ -32,6 +32,7 @@ export default function ProductForm({
     sku: product?.metadata.sku ?? "",
     tags: product?.metadata.tags.join(", ") ?? "",
     active: product?.active ?? true,
+    publishedToStorefront: product?.metadata.publishedToStorefront !== false,
     images: product?.images ?? [],
     deliveryType: product?.metadata.deliveryType,
   });
@@ -94,6 +95,7 @@ export default function ProductForm({
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
+        publishedToStorefront: formData.publishedToStorefront,
         deliveryType: formData.deliveryType ?? undefined,
         bookingConfig:
           formData.deliveryType === "booking" ? bookingConfig : undefined,
@@ -350,6 +352,24 @@ export default function ProductForm({
             />
             <label htmlFor="active" className="text-sm font-medium">
               Active (available for purchase)
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="publishedToStorefront"
+              type="checkbox"
+              checked={formData.publishedToStorefront}
+              onChange={(e) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  publishedToStorefront: e.target.checked,
+                }));
+              }}
+              className="mr-2"
+            />
+            <label htmlFor="publishedToStorefront" className="text-sm font-medium">
+              Published on storefront (visible to customers when not in preview)
             </label>
           </div>
 
