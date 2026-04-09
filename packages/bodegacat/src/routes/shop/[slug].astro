@@ -7,9 +7,9 @@ import Navbar from '@components/Navbar';
 import ProductVariations from '@components/ProductVariations';
 import BookingEmbed from '@components/BookingEmbed';
 import { getSiteConfig } from '@config/site';
-import { formatPrice, getTranslations } from '../../i18n';
+import { formatPrice, getTranslations } from '@i18n';
 import { getProducts } from '@lib/stripe';
-import type { Product } from '../../types/product';
+import type { Product } from '@models/product';
 
 /**
  * Pre-rendered at **build** time (unlike `/` and `/shop`, which use runtime SSR).
@@ -29,7 +29,7 @@ interface Props {
   product: Product;
 }
 
-const { product } = Astro.props;
+const { product }: Props = Astro.props;
 // Static pages use getSiteConfig() — KV is not available at build time.
 const siteConfig = getSiteConfig();
 const t = getTranslations(siteConfig.locale);
@@ -67,7 +67,7 @@ const productType = siteConfig.productTypes.find(
         {
           product.images.length > 1 && (
             <div class="grid grid-cols-4 gap-2">
-              {product.images.slice(1).map((image, index) => (
+              {product.images.slice(1).map((image: string, index: number) => (
                 <Image
                   src={image}
                   alt={`${product.name} - ${String(index + 2)}`}
@@ -90,7 +90,13 @@ const productType = siteConfig.productTypes.find(
 
         <!-- Price -->
         <div class="text-primary text-2xl font-bold">
-          {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
+          {
+            formatPrice(
+              product.basePrice,
+              product.currency || siteConfig.currency,
+              siteConfig.locale,
+            )
+          }
         </div>
 
         <!-- Product Type Info -->
@@ -106,8 +112,9 @@ const productType = siteConfig.productTypes.find(
         }
 
         <!-- Booking or Cart UI -->
-        {product.metadata.deliveryType === 'booking' && product.metadata.bookingConfig
-          ? (
+        {
+          product.metadata.deliveryType === 'booking' &&
+          product.metadata.bookingConfig ? (
             <>
               {/* Product Variations still shown for booking products if present */}
               {product.variationDefinitions.length > 0 && (
@@ -119,8 +126,7 @@ const productType = siteConfig.productTypes.find(
                 client:load
               />
             </>
-          )
-          : (
+          ) : (
             <>
               {/* Product Variations */}
               {product.variationDefinitions.length > 0 && (
@@ -130,7 +136,9 @@ const productType = siteConfig.productTypes.find(
               {/* Add to Cart */}
               <div class="border-t pt-6">
                 <div class="mb-4 flex items-center space-x-4">
-                  <label for="quantity" class="text-sm font-medium text-gray-700">
+                  <label
+                    for="quantity"
+                    class="text-sm font-medium text-gray-700">
                     {t.product.quantity}:
                   </label>
                   <div class="flex items-center rounded-md border">
@@ -169,14 +177,16 @@ const productType = siteConfig.productTypes.find(
           {
             product.metadata.sku && (
               <p class="text-sm text-gray-600">
-                <span class="font-medium">{t.product.sku}:</span> {product.metadata.sku}
+                <span class="font-medium">{t.product.sku}:</span>{' '}
+                {product.metadata.sku}
               </p>
             )
           }
           {
             product.metadata.brand && (
               <p class="text-sm text-gray-600">
-                <span class="font-medium">{t.product.brand}:</span> {product.metadata.brand}
+                <span class="font-medium">{t.product.brand}:</span>{' '}
+                {product.metadata.brand}
               </p>
             )
           }
@@ -191,8 +201,10 @@ const productType = siteConfig.productTypes.find(
           {
             product.metadata.tags.length > 0 && (
               <div class="flex flex-wrap gap-2">
-                <span class="text-sm font-medium text-gray-600">{t.product.tags}:</span>
-                {product.metadata.tags.map((tag) => (
+                <span class="text-sm font-medium text-gray-600">
+                  {t.product.tags}:
+                </span>
+                {product.metadata.tags.map((tag: string) => (
                   <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
                     {tag}
                   </span>

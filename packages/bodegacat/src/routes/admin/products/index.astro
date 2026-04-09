@@ -4,7 +4,7 @@ export const prerender = false;
 import { Image } from 'astro:assets';
 import Layout from '@layouts/Layout.astro';
 import { getProducts } from '@lib/stripe';
-import { DevIndicator } from '../../../components/DevIndicator';
+import { DevIndicator } from '@components/DevIndicator';
 
 const products = await getProducts();
 ---

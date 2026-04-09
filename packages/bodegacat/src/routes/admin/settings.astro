@@ -3,11 +3,11 @@ export const prerender = false;
 
 import { getEffectiveConfig } from "@config/site";
 import Layout from "@layouts/Layout.astro";
-import { builtInThemes } from "../../themes";
-import type { BuiltInThemeName } from "../../themes";
-import { bodegaCatTheme } from "../../themes/bodegacat";
-import { voidKittenTheme } from "../../themes/voidkitten";
-import { paddleboardTheme } from "../../themes/paddleboard/index";
+import { builtInThemes } from "@themes";
+import type { BuiltInThemeName } from "@themes";
+import { bodegaCatTheme } from "@themes/bodegacat";
+import { voidKittenTheme } from "@themes/voidkitten";
+import { paddleboardTheme } from "@themes/paddleboard/index";
 import { env } from "cloudflare:workers";
 
 const kv = env.SETTINGS_KV;
@@ -615,9 +615,9 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
 </Layout>
 
 <script>
-  import { bodegaCatTheme } from "../../themes/bodegacat";
-  import { paddleboardTheme } from "../../themes/paddleboard/index";
-  import { voidKittenTheme } from "../../themes/voidkitten";
+  import { bodegaCatTheme } from "@themes/bodegacat";
+  import { paddleboardTheme } from "@themes/paddleboard/index";
+  import { voidKittenTheme } from "@themes/voidkitten";
 
   const themeMap = {
     bodegacat: bodegaCatTheme,

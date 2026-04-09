@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { createCheckoutSession } from "../../lib/stripe-checkout";
+import { createCheckoutSession } from "@lib/stripe-checkout";
 
 export const POST: APIRoute = async ({ request }) => {
   try {

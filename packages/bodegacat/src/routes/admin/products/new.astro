@@ -1,11 +1,11 @@
 ---
 export const prerender = false;
 
-import { DevIndicator } from '../../../components/DevIndicator';
-import ProductForm from '../../../components/ProductForm';
-import { getSiteConfig } from '../../../config/site';
-import Layout from '../../../layouts/Layout.astro';
-import type { Product } from '../../../types/product';
+import { DevIndicator } from '@components/DevIndicator';
+import ProductForm from '@components/ProductForm';
+import { getSiteConfig } from '@config/site';
+import Layout from '@layouts/Layout.astro';
+import type { Product } from '@models/product';
 
 const siteConfig = getSiteConfig();
 ---

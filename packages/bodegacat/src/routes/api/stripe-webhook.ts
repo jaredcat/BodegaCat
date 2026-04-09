@@ -1,5 +1,5 @@
-import { getSiteConfig } from "@/config/site";
-import { stripe } from "@/lib/stripe";
+import { getSiteConfig } from "@config/site";
+import { stripe } from "@lib/stripe";
 import type { APIRoute } from "astro";
 
 export const prerender = false;

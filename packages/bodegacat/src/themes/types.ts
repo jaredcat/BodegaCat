@@ -10,7 +10,8 @@
  *   to depend on. Everything else in this file is informational.
  *
  * CREATING A THEME (npm package):
- *   import type { BodegaCatTheme } from 'bodegacat/themes';
+ *   import type { BodegaCatTheme } from 'bodegacat/themes/types';
+ *   // or: import type { BodegaCatTheme } from 'bodegacat/themes' (re-exports types)
  *   const myTheme: BodegaCatTheme = { name: 'My Theme', variables: { ... } };
  *   export default myTheme;
  *

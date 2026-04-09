@@ -2,10 +2,10 @@
 export const prerender = false;
 
 import { Image } from 'astro:assets';
-import { DevIndicator } from '../../components/DevIndicator';
-import { getSiteConfig } from '../../config/site';
-import Layout from '../../layouts/Layout.astro';
-import { getProducts } from '../../lib/stripe';
+import { DevIndicator } from '@components/DevIndicator';
+import { getSiteConfig } from '@config/site';
+import Layout from '@layouts/Layout.astro';
+import { getProducts } from '@lib/stripe';
 
 const siteConfig = getSiteConfig();
 const products = await getProducts();

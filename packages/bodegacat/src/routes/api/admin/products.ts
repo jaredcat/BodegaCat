@@ -1,6 +1,6 @@
 import { stripe } from "@lib/stripe";
 import type { APIRoute } from "astro";
-import type { Product } from "../../../types/product";
+import type { Product } from "@models/product";
 
 export const prerender = false;
 

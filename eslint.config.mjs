@@ -32,6 +32,8 @@ export default defineConfig([
   {
     languageOptions: {
       parserOptions: {
+        // Root tsconfig only includes eslint.config.mjs (tooling). Package/app tsconfigs
+        // must not list the same source files, or project selection breaks @models/* in .astro.
         project: [
           "./tsconfig.json",
           "./packages/bodegacat/tsconfig.json",

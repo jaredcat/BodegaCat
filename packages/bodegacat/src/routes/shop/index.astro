@@ -2,11 +2,11 @@
 export const prerender = false;
 
 import { Image } from 'astro:assets';
-import Layout from '../../layouts/Layout.astro';
-import Navbar from '../../components/Navbar';
-import { getEffectiveConfig } from '../../config/site';
-import { getTranslations, formatPrice } from '../../i18n';
-import { getProducts } from '../../lib/stripe';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/Navbar';
+import { getEffectiveConfig } from '@config/site';
+import { getTranslations, formatPrice } from '@i18n';
+import { getProducts } from '@lib/stripe';
 import { env } from 'cloudflare:workers';
 
 const kv = env.SETTINGS_KV;
