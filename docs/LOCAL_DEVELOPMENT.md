@@ -2,6 +2,8 @@
 
 This guide will help you set up and test the admin interface locally without needing Cloudflare Access.
 
+> **Monorepo:** Use **pnpm** from the repo root. Put **`.env` in `apps/template/`** (Stripe keys for `astro dev` / `astro build`). The integration source is **`packages/bodegacat`**.
+
 ## 🚀 Quick Start
 
 ### 1. Environment Setup
@@ -9,13 +11,13 @@ This guide will help you set up and test the admin interface locally without nee
 1. **Install dependencies:**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Set up environment variables:**
 
    ```bash
-   cp env.example .env
+   cp env.example apps/template/.env
    ```
 
 3. **Edit `.env` with your Stripe keys:**
@@ -30,7 +32,7 @@ This guide will help you set up and test the admin interface locally without nee
 ### 2. Start Development Server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 The development server will start at `http://localhost:4321`
@@ -98,7 +100,7 @@ When running in development mode (`NODE_ENV=development` or `import.meta.env.DEV
 ### Admin Pages Not Loading
 
 - Check that `NODE_ENV=development` is set in your `.env`
-- Ensure the development server is running (`npm run dev`)
+- Ensure the development server is running (`pnpm dev`)
 - Check browser console for any errors
 
 ### Stripe Integration Issues
@@ -109,8 +111,8 @@ When running in development mode (`NODE_ENV=development` or `import.meta.env.DEV
 
 ### Build Issues
 
-- Run `npm run typecheck` to check for TypeScript errors
-- Run `npm run lint` to check for linting issues
+- Run `pnpm run typecheck` to check for TypeScript errors
+- Run `pnpm run lint` to check for linting issues
 - Ensure all dependencies are installed
 
 ## 🚀 Next Steps
@@ -125,4 +127,4 @@ Once you've tested locally:
 
 - [Stripe Test Mode Documentation](https://stripe.com/docs/testing)
 - [Astro Development Guide](https://docs.astro.build/en/guides/dev-toolbar/)
-- [Cloudflare Access Setup](DEPLOYMENT_GUIDE.md#cloudflare-authentication-setup)
+- [Cloudflare Access (production)](../examples/deploy/cloudflare-pages/README.md#6-admin-routes-and-cloudflare-access-optional)

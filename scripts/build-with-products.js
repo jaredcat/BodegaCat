@@ -8,11 +8,12 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const appDir = path.join(__dirname, "..", "apps", "template");
+
 console.log("🚀 Building Bodega Cat with product generation...\n");
 
-// Load environment variables from .env file
-const envPath = path.join(__dirname, "..", ".env");
-if (fs.existsSync(envPath)) {
+function loadEnvFile(envPath) {
+  if (!fs.existsSync(envPath)) return;
   const envContent = fs.readFileSync(envPath, "utf8");
   const envLines = envContent.split("\n");
 
@@ -28,6 +29,10 @@ if (fs.existsSync(envPath)) {
   });
 }
 
+// Repo root .env, then apps/template/.env (later overrides earlier)
+loadEnvFile(path.join(__dirname, "..", ".env"));
+loadEnvFile(path.join(appDir, ".env"));
+
 // Check if environment variables are set
 const requiredEnvVars = ["STRIPE_SECRET_KEY", "STRIPE_PUBLISHABLE_KEY"];
 const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -38,22 +43,24 @@ if (missingVars.length > 0) {
   console.error(
     "\nPlease set these variables in your .env file or environment.",
   );
+  console.error(
+    `Tip: use ${path.join("apps", "template", ".env")} or the repo root .env.`,
+  );
   process.exit(1);
 }
 
 try {
-  // Clean previous build
+  // Clean previous build in the template app
+  const appDist = path.join(appDir, "dist");
   console.log("🧹 Cleaning previous build...");
-  if (fs.existsSync("dist")) {
-    fs.rmSync("dist", { recursive: true, force: true });
+  if (fs.existsSync(appDist)) {
+    fs.rmSync(appDist, { recursive: true, force: true });
   }
 
-  // Run the build
   console.log("🔨 Building site with static product pages...");
-  execSync("npm run build", { stdio: "inherit" });
+  execSync("pnpm run build", { stdio: "inherit", cwd: appDir });
 
-  // Check if product pages were generated
-  const shopDir = path.join("dist", "shop");
+  const shopDir = path.join(appDir, "dist", "shop");
   if (fs.existsSync(shopDir)) {
     const productDirs = fs
       .readdirSync(shopDir, { withFileTypes: true })
@@ -79,9 +86,12 @@ try {
   }
 
   console.log("\n🎉 Build process completed!");
-  console.log("💡 To preview the site, run: npm run preview");
-  console.log("🚀 To deploy, run: wrangler pages deploy dist");
+  console.log("💡 To preview the site, run: pnpm preview");
+  console.log(
+    `🚀 To deploy, run: pnpm deploy (from repo root) or wrangler from ${path.join("apps", "template")}`,
+  );
 } catch (error) {
-  console.error("\n❌ Build failed:", error.message);
+  const err = error instanceof Error ? error : new Error(String(error));
+  console.error("\n❌ Build failed:", err.message);
   process.exit(1);
 }

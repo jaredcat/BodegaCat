@@ -1,0 +1,16 @@
+---
+import { getSiteConfig } from '@config/site';
+import CartPage from '@components/CartPage';
+import Navbar from '@components/Navbar';
+import Layout from '@layouts/Layout.astro';
+
+const siteConfig = getSiteConfig();
+---
+
+<Layout title="Shopping Cart">
+  <Navbar siteConfig={siteConfig} client:load />
+
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <CartPage client:load />
+  </div>
+</Layout>

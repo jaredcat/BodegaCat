@@ -1,4 +1,7 @@
 // @ts-check
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import eslint from "@eslint/js";
 import eslintPluginAstro from "eslint-plugin-astro";
 import jsxA11y from "eslint-plugin-jsx-a11y";
@@ -7,11 +10,12 @@ import sonarjs from "eslint-plugin-sonarjs";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig([
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  // @ts-expect-error - sonarjs v4 types are incompatible with ESLint flat config types
   sonarjs.configs.recommended,
   reactHooks.configs.flat.recommended,
   jsxA11y.flatConfigs.recommended,
@@ -28,8 +32,14 @@ export default defineConfig([
   {
     languageOptions: {
       parserOptions: {
-        project: true,
-        tsconfigRootDir: import.meta.dirname,
+        // Root tsconfig only includes eslint.config.mjs (tooling). Package/app tsconfigs
+        // must not list the same source files, or project selection breaks @models/* in .astro.
+        project: [
+          "./tsconfig.json",
+          "./packages/bodegacat/tsconfig.json",
+          "./apps/template/tsconfig.json",
+        ],
+        tsconfigRootDir: rootDir,
       },
       globals: {
         // Browser globals for client-side code

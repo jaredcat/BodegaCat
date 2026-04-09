@@ -1,0 +1,315 @@
+---
+export const prerender = false;
+
+import { Image } from 'astro:assets';
+import { DevIndicator } from '@components/DevIndicator';
+import { getSiteConfig } from '@config/site';
+import Layout from '@layouts/Layout.astro';
+import { getProducts } from '@lib/stripe';
+
+const siteConfig = getSiteConfig();
+const products = await getProducts();
+---
+
+<Layout title="Admin Dashboard" useSiteTheme={false}>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Development Mode Indicator -->
+    <DevIndicator
+      isDevelopment={Astro.locals.user?.isDevelopment}
+      client:load
+    />
+
+    <!-- Admin Header -->
+    <header class="bg-white shadow">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between py-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600">Manage your {siteConfig.name} store</p>
+          </div>
+          <a href="/admin/products/new" class="btn btn-primary">
+            Add New Product
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <!-- Stats Cards -->
+      <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-lg bg-white p-6 shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg
+                class="text-primary h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                ></path>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Total Products</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                {products.length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-white p-6 shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg
+                class="h-8 w-8 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Active Products</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                {products.filter((p) => p.active).length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-white p-6 shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg
+                class="h-8 w-8 text-yellow-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Last Updated</p>
+              <p class="text-2xl font-semibold text-gray-900">
+                {
+                  products.length > 0
+                    ? new Date(
+                        Math.max(...products.map((p) => p.updatedAt.getTime())),
+                      ).toLocaleDateString()
+                    : 'Never'
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-8 rounded-lg bg-white shadow">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-medium text-gray-900">Quick Actions</h2>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <a
+              href="/admin/products/new"
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              <svg
+                class="text-primary mr-3 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span class="font-medium">Add Product</span>
+            </a>
+
+            <a
+              href="/admin/products"
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              <svg
+                class="mr-3 h-6 w-6 text-blue-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+              <span class="font-medium">View All Products</span>
+            </a>
+
+            <a
+              href="/admin/settings"
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              <svg
+                class="mr-3 h-6 w-6 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span class="font-medium">Store Settings</span>
+            </a>
+
+            <a
+              href="/"
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              <svg
+                class="mr-3 h-6 w-6 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                ></path>
+              </svg>
+              <span class="font-medium">View Store</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Products -->
+      <div class="rounded-lg bg-white shadow">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-medium text-gray-900">Recent Products</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Product
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Price
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Status
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Last Updated
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              {
+                products.slice(0, 5).map((product) => (
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        {product.images.length > 0 && (
+                          <Image
+                            class="mr-3 h-10 w-10 rounded-lg object-cover"
+                            src={product.images[0]}
+                            alt={product.name}
+                            width={40}
+                            height={40}
+                          />
+                        )}
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">
+                            {product.name}
+                          </div>
+                          <div class="text-sm text-gray-500">
+                            {product.slug}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
+                      ${(product.basePrice / 100).toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span
+                        class={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                          product.active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                        {product.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                      {product.updatedAt.toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                      <a
+                        href={`/admin/products/${product.id}`}
+                        class="text-primary hover:text-primary-dark mr-3">
+                        Edit
+                      </a>
+                      <a
+                        href={`/shop/${product.slug}`}
+                        class="text-gray-600 hover:text-gray-900">
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        {
+          products.length > 5 && (
+            <div class="border-t border-gray-200 px-6 py-4">
+              <a
+                href="/admin/products"
+                class="text-primary hover:text-primary-dark font-medium">
+                View all {products.length} products →
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </main>
+  </div>
+</Layout>

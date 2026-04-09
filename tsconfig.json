@@ -1,25 +1,16 @@
 {
-  "extends": "astro/tsconfigs/base",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
   "compilerOptions": {
-    "plugins": [
-      {
-        "name": "@astrojs/ts-plugin",
-      },
-    ],
-    "verbatimModuleSyntax": true,
     "strict": true,
-    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@layouts/*": ["./src/layouts/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@config/*": ["./src/config/*"],
-      "@types/*": ["./src/types/*"],
-      "@styles/*": ["./src/styles/*"],
-    },
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "types": ["node"]
   },
+  "include": ["eslint.config.mjs"],
+  "exclude": ["node_modules", "dist", "packages/**/dist", "apps/**/dist"]
 }

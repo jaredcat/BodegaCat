@@ -2,6 +2,8 @@
 
 This document describes the robust product variation system that supports independent and dependent variations with proper ordering and validation.
 
+**Source layout:** Implementation code lives under **`packages/bodegacat/src/`** (e.g. `lib/variationEngine.ts`, components). Snippets below use relative imports like `../lib/...` as they would from a file inside that package.
+
 ## Overview
 
 The new variation system allows you to define complex product configurations that handle real-world scenarios like:

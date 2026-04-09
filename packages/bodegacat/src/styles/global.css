@@ -1,0 +1,295 @@
+@import "tailwindcss";
+
+/* Scan all framework source in this package (required when the Astro app lives in another workspace folder or in node_modules after publish). */
+@source "../**/*.{astro,html,js,jsx,ts,tsx,mdx}";
+
+@theme {
+  --color-primary: #3b82f6;
+  --color-secondary: #6b7280;
+  --color-accent: #f59e0b;
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+}
+
+/* Non-color theme variables (not needed as Tailwind utilities) */
+:root {
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --border-radius: 0.5rem;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
+/* Base Styles */
+html {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.75rem;
+}
+h4 {
+  font-size: 1.5rem;
+}
+h5 {
+  font-size: 1.25rem;
+}
+h6 {
+  font-size: 1rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 90%, black);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: color-mix(in srgb, var(--color-secondary) 90%, black);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.btn-accent:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 90%, black);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Cards */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Form Elements */
+.input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* Utility Classes */
+.text-primary {
+  color: var(--color-primary);
+}
+.text-secondary {
+  color: var(--color-secondary);
+}
+.text-accent {
+  color: var(--color-accent);
+}
+.text-muted {
+  color: var(--color-text-secondary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+.bg-accent {
+  background-color: var(--color-accent);
+}
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+.border-secondary {
+  border-color: var(--color-secondary);
+}
+.border-accent {
+  border-color: var(--color-accent);
+}
+
+.rounded {
+  border-radius: var(--border-radius);
+}
+
+/* ─── Structural component classes — themed via CSS custom properties ──────── */
+
+/* Navbar */
+.site-navbar {
+  background-color: var(--color-navbar-bg);
+  color: var(--color-navbar-text);
+}
+
+.site-navbar a,
+.site-navbar button {
+  color: var(--color-navbar-text);
+}
+
+.site-navbar .nav-icon-btn:hover {
+  background-color: color-mix(in srgb, var(--color-navbar-text) 10%, transparent);
+}
+
+.site-navbar a:hover {
+  color: color-mix(in srgb, var(--color-navbar-text) 70%, transparent);
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(to bottom right, var(--color-hero-from), var(--color-hero-to));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hero Wave — positioned at the bottom of the hero, rotated so it points down.
+   The SVG fill uses var(--color-surface) inline so it always matches the
+   background of the section below, regardless of which theme is active. */
+.hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  line-height: 0;
+  transform: rotate(180deg);
+  pointer-events: none;
+}
+
+.hero-wave svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Feature icon circles — sized container, colored via modifier classes */
+.feature-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-lg);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.feature-icon-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.feature-icon-accent {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+/* CTA Section — gradient banner, text and button are white */
+.cta-section {
+  background: linear-gradient(to right, var(--color-cta-from, var(--color-primary)), var(--color-cta-to, var(--color-accent)));
+  color: #ffffff;
+}
+
+/* Inverted button — white background with primary text, for use on colored/gradient backgrounds */
+.btn-invert {
+  background-color: #ffffff;
+  color: var(--color-primary);
+}
+
+.btn-invert:hover {
+  background-color: color-mix(in srgb, #ffffff 90%, black);
+}
+
+/* Footer */
+.site-footer {
+  background-color: var(--color-footer-bg);
+  color: var(--color-footer-text);
+  border-color: var(--color-footer-border);
+}
+
+.site-footer .text-muted,
+.site-footer a.text-muted {
+  color: var(--color-footer-text-muted);
+}
+
+.site-footer a:not(.btn):hover {
+  color: var(--color-footer-text);
+}
