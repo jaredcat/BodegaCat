@@ -35,6 +35,7 @@ export interface BodegaCatUserOptions {
 }
 
 const VIRTUAL_USER_PRODUCT_TYPES = "\0virtual:bodegacat-user-product-types";
+const VIRTUAL_BUILD_KV_SETTINGS = "\0virtual:bodegacat-build-kv-settings";
 
 function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
   return {
@@ -48,6 +49,77 @@ function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
       if (id === VIRTUAL_USER_PRODUCT_TYPES) {
         return `export default ${JSON.stringify(productTypes ?? [])};`;
       }
+    },
+  };
+}
+
+async function fetchBuildKvSettings(): Promise<unknown> {
+  const enabled =
+    process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "true" ||
+    process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "1";
+  if (!enabled) return {};
+
+  const token =
+    process.env.CLOUDFLARE_API_TOKEN ??
+    process.env.BODEGACAT_CLOUDFLARE_API_TOKEN;
+  const accountId =
+    process.env.CLOUDFLARE_ACCOUNT_ID ??
+    process.env.BODEGACAT_CLOUDFLARE_ACCOUNT_ID;
+  const namespaceId =
+    process.env.BODEGACAT_SETTINGS_KV_NAMESPACE_ID ??
+    process.env.SETTINGS_KV_NAMESPACE_ID;
+
+  if (!token || !accountId || !namespaceId) {
+    console.warn(
+      "[bodegacat] build KV fetch enabled but missing one of: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, BODEGACAT_SETTINGS_KV_NAMESPACE_ID",
+    );
+    return {};
+  }
+
+  const key = "site_settings";
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${key}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.status === 404) return {};
+    if (!res.ok) {
+      console.warn(
+        `[bodegacat] build KV fetch failed (${res.status}) — continuing without KV settings`,
+      );
+      return {};
+    }
+    const text = await res.text();
+    if (!text) return {};
+    return JSON.parse(text) as unknown;
+  } catch (e) {
+    console.warn(
+      "[bodegacat] build KV fetch error — continuing without KV settings",
+      e,
+    );
+    return {};
+  }
+}
+
+function buildKvSettingsVitePlugin() {
+  let cached: unknown | undefined;
+  let inflight: Promise<unknown> | undefined;
+  return {
+    name: "bodegacat-build-kv-settings",
+    resolveId(id: string) {
+      if (id === "virtual:bodegacat-build-kv-settings") {
+        return VIRTUAL_BUILD_KV_SETTINGS;
+      }
+    },
+    async load(id: string) {
+      if (id !== VIRTUAL_BUILD_KV_SETTINGS) return;
+      if (cached !== undefined) {
+        return `export default ${JSON.stringify(cached)};`;
+      }
+      inflight ??= fetchBuildKvSettings();
+      cached = await inflight;
+      return `export default ${JSON.stringify(cached)};`;
     },
   };
 }
@@ -85,6 +157,7 @@ export default function bodegacat(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vite types differ when multiple copies are hoisted
             plugins: [
               userProductTypesVitePlugin(options?.productTypes),
+              buildKvSettingsVitePlugin(),
               tailwindcss(),
             ] as any,
             define: {

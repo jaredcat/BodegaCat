@@ -1,6 +1,7 @@
 import { STRIPE_PUBLISHABLE_KEY } from "astro:env/client";
 import { STRIPE_WEBHOOK_SECRET } from "astro:env/server";
 import userProductTypesFromIntegration from "virtual:bodegacat-user-product-types";
+import buildKvSettings from "virtual:bodegacat-build-kv-settings";
 import type { EditableSettings, KVNamespace } from "../lib/settings";
 import { getStoredSettings } from "../lib/settings";
 import { bodegaCatTheme } from "../themes/bodegacat";
@@ -92,7 +93,9 @@ export function getSiteConfig(): SiteConfig {
     };
   }
 
-  return config;
+  // Build-time KV (optional): if the build environment can fetch KV via Cloudflare API,
+  // merge it last so it wins over defaults and SITE_* env.
+  return mergeSettings(config, buildKvSettings);
 }
 
 /**

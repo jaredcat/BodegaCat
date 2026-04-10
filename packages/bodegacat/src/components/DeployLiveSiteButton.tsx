@@ -45,7 +45,9 @@ export default function DeployLiveSiteButton() {
         <code className="rounded bg-gray-100 px-1 text-xs">
           STRIPE_WEBHOOK_AUTO_DEPLOY=true
         </code>{" "}
-        is set — so you can batch edits in preview, then deploy once here.
+        is set — so you can batch edits in preview, then deploy once here. If
+        you enabled build-time KV fetch, the deploy will also bake your Admin
+        “Store Settings” into the public static pages.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <button

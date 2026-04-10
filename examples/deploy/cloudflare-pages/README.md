@@ -28,6 +28,19 @@ The integration defines an Astro **env schema** (Stripe keys, optional build hoo
 | Optional `BUILD_HOOK_URL` | **Pages deploy hook URL**. Used by **Admin → Deploy live site** (`POST /api/admin/trigger-deploy`). |
 | Optional `STRIPE_WEBHOOK_AUTO_DEPLOY` | Set to `true` only if you want Stripe `product.*` / `price.*` webhooks to call `BUILD_HOOK_URL` automatically. Omit or `false` to batch edits and deploy manually. |
 
+### Optional: use KV as build-time source of truth (SSG copy)
+
+Public storefront routes (`/`, `/shop`, `/shop/[slug]`) are **SSG** and use `getSiteConfig()` at build time. By default, `getSiteConfig()` does not read KV.
+
+If you want **Admin → Settings** (KV) to control the SSG storefront copy on the next deploy, enable the build-time KV fetch:
+
+- `BODEGACAT_BUILD_FETCH_KV_SETTINGS=1` (build env var)
+- `CLOUDFLARE_API_TOKEN` (secret; must be able to read KV values)
+- `CLOUDFLARE_ACCOUNT_ID`
+- `BODEGACAT_SETTINGS_KV_NAMESPACE_ID` (the namespace id for `SETTINGS_KV`)
+
+On `astro build`, bodegacat fetches the `site_settings` key from that namespace and merges it into `getSiteConfig()` last, so it overrides defaults and `SITE_*` env values in the generated static HTML.
+
 In **Pages → Settings → Environment variables**, add the same names for **Production** (and **Preview** if needed). Mark secrets as **encrypted**.
 
 ## 4. Deploy with Cloudflare Pages (Git)

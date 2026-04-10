@@ -23,6 +23,11 @@ declare module "astro:env/server" {
   export const BODEGACAT_ADMIN_LOCAL_BYPASS: string | undefined;
 }
 
+declare module "virtual:bodegacat-build-kv-settings" {
+  const value: import("./lib/settings").EditableSettings;
+  export default value;
+}
+
 declare module "cloudflare:workers" {
   const env: {
     SETTINGS_KV?: CloudflareKVNamespace;
