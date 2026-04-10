@@ -1,5 +1,10 @@
 /// <reference types="astro/client" />
 
+declare module "virtual:bodegacat-user-product-types" {
+  const value: import("./types/product").ProductType[];
+  export default value;
+}
+
 /**
  * Mirrors `astro:env` output for the schema defined in `integration.ts`.
  * The consuming app also generates `.astro/env.d.ts`; these declarations let

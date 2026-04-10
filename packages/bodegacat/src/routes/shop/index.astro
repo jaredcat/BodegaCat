@@ -83,8 +83,16 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
             <div class="space-y-2">
               <input type="range" min="0" max="1000" class="w-full" />
               <div class="text-muted flex justify-between text-sm">
-                <span>{formatPrice(0, siteConfig.currency, siteConfig.locale)}</span>
-                <span>{formatPrice(100000, siteConfig.currency, siteConfig.locale)}</span>
+                <span
+                  >{
+                    formatPrice(0, siteConfig.currency, siteConfig.locale)
+                  }</span
+                >
+                <span
+                  >{
+                    formatPrice(100000, siteConfig.currency, siteConfig.locale)
+                  }</span
+                >
               </div>
             </div>
           </div>
@@ -109,7 +117,9 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
                     />
                   )}
                   <h3 class="mb-2 text-lg font-semibold">{product.name}</h3>
-                  <p class="text-muted mb-4 line-clamp-2">{product.description}</p>
+                  <p class="text-muted mb-4 line-clamp-2">
+                    {product.description}
+                  </p>
 
                   {product.metadata.tags.length > 0 && (
                     <div class="mb-4 flex flex-wrap gap-1">
@@ -123,9 +133,15 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 
                   <div class="flex items-center justify-between">
                     <span class="text-primary text-xl font-bold">
-                      {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
+                      {formatPrice(
+                        product.basePrice,
+                        product.currency || siteConfig.currency,
+                        siteConfig.locale,
+                      )}
                     </span>
-                    <a href={publicProductPath(product.slug)} class="btn btn-primary">
+                    <a
+                      href={publicProductPath(product.slug)}
+                      class="btn btn-primary">
                       {t.shop.viewDetails}
                     </a>
                   </div>

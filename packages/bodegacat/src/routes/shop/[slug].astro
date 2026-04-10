@@ -1,15 +1,15 @@
 ---
 /**
  * Public product detail — prerendered at build from published Stripe products.
- * Rebuild (or webhook → build hook) when catalog changes.
+ * Redeploy when the live catalog should change.
  */
 export const prerender = true;
 
 import Navbar from '@components/Navbar';
-import Layout from '@layouts/Layout.astro';
-import ProductDetailInner from '../_partials/ProductDetailInner.astro';
 import { getSiteConfig } from '@config/site';
+import Layout from '@layouts/Layout.astro';
 import { getProduct, getProducts } from '@lib/stripe';
+import ProductDetailInner from '../_partials/ProductDetailInner.astro';
 
 export async function getStaticPaths() {
   const products = await getProducts({ includeUnpublished: false });
@@ -28,7 +28,10 @@ if (!product) {
 }
 ---
 
-<Layout title={product.name} description={product.description} siteConfig={siteConfig}>
+<Layout
+  title={product.name}
+  description={product.description}
+  siteConfig={siteConfig}>
   <Navbar siteConfig={siteConfig} client:load />
   <ProductDetailInner product={product} siteConfig={siteConfig} />
 </Layout>

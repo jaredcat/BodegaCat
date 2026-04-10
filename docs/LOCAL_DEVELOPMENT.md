@@ -73,14 +73,14 @@ Useful routes:
 
 ## Storefront preview (unpublished products)
 
-Products can be **active** in Stripe but **not published** to the public catalog (`metadata.bodegacat_published=false`). The **public** site (`/`, `/shop`) is **prerendered** and shows only published items. **Draft preview** is SSR under **`/preview`**, **`/preview/shop`**, **`/preview/shop/[slug]`** — same staff auth as `/admin` (dev bypass locally; Cloudflare Access in production).
+Products can be **active** in Stripe but **not published** to the public catalog (`metadata.bodegacat_published=false`). The **public** site (`/`, `/shop`, `/shop/[slug]`) is **prerendered** (`astro build`) and shows only **published** items from Stripe at **build time**, plus **`getSiteConfig()`** (defaults + optional **`SITE_*`** env) — not KV. **Draft preview** is SSR under **`/preview`**, **`/preview/shop`**, **`/preview/shop/[slug]`** — same staff auth as `/admin` (dev bypass locally; Cloudflare Access in production).
 
 | Environment | How to open preview |
 |---------------|---------------------|
 | **Local dev** | Visit `/preview` or `/preview/shop` (middleware uses the same dev user as admin). |
 | **Production** | Cloudflare Access must allow **`/preview*`** (mirror your `/admin` policy). |
 
-The admin nav links to **`/preview`** when you have draft products. Uncheck **Published on storefront** until you are ready; then redeploy (or rely on the webhook build hook below) so the static catalog updates.
+The admin nav links to **`/preview`** when you have draft products. Uncheck **Published on storefront** until you are ready; then **redeploy** (or use the webhook build hook below) so the **static** catalog updates.
 
 ## Full static rebuilds (deploy hook)
 
@@ -89,7 +89,7 @@ Changing products or prices in Stripe does **not** update prerendered HTML until
 - **Recommended (batch edits):** leave **`STRIPE_WEBHOOK_AUTO_DEPLOY`** unset or **`false`**. Stripe webhooks still verify and log, but they **do not** trigger a deploy on every product save. When staff are happy, use **Admin → Deploy live site** (calls **`BUILD_HOOK_URL`**) for one production build — same as a git push to `main`.
 - **Optional:** set **`STRIPE_WEBHOOK_AUTO_DEPLOY=true`** if you want **`product.*` / `price.*`** Stripe events to call **`BUILD_HOOK_URL`** automatically (can mean many deploys).
 
-That rebuild bakes **catalog** from Stripe at build time and **`SITE_*`** from the build environment. KV-only or env-only changes need a **new build** (manual deploy or hook).
+That rebuild bakes **catalog** from Stripe at build time and **`SITE_*`** from the build environment. **KV** (admin UI) does not update prerendered `/` or `/shop` HTML; align with **`CLAUDE.md`** / **`.cursor/rules/bodegacat-storefront-architecture.mdc`**.
 
 Set **`BUILD_HOOK_URL`** in production to your Pages deploy hook URL (see the [Cloudflare deploy guide](../examples/deploy/cloudflare-pages/README.md)).
 

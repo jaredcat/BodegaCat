@@ -14,8 +14,8 @@ if (!STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
-});
+  apiVersion: STRIPE_API_VERSION,
+} as ConstructorParameters<typeof Stripe>[1]);
 
 /** Public storefront hides products with `metadata.bodegacat_published === "false"`. */
 export function isPublishedOnStorefront(
@@ -58,7 +58,10 @@ export async function getProducts(
   const productsWithPrices = await Promise.all(
     products.data
       .filter((product) => product.metadata.bodegacat_active === "true")
-      .filter((product) => includeUnpublished || isPublishedOnStorefront(product.metadata))
+      .filter(
+        (product) =>
+          includeUnpublished || isPublishedOnStorefront(product.metadata),
+      )
       .map(async (product) => {
         // Get all prices for this product
         const prices = await stripe.prices.list({
@@ -197,7 +200,9 @@ function transformStripeProduct(
       bookingConfig: product.metadata.bookingConfig
         ? (() => {
             try {
-              return JSON.parse(product.metadata.bookingConfig) as import("../types/product").BookingConfig;
+              return JSON.parse(
+                product.metadata.bookingConfig,
+              ) as import("../types/product").BookingConfig;
             } catch {
               return undefined;
             }

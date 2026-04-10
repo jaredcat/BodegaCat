@@ -5,6 +5,7 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import type { AstroIntegration } from "astro";
 import { envField } from "astro/config";
+import type { ProductType } from "./types/product";
 
 /** Directory containing this file (`packages/bodegacat/src`). */
 const packageSrcDir = path.dirname(fileURLToPath(import.meta.url));
@@ -26,6 +27,29 @@ function viteAliases(): Record<string, string> {
 export interface BodegaCatUserOptions {
   /** Optional theme override (reserved for future use; KV theme remains default). */
   theme?: unknown;
+  /**
+   * Optional dev override for default product types before KV exists.
+   * Merchants should use **Admin → Product types** (KV); no code is required for normal setup.
+   */
+  productTypes?: ProductType[];
+}
+
+const VIRTUAL_USER_PRODUCT_TYPES = "\0virtual:bodegacat-user-product-types";
+
+function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
+  return {
+    name: "bodegacat-user-product-types",
+    resolveId(id: string) {
+      if (id === "virtual:bodegacat-user-product-types") {
+        return VIRTUAL_USER_PRODUCT_TYPES;
+      }
+    },
+    load(id: string) {
+      if (id === VIRTUAL_USER_PRODUCT_TYPES) {
+        return `export default ${JSON.stringify(productTypes ?? [])};`;
+      }
+    },
+  };
 }
 
 function routeEntry(pathFromIntegration: string): URL {
@@ -33,9 +57,7 @@ function routeEntry(pathFromIntegration: string): URL {
 }
 
 export default function bodegacat(
-  // Reserved for optional theme override (see packaging plan).
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- options API stub
-  _options?: BodegaCatUserOptions,
+  options?: BodegaCatUserOptions,
 ): AstroIntegration {
   return {
     name: "bodegacat",
@@ -60,7 +82,11 @@ export default function bodegacat(
             domains: ["files.stripe.com"],
           },
           vite: {
-            plugins: [tailwindcss()],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vite types differ when multiple copies are hoisted
+            plugins: [
+              userProductTypesVitePlugin(options?.productTypes),
+              tailwindcss(),
+            ] as any,
             define: {
               global: "globalThis",
             },
@@ -159,6 +185,10 @@ export default function bodegacat(
           ["/success", routeEntry("./routes/success.astro")],
           ["/admin", routeEntry("./routes/admin/index.astro")],
           ["/admin/settings", routeEntry("./routes/admin/settings.astro")],
+          [
+            "/admin/product-types",
+            routeEntry("./routes/admin/product-types.astro"),
+          ],
           ["/admin/products", routeEntry("./routes/admin/products/index.astro")],
           ["/admin/products/new", routeEntry("./routes/admin/products/new.astro")],
           [

@@ -1,0 +1,57 @@
+---
+export const prerender = false;
+
+import AdminNav from "@components/AdminNav";
+import ProductTypesEditor from "@components/ProductTypesEditor";
+import { DevIndicator } from "@components/DevIndicator";
+import { exampleProductTypes, getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import { env } from "cloudflare:workers";
+
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
+const catalogAll = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
+const hasKV = !!kv;
+const canSave = hasKV || import.meta.env.DEV;
+---
+
+<Layout title="Product types" siteConfig={siteConfig} useSiteTheme={false}>
+  <div class="min-h-screen bg-gray-50">
+    <DevIndicator
+      isDevelopment={Astro.locals.user?.isDevelopment}
+      localPreviewBypass={Astro.locals.user?.localPreviewBypass}
+      client:load
+    />
+    <AdminNav
+      client:load
+      currentPage="product-types"
+      hasUnpublishedProducts={hasUnpublishedProducts}
+    />
+
+    <header class="bg-white shadow">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap items-center justify-between gap-4 py-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Product types</h1>
+            <p class="text-gray-600">
+              Define variation templates for your catalog. Every product must use
+              one type.
+            </p>
+          </div>
+          <a href="/admin" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <ProductTypesEditor
+        client:load
+        initialProductTypes={siteConfig.productTypes}
+        exampleDefaults={exampleProductTypes}
+        canSave={canSave}
+      />
+    </main>
+  </div>
+</Layout>

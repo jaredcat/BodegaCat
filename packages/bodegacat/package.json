@@ -1,7 +1,7 @@
 {
   "name": "bodegacat",
   "type": "module",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Astro integration for Bodega Cat e-commerce stores (Cloudflare + Stripe)",
   "license": "AGPL-3.0",
   "author": "JaredCat",
@@ -24,6 +24,7 @@
     "./models/product": "./src/types/product.ts",
     "./types/*": "./src/types/*",
     "./config/site": "./src/config/site.ts",
+    "./config/exampleProductTypes": "./src/config/exampleProductTypes.ts",
     "./i18n": "./src/i18n/index.ts"
   },
   "files": [

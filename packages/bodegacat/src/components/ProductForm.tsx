@@ -39,7 +39,8 @@ export default function ProductForm({
 
   const [bookingConfig, setBookingConfig] = useState(() => {
     const initial =
-      product?.metadata.bookingConfig ?? ({ provider: "calcom", eventSlug: "" } satisfies BookingConfig);
+      product?.metadata.bookingConfig ??
+      ({ provider: "calcom", eventSlug: "" } satisfies BookingConfig);
     return initial;
   });
 
@@ -64,7 +65,10 @@ export default function ProductForm({
       newErrors.basePrice = "Valid price is required";
     }
 
-    if (!formData.productTypeId) {
+    if (productTypes.length === 0) {
+      newErrors.productTypeId =
+        "Add at least one product type under Admin → Product types first.";
+    } else if (!formData.productTypeId) {
       newErrors.productTypeId = "Product type is required";
     }
 
@@ -139,6 +143,18 @@ export default function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {productTypes.length === 0 && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="font-medium">No product types yet</p>
+          <p className="mt-1">
+            Create at least one in{" "}
+            <a href="/admin/product-types" className="font-medium underline">
+              Admin → Product types
+            </a>{" "}
+            before saving a product.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Basic Information */}
         <div className="space-y-4">
@@ -368,7 +384,10 @@ export default function ProductForm({
               }}
               className="mr-2"
             />
-            <label htmlFor="publishedToStorefront" className="text-sm font-medium">
+            <label
+              htmlFor="publishedToStorefront"
+              className="text-sm font-medium"
+            >
               Published on storefront (visible to customers when not in preview)
             </label>
           </div>
@@ -456,12 +475,14 @@ export default function ProductForm({
                     type="text"
                     value={bookingConfig.eventSlug}
                     onChange={(e) => {
-                    setBookingConfig((prev) => ({
-                      provider: "calcom",
-                      eventSlug: e.target.value,
-                      namespace:
-                        prev.provider === "calcom" ? prev.namespace : undefined,
-                    }));
+                      setBookingConfig((prev) => ({
+                        provider: "calcom",
+                        eventSlug: e.target.value,
+                        namespace:
+                          prev.provider === "calcom"
+                            ? prev.namespace
+                            : undefined,
+                      }));
                     }}
                     className="w-full rounded border border-gray-300 px-3 py-2"
                     placeholder="yourname/event-name"
@@ -485,7 +506,8 @@ export default function ProductForm({
                     onChange={(e) => {
                       setBookingConfig((prev) => ({
                         provider: "calcom",
-                        eventSlug: prev.provider === "calcom" ? prev.eventSlug : "",
+                        eventSlug:
+                          prev.provider === "calcom" ? prev.eventSlug : "",
                         namespace: e.target.value || undefined,
                       }));
                     }}
@@ -641,7 +663,7 @@ export default function ProductForm({
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || productTypes.length === 0}
           className="bg-primary hover:bg-primary/90 rounded px-4 py-2 text-white disabled:opacity-50"
         >
           {isSubmitting ? "Saving..." : "Save Product"}

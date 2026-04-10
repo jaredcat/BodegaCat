@@ -1,10 +1,13 @@
 ---
+import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
+import { env } from 'cloudflare:workers';
 
 const sessionId = Astro.url.searchParams.get('session_id');
+const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 ---
 
-<Layout title="Order Successful">
+<Layout title="Order Successful" siteConfig={siteConfig}>
   <div
     class="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">

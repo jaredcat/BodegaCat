@@ -5,6 +5,7 @@ export type AdminNavPage =
   | "products"
   | "new"
   | "settings"
+  | "product-types"
   | "edit";
 
 interface AdminNavProps {
@@ -38,6 +39,12 @@ export default function AdminNav({
       label: "Add Product",
       icon: "➕",
       page: "new",
+    },
+    {
+      href: "/admin/product-types",
+      label: "Product types",
+      icon: "🏷️",
+      page: "product-types",
     },
     { href: "/admin/settings", label: "Settings", icon: "⚙️", page: "settings" },
     {

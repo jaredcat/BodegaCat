@@ -1,5 +1,5 @@
 import type { BodegaCatTheme } from '../themes/types';
-import type { FooterLink, SocialLink } from '../types/product';
+import type { FooterLink, ProductType, SocialLink } from '../types/product';
 
 const SETTINGS_KEY = 'site_settings';
 
@@ -32,6 +32,8 @@ export interface EditableSettings {
   socialLinks?: SocialLink[];
   footerLinks?: FooterLink[];
   theme?: BodegaCatTheme;
+  /** Variation templates for the product editor; stored in KV. Replaces the merged list when set. */
+  productTypes?: ProductType[];
 }
 
 export interface KVNamespace {

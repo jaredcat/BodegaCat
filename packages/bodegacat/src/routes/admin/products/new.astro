@@ -4,12 +4,13 @@ export const prerender = false;
 import AdminNav from '@components/AdminNav';
 import { DevIndicator } from '@components/DevIndicator';
 import ProductForm from '@components/ProductForm';
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
 import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import type { Product } from '@models/product';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 const catalogAll = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 ---

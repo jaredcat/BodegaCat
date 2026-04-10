@@ -5,11 +5,12 @@ import { Image } from 'astro:assets';
 import AdminNav from '@components/AdminNav';
 import DeployLiveSiteButton from '@components/DeployLiveSiteButton';
 import { DevIndicator } from '@components/DevIndicator';
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
 import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 const products = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(products);
 ---

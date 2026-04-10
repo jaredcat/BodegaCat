@@ -1,11 +1,14 @@
 ---
 import Navbar from '@components/Navbar';
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
+import { env } from 'cloudflare:workers';
+
+const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 ---
 
-<Layout title="Checkout">
-  <Navbar siteConfig={getSiteConfig()} client:load />
+<Layout title="Checkout" siteConfig={siteConfig}>
+  <Navbar siteConfig={siteConfig} client:load />
 
   <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
     <h1 class="mb-8 text-3xl font-bold">Checkout</h1>
