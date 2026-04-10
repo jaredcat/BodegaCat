@@ -214,7 +214,11 @@ h6 {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(to bottom right, var(--color-hero-from), var(--color-hero-to));
+  background: linear-gradient(
+    to bottom right,
+    var(--color-hero-from, var(--color-primary)),
+    var(--color-hero-to, var(--color-accent))
+  );
   position: relative;
   overflow: hidden;
 }

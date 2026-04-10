@@ -1,11 +1,11 @@
 ---
-import type { SiteConfig } from '../../../types/product';
 import type { Translations } from '../../../i18n';
+import type { SiteConfig } from '../../../types/product';
 
-import Hero from '../Hero.astro';
-import FeatureGrid from '../FeatureGrid.astro';
 import CTASection from '../CTASection.astro';
+import FeatureGrid from '../FeatureGrid.astro';
 import Footer from '../Footer.astro';
+import Hero from '../Hero.astro';
 
 interface Props {
   siteConfig: SiteConfig;
@@ -15,10 +15,13 @@ interface Props {
 }
 
 const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
+
+const defaultHeroTitle = `Welcome to ${siteConfig.name}`;
+const heroTitle: string = siteConfig.homeHeadline ?? defaultHeroTitle;
 ---
 
 <Hero
-  title={`Welcome to ${siteConfig.name}`}
+  title={heroTitle}
   description={siteConfig.description}
   ctaHref={catalogShopHref}
   ctaText={t.shop.shopNow}
@@ -36,7 +39,8 @@ const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
     },
     {
       title: 'Fast & Simple',
-      description: 'A streamlined shopping experience that gets out of your way.',
+      description:
+        'A streamlined shopping experience that gets out of your way.',
       icon: '⚡',
       accentColor: 'accent',
     },
@@ -57,4 +61,3 @@ const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
 />
 
 <Footer siteConfig={siteConfig} t={t} copyrightYear={copyrightYear} />
-

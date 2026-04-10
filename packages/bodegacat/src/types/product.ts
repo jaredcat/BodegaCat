@@ -174,6 +174,8 @@ export interface SiteConfig {
   currency: string;
 
   // ─── Customizable copy ──────────────────────────────────────────────────
+  /** Main homepage headline (H1). If omitted, the homepage falls back to "Welcome to {name}". */
+  homeHeadline?: string;
   /** Tagline displayed on the shop listing page below the "Shop" heading. */
   shopTagline: string;
   /** Heading for the about section on the homepage. */

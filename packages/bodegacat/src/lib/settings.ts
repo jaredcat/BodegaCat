@@ -1,7 +1,7 @@
-import type { BodegaCatTheme } from '../themes/types';
-import type { FooterLink, ProductType, SocialLink } from '../types/product';
+import type { BodegaCatTheme } from "../themes/types";
+import type { FooterLink, ProductType, SocialLink } from "../types/product";
 
-const SETTINGS_KEY = 'site_settings';
+const SETTINGS_KEY = "site_settings";
 
 // In-memory fallback used when KV is not available (e.g. `astro dev`).
 // Resets on server restart, but lets the admin UI work locally.
@@ -25,6 +25,7 @@ export interface EditableSettings {
   favicon?: string;
   locale?: string;
   currency?: string;
+  homeHeadline?: string;
   shopTagline?: string;
   aboutTitle?: string;
   aboutText?: string;
@@ -37,7 +38,9 @@ export interface EditableSettings {
 }
 
 export interface KVNamespace {
-  get(key: string, type: 'json'): Promise<unknown>;
+  // Cloudflare KV returns `unknown` (and `null` when key is missing).
+  // Keep this broad so the real `CloudflareKVNamespace` binding is assignable.
+  get(key: string, type: "json"): Promise<unknown>;
   put(key: string, value: string): Promise<void>;
 }
 
@@ -62,8 +65,9 @@ export async function getStoredSettings(
 ): Promise<EditableSettings> {
   if (!kv) return getFromDevStore();
   try {
-    const raw = await kv.get(SETTINGS_KEY, 'json');
-    return (raw as EditableSettings) ?? {};
+    const raw = await kv.get(SETTINGS_KEY, "json");
+    if (!raw || typeof raw !== "object") return {};
+    return raw as EditableSettings;
   } catch {
     // KV unavailable (e.g. placeholder namespace IDs in dev) — use in-memory store
     return getFromDevStore();

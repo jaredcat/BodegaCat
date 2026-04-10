@@ -26,6 +26,7 @@ export const defaultSiteConfig: SiteConfig = {
   locale: "en-US",
   currency: "USD",
 
+  homeHeadline: undefined,
   shopTagline: "Discover our collection of products",
   aboutTitle: "About Us",
   aboutText:
@@ -128,6 +129,8 @@ function mergeSettings(
   if (overrides.favicon !== undefined) merged.favicon = overrides.favicon;
   if (overrides.locale !== undefined) merged.locale = overrides.locale;
   if (overrides.currency !== undefined) merged.currency = overrides.currency;
+  if (overrides.homeHeadline !== undefined)
+    merged.homeHeadline = overrides.homeHeadline;
   if (overrides.shopTagline !== undefined)
     merged.shopTagline = overrides.shopTagline;
   if (overrides.aboutTitle !== undefined)
