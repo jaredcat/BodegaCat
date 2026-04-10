@@ -1,7 +1,7 @@
 {
   "name": "bodegacat",
   "type": "module",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Astro integration for Bodega Cat e-commerce stores (Cloudflare + Stripe)",
   "license": "AGPL-3.0",
   "author": "JaredCat",

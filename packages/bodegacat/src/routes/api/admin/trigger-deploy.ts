@@ -14,7 +14,9 @@ export const POST: APIRoute = async () => {
       JSON.stringify({
         ok: false,
         error:
-          "BUILD_HOOK_URL is not set. Add your Cloudflare Pages deploy hook URL to worker secrets, then try again.",
+          "Deploy isn’t available for this site yet.",
+        learnMore:
+          "https://github.com/jaredcat/BodegaCat/blob/main/examples/deploy/cloudflare-pages/README.md",
       }),
       {
         status: 503,

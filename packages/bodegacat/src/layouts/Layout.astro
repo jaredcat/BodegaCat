@@ -45,8 +45,12 @@ const lang = siteConfig.locale.split('-')[0];
 
 // Build the CSS variable block from the active theme.
 // Any custom variables added by third-party themes are automatically included.
+//
+// NOTE: Our base stylesheet includes default values for many of these variables.
+// To ensure KV/admin-selected theme values always win (including in preview),
+// mark the injected variables as `!important`.
 const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
-  .map(([k, v]) => `  ${k}: ${String(v)};`)
+  .map(([k, v]) => `  ${k}: ${String(v)} !important;`)
   .join('\n');
 ---
 

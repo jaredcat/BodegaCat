@@ -143,28 +143,37 @@ const buildKvConfigured = buildKvMeta.configured;
         </div>
         <div class="px-6 py-4">
           <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
-            <p class="font-medium text-gray-900">Build-time KV for SSG</p>
+            <p class="font-medium text-gray-900">What updates the live site?</p>
             <p class="mt-1 text-gray-700">
+              Changes you make in the admin are visible right away in{' '}
+              <a href="/preview" class="text-primary font-medium hover:underline">
+                Preview
+              </a>
+              . To update the public storefront, you’ll run a deploy (below).
+            </p>
+            <p class="mt-2 text-gray-700">
+              <span class="font-medium">Store Settings on the live site:</span>{' '}
               {buildKvConfigured ? (
-                <span class="font-medium text-green-700">Configured</span>
+                <span class="font-medium text-green-700">enabled</span>
               ) : (
-                <span class="font-medium text-amber-700">Not configured</span>
+                <span class="font-medium text-amber-700">not enabled</span>
               )}
               <span class="text-gray-600">
                 {' '}
-                — this controls whether Admin “Store Settings” are baked into the public static pages on the next deploy.
+                — if this is not enabled, the live site will keep using its
+                current branding for now.
               </span>
             </p>
-            {!buildKvConfigured && (
-              <p class="mt-2 text-gray-700">
-                To enable: set{' '}
-                <code class="rounded bg-white px-1">BODEGACAT_BUILD_FETCH_KV_SETTINGS=1</code>,{' '}
-                <code class="rounded bg-white px-1">CLOUDFLARE_API_TOKEN</code>,{' '}
-                <code class="rounded bg-white px-1">CLOUDFLARE_ACCOUNT_ID</code>, and{' '}
-                <code class="rounded bg-white px-1">BODEGACAT_SETTINGS_KV_NAMESPACE_ID</code>{' '}
-                in your <strong>Cloudflare Build</strong> environment.
-              </p>
-            )}
+            <p class="mt-2 text-gray-700">
+              <a
+                class="text-primary font-medium hover:underline"
+                href="https://github.com/jaredcat/BodegaCat/blob/main/examples/deploy/cloudflare-pages/README.md"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Technical details for developers →
+              </a>
+            </p>
           </div>
           <DeployLiveSiteButton client:load />
         </div>

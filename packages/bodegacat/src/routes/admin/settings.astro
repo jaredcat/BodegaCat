@@ -67,27 +67,31 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
         <div class="mx-auto max-w-4xl px-4 pt-6 sm:px-6 lg:px-8">
           <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
             <p class="text-sm font-medium text-amber-800">
-              Settings KV not configured.
+              Saving isn’t available here yet.
             </p>
             <p class="mt-1 text-sm text-amber-700">
               {import.meta.env.DEV ? (
                 <>
-                  You’re in dev mode — changes will be saved in memory (reset on
-                  server restart). Bind{" "}
-                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code> in{" "}
-                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{" "}
-                  for real persistence.
+                  You’re running locally — changes will work for now, but will
+                  reset when the server restarts.
                 </>
               ) : (
                 <>
-                  Add a{" "}
-                  <code class="rounded bg-amber-100 px-1">SETTINGS_KV</code>{" "}
-                  binding to your{" "}
-                  <code class="rounded bg-amber-100 px-1">wrangler.toml</code>{" "}
-                  to enable live settings editing. Until then, use environment
-                  variables to configure your store (see the deployment guide).
+                  Changes can be viewed, but they won’t be saved in this
+                  environment.
                 </>
               )}
+              <span class="text-amber-700">
+                {" "}
+                <a
+                  class="font-medium underline"
+                  href="https://github.com/jaredcat/BodegaCat/blob/main/examples/deploy/cloudflare-pages/README.md"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Learn more
+                </a>
+              </span>
             </p>
           </div>
         </div>
@@ -540,31 +544,31 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             <div id="social-links" class="space-y-3">
               {
                 siteConfig.socialLinks.map((link, i) => (
-                  <div class="social-link-row flex gap-3">
+                  <div class="social-link-row grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-center">
                     <input
                       type="text"
                       name={`socialLinks[${String(i)}][platform]`}
                       value={link.platform}
                       placeholder="instagram"
-                      class="input w-36 flex-none"
+                      class="input sm:col-span-3"
                     />
                     <input
                       type="url"
                       name={`socialLinks[${String(i)}][url]`}
                       value={link.url}
                       placeholder="https://instagram.com/yourstore"
-                      class="input flex-1"
+                      class="input sm:col-span-6"
                     />
                     <input
                       type="text"
                       name={`socialLinks[${String(i)}][label]`}
                       value={link.label ?? ""}
                       placeholder="Label (optional)"
-                      class="input w-40 flex-none"
+                      class="input sm:col-span-2"
                     />
                     <button
                       type="button"
-                      class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500"
+                      class="btn btn-outline remove-social-link w-full px-3 text-red-500 hover:border-red-500 sm:col-span-1 sm:w-auto"
                     >
                       ✕
                     </button>
@@ -615,7 +619,7 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
             class="btn btn-primary px-8"
             disabled={!canSave}
           >
-            {canSave ? "Save Settings" : "KV Not Configured"}
+            {canSave ? "Save Settings" : "Saving not enabled"}
           </button>
         </div>
       </form>
@@ -791,12 +795,13 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
   document.getElementById("add-social-link")?.addEventListener("click", () => {
     const container = document.getElementById("social-links")!;
     const row = document.createElement("div");
-    row.className = "social-link-row flex gap-3";
+    row.className =
+      "social-link-row grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-center";
     row.innerHTML = `
-      <input type="text" name="socialLinks[${socialLinkCount}][platform]" placeholder="instagram" class="input w-36 flex-none" />
-      <input type="url" name="socialLinks[${socialLinkCount}][url]" placeholder="https://..." class="input flex-1" />
-      <input type="text" name="socialLinks[${socialLinkCount}][label]" placeholder="Label (optional)" class="input w-40 flex-none" />
-      <button type="button" class="btn btn-outline remove-social-link px-3 text-red-500 hover:border-red-500">✕</button>
+      <input type="text" name="socialLinks[${socialLinkCount}][platform]" placeholder="instagram" class="input sm:col-span-3" />
+      <input type="url" name="socialLinks[${socialLinkCount}][url]" placeholder="https://..." class="input sm:col-span-6" />
+      <input type="text" name="socialLinks[${socialLinkCount}][label]" placeholder="Label (optional)" class="input sm:col-span-2" />
+      <button type="button" class="btn btn-outline remove-social-link w-full px-3 text-red-500 hover:border-red-500 sm:col-span-1 sm:w-auto">✕</button>
     `;
     container.appendChild(row);
     row

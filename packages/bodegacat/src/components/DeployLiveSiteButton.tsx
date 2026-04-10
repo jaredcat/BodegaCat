@@ -40,14 +40,11 @@ export default function DeployLiveSiteButton() {
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-600">
-        Runs your Cloudflare <strong>BUILD_HOOK_URL</strong> (same as a git push).
-        Stripe webhooks do <strong>not</strong> auto-deploy unless{" "}
-        <code className="rounded bg-gray-100 px-1 text-xs">
-          STRIPE_WEBHOOK_AUTO_DEPLOY=true
-        </code>{" "}
-        is set — so you can batch edits in preview, then deploy once here. If
-        you enabled build-time KV fetch, the deploy will also bake your Admin
-        “Store Settings” into the public static pages.
+        Starts a deploy to update the public storefront. Use{" "}
+        <a className="font-medium underline" href="/preview">
+          Preview
+        </a>{" "}
+        to check changes first, then deploy once when you’re ready.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <button
