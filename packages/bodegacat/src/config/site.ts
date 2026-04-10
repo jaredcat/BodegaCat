@@ -5,7 +5,7 @@ import type { EditableSettings, KVNamespace } from "../lib/settings";
 import { getStoredSettings } from "../lib/settings";
 import { bodegaCatTheme } from "../themes/bodegacat";
 import type { BodegaCatTheme } from "../themes/types";
-import type { ProductType, SiteConfig } from "../types/product";
+import type { SiteConfig } from "../types/product";
 import { exampleProductTypes } from "./exampleProductTypes";
 
 export { exampleProductTypes };
@@ -59,15 +59,13 @@ export const defaultSiteConfig: SiteConfig = {
  * getEffectiveConfig(kv) instead.
  */
 export function getSiteConfig(): SiteConfig {
-  const config = structuredClone(defaultSiteConfig) as SiteConfig;
+  const config: SiteConfig = structuredClone(defaultSiteConfig);
 
   if (userProductTypesFromIntegration.length > 0) {
-    config.productTypes = structuredClone(
-      userProductTypesFromIntegration,
-    ) as ProductType[];
+    config.productTypes = structuredClone(userProductTypesFromIntegration);
   }
 
-  // ble overrides (optional — set these in .env or Cloudflare dashboard)
+  // Environment variable overrides (optional — set these in .env or Cloudflare dashboard)
   if (process.env.SITE_NAME) config.name = process.env.SITE_NAME;
   if (process.env.SITE_DESCRIPTION)
     config.description = process.env.SITE_DESCRIPTION;
@@ -143,15 +141,13 @@ function mergeSettings(
       ...base.theme,
       ...overrides.theme,
       variables: {
-        variables,
+        ...base.theme.variables,
         ...overrides.theme.variables,
       },
     };
   }
   if (overrides.productTypes !== undefined) {
-    merged.productTypes = structuredClone(
-      overrides.productTypes,
-    ) as ProductType[];
+    merged.productTypes = structuredClone(overrides.productTypes);
   }
 
   return merged;
