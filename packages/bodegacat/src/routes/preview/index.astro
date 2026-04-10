@@ -6,7 +6,7 @@ import Navbar from '@components/Navbar';
 import { getEffectiveConfig } from '@config/site';
 import { getTranslations, formatPrice } from '@i18n';
 import Layout from '@layouts/Layout.astro';
-import { getProducts } from '@lib/stripe';
+import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import { previewProductPath, previewShopIndexPath } from '@lib/catalog-paths';
 import ThemeHomePage from '@themes/runtime/HomePage.astro';
 import { env } from 'cloudflare:workers';
@@ -16,13 +16,19 @@ const siteConfig = await getEffectiveConfig(kv);
 const t = getTranslations(siteConfig.locale);
 
 const products = await getProducts({ includeUnpublished: true });
+const previewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
 const featuredProducts = products.slice(0, 6);
 const copyrightYear = new Date().getFullYear();
 
 const shopList = previewShopIndexPath();
 ---
 
-<Layout title="Home (preview)" siteConfig={siteConfig} storefrontPreview={true}>
+<Layout
+  title="Home (preview)"
+  siteConfig={siteConfig}
+  storefrontPreview={true}
+  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
+>
   <Navbar siteConfig={siteConfig} client:load />
 
   <ThemeHomePage

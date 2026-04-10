@@ -14,6 +14,7 @@ declare module "astro:env/server" {
   export const STRIPE_SECRET_KEY: string;
   export const STRIPE_WEBHOOK_SECRET: string;
   export const BUILD_HOOK_URL: string | undefined;
+  export const STRIPE_WEBHOOK_AUTO_DEPLOY: string | undefined;
   export const BODEGACAT_ADMIN_LOCAL_BYPASS: string | undefined;
 }
 

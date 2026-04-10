@@ -113,6 +113,16 @@ export default function bodegacat(
                 optional: true,
               }),
               /**
+               * When `true` or `1`, Stripe product/price webhook events call `BUILD_HOOK_URL`.
+               * Omit or set to `false` to avoid a production deploy on every Stripe save — use
+               * **Deploy live site** in admin when ready instead.
+               */
+              STRIPE_WEBHOOK_AUTO_DEPLOY: envField.string({
+                context: "server",
+                access: "secret",
+                optional: true,
+              }),
+              /**
                * When `true` or `1`, allow `/admin` without Cloudflare Access **only** on loopback
                * (localhost / 127.0.0.1). For `wrangler dev` / built preview. Never set in production.
                */
@@ -164,6 +174,10 @@ export default function bodegacat(
           [
             "/api/admin/settings",
             routeEntry("./routes/api/admin/settings.ts"),
+          ],
+          [
+            "/api/admin/trigger-deploy",
+            routeEntry("./routes/api/admin/trigger-deploy.ts"),
           ],
         ];
 

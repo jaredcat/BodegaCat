@@ -82,16 +82,16 @@ Products can be **active** in Stripe but **not published** to the public catalog
 
 The admin nav links to **`/preview`** when you have draft products. Uncheck **Published on storefront** until you are ready; then redeploy (or rely on the webhook build hook below) so the static catalog updates.
 
-## Full static rebuilds (Stripe webhook → deploy hook)
+## Full static rebuilds (deploy hook)
 
-Changing products or prices in Stripe does **not** update prerendered HTML until the next **`astro build`**. The **`POST /api/stripe-webhook`** handler already calls **`BUILD_HOOK_URL`** (if set) after **`product.*`**, **`price.*`**, etc., so your host runs a **full site build + deploy** — the same outcome as pushing to `main` or clicking “Retry deployment.” That rebuild bakes:
+Changing products or prices in Stripe does **not** update prerendered HTML until the next **`astro build`**.
 
-- **Catalog**: `getStaticPaths` / `getProducts` from Stripe at build time.
-- **Public copy/theme from env**: `SITE_NAME`, `SITE_*` from the **build environment** (e.g. Cloudflare Pages variables for that build).
+- **Recommended (batch edits):** leave **`STRIPE_WEBHOOK_AUTO_DEPLOY`** unset or **`false`**. Stripe webhooks still verify and log, but they **do not** trigger a deploy on every product save. When staff are happy, use **Admin → Deploy live site** (calls **`BUILD_HOOK_URL`**) for one production build — same as a git push to `main`.
+- **Optional:** set **`STRIPE_WEBHOOK_AUTO_DEPLOY=true`** if you want **`product.*` / `price.*`** Stripe events to call **`BUILD_HOOK_URL`** automatically (can mean many deploys).
 
-**What the webhook does *not* do:** it only runs when **Stripe** sends an event. If you **only** change **Cloudflare env vars** or **KV** in the dashboard, there is no Stripe event — trigger a deploy manually (or a separate workflow) so a new build picks those up.
+That rebuild bakes **catalog** from Stripe at build time and **`SITE_*`** from the build environment. KV-only or env-only changes need a **new build** (manual deploy or hook).
 
-Set **`BUILD_HOOK_URL`** in production to your Pages deploy hook URL or CI pipeline (see the [Cloudflare deploy guide](../examples/deploy/cloudflare-pages/README.md)).
+Set **`BUILD_HOOK_URL`** in production to your Pages deploy hook URL (see the [Cloudflare deploy guide](../examples/deploy/cloudflare-pages/README.md)).
 
 ## Stripe test data
 

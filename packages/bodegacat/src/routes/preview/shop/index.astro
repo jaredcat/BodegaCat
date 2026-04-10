@@ -6,7 +6,7 @@ import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import { getEffectiveConfig } from '@config/site';
 import { getTranslations, formatPrice } from '@i18n';
-import { getProducts } from '@lib/stripe';
+import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import { previewProductPath } from '@lib/catalog-paths';
 import { env } from 'cloudflare:workers';
 
@@ -15,6 +15,7 @@ const siteConfig = await getEffectiveConfig(kv);
 const t = getTranslations(siteConfig.locale);
 
 const products = await getProducts({ includeUnpublished: true });
+const previewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
 
 const categories = [
   ...new Set(products.map((p) => p.metadata.category).filter(Boolean)),
@@ -22,7 +23,12 @@ const categories = [
 const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
 ---
 
-<Layout title={t.shop.title} siteConfig={siteConfig} storefrontPreview={true}>
+<Layout
+  title={t.shop.title}
+  siteConfig={siteConfig}
+  storefrontPreview={true}
+  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
+>
   <Navbar siteConfig={siteConfig} client:load />
 
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

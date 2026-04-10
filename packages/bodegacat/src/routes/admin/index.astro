@@ -3,6 +3,7 @@ export const prerender = false;
 
 import { Image } from 'astro:assets';
 import AdminNav from '@components/AdminNav';
+import DeployLiveSiteButton from '@components/DeployLiveSiteButton';
 import { DevIndicator } from '@components/DevIndicator';
 import { getSiteConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
@@ -123,6 +124,22 @@ const hasUnpublishedProducts = hasUnpublishedDrafts(products);
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="mb-8 rounded-lg border border-slate-200 bg-white shadow">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-medium text-gray-900">Live static storefront</h2>
+          <p class="mt-1 text-sm text-gray-500">
+            Public pages are pre-built at deploy time. Edit products and use{' '}
+            <a href="/preview" class="text-primary font-medium hover:underline">
+              /preview
+            </a>{' '}
+            until you are ready, then deploy once.
+          </p>
+        </div>
+        <div class="px-6 py-4">
+          <DeployLiveSiteButton client:load />
         </div>
       </div>
 

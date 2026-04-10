@@ -25,7 +25,8 @@ The integration defines an Astro **env schema** (Stripe keys, optional build hoo
 | `STRIPE_PUBLISHABLE_KEY` | Client + build |
 | `STRIPE_SECRET_KEY` | Server + build (prerender reads Stripe at build time; APIs and `/preview/*` at runtime) |
 | `STRIPE_WEBHOOK_SECRET` | Server webhook route |
-| Optional `BUILD_HOOK_URL` | **Pages deploy hook URL** (or CI). On `product.*` / `price.*` Stripe events, `/api/stripe-webhook` POSTs here so Cloudflare runs a **full** `astro build` + deploy — same as a new Git push. Prerendered `/`, `/shop`, and `/shop/[slug]` then match Stripe. |
+| Optional `BUILD_HOOK_URL` | **Pages deploy hook URL**. Used by **Admin → Deploy live site** (`POST /api/admin/trigger-deploy`). |
+| Optional `STRIPE_WEBHOOK_AUTO_DEPLOY` | Set to `true` only if you want Stripe `product.*` / `price.*` webhooks to call `BUILD_HOOK_URL` automatically. Omit or `false` to batch edits and deploy manually. |
 
 In **Pages → Settings → Environment variables**, add the same names for **Production** (and **Preview** if needed). Mark secrets as **encrypted**.
 

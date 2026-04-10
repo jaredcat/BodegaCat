@@ -7,20 +7,24 @@ export interface PreviewProductContext {
 }
 
 interface StorefrontPreviewBannerProps {
-  /** Public home (`/`) — leaves staff preview and opens the prerendered storefront. */
+  /** Public home (`/`) — opens the prerendered storefront. */
   readonly exitHref: string;
-  /** When set on `/preview/shop/[slug]`, Publish can promote this draft to live. */
+  /** When set on `/preview/shop/[slug]`, Publish can promote this draft to live in Stripe. */
   readonly previewProduct?: PreviewProductContext | null;
+  /** True if any product is unpublished — shows “Back to admin” and draft-oriented copy. */
+  readonly catalogHasDraftProducts: boolean;
 }
 
 export default function StorefrontPreviewBanner({
   exitHref,
   previewProduct,
+  catalogHasDraftProducts,
 }: Readonly<StorefrontPreviewBannerProps>) {
-  const [busy, setBusy] = useState<"publish" | "discard" | null>(null);
+  const [busy, setBusy] = useState<"publish" | "back" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canPublish = previewProduct?.draft === true;
+  const showBackToAdmin = catalogHasDraftProducts;
 
   async function publish() {
     if (!previewProduct?.draft) return;
@@ -45,9 +49,9 @@ export default function StorefrontPreviewBanner({
     }
   }
 
-  async function discard() {
+  async function backToAdmin() {
     setError(null);
-    setBusy("discard");
+    setBusy("back");
     try {
       await fetch("/api/admin/clear-storefront-preview", {
         method: "POST",
@@ -55,11 +59,15 @@ export default function StorefrontPreviewBanner({
       });
       window.location.href = "/admin/products";
     } catch {
-      setError("Could not leave preview");
+      setError("Could not navigate back");
     } finally {
       setBusy(null);
     }
   }
+
+  const blurb = catalogHasDraftProducts
+    ? "Unpublished drafts are hidden on the live site until you deploy."
+    : "Staff preview — same published catalog as live; KV/theme may differ until you deploy.";
 
   return (
     <div
@@ -69,9 +77,7 @@ export default function StorefrontPreviewBanner({
       <div className="min-w-0 flex-1 sm:text-center">
         <span className="font-medium">Storefront preview</span>
         <span className="hidden sm:inline"> — </span>
-        <span className="block sm:inline">
-          showing unpublished products.
-        </span>
+        <span className="block sm:inline">{blurb}</span>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">
         {canPublish && (
@@ -83,24 +89,26 @@ export default function StorefrontPreviewBanner({
               void publish();
             }}
           >
-            {busy === "publish" ? "Publishing…" : "Publish"}
+            {busy === "publish" ? "Publishing…" : "Publish product"}
           </button>
         )}
-        <button
-          type="button"
-          className="rounded border border-white/50 bg-white/15 px-3 py-1 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60"
-          disabled={busy !== null}
-          onClick={() => {
-            void discard();
-          }}
-        >
-          {busy === "discard" ? "Leaving…" : "Discard"}
-        </button>
+        {showBackToAdmin && (
+          <button
+            type="button"
+            className="rounded border border-white/50 bg-white/15 px-3 py-1 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60"
+            disabled={busy !== null}
+            onClick={() => {
+              void backToAdmin();
+            }}
+          >
+            {busy === "back" ? "…" : "Back to admin"}
+          </button>
+        )}
         <a
           href={exitHref}
           className="rounded border border-transparent px-2 py-1 text-sm underline decoration-white/80 hover:decoration-white"
         >
-          Exit preview
+          View live site
         </a>
       </div>
       {error !== null && (

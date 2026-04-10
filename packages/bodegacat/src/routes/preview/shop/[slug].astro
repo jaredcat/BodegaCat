@@ -5,7 +5,7 @@ import Navbar from '@components/Navbar';
 import Layout from '@layouts/Layout.astro';
 import ProductDetailInner from '../../_partials/ProductDetailInner.astro';
 import { getEffectiveConfig } from '@config/site';
-import { getProduct } from '@lib/stripe';
+import { getProduct, getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import { previewShopIndexPath } from '@lib/catalog-paths';
 import { env } from 'cloudflare:workers';
 
@@ -21,6 +21,9 @@ const product = await getProduct(slug, { includeUnpublished: true });
 if (!product) {
   return Astro.redirect(previewShopIndexPath());
 }
+
+const catalogAll = await getProducts({ includeUnpublished: true });
+const previewCatalogHasDraftProducts = hasUnpublishedDrafts(catalogAll);
 ---
 
 <Layout
@@ -28,6 +31,7 @@ if (!product) {
   description={product.description}
   siteConfig={siteConfig}
   storefrontPreview={true}
+  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
   previewProduct={{
     id: product.id,
     draft: product.metadata.publishedToStorefront === false,

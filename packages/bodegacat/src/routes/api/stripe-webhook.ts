@@ -1,47 +1,14 @@
 import { getSiteConfig } from "@config/site";
+import { triggerProductionDeployHook } from "@lib/deploy-hook";
 import { stripe } from "@lib/stripe";
-import { BUILD_HOOK_URL } from "astro:env/server";
+import { STRIPE_WEBHOOK_AUTO_DEPLOY } from "astro:env/server";
 import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-/**
- * When `BUILD_HOOK_URL` is set (e.g. Cloudflare Pages deploy hook or CI dispatch),
- * product/price webhook events trigger a **full** production build: prerendered `/`,
- * `/shop`, `/shop/[slug]` plus the Worker — same as a manual deploy.
- */
-async function triggerBuildHook(
-  eventType: string,
-  data: Record<string, unknown>,
-) {
-  if (!BUILD_HOOK_URL) {
-    console.log(
-      "[stripe-webhook] BUILD_HOOK_URL not set — skipping deploy hook (static catalog will update on next deploy)",
-    );
-    return;
-  }
-
-  try {
-    const response = await fetch(BUILD_HOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: eventType,
-        data,
-        timestamp: new Date().toISOString(),
-      }),
-    });
-
-    if (response.ok) {
-      console.log("Build hook triggered successfully");
-    } else {
-      console.error("Failed to trigger build hook:", response.status);
-    }
-  } catch (error) {
-    console.error("Error triggering build hook:", error);
-  }
+function stripeWebhookShouldAutoDeploy(): boolean {
+  const v = STRIPE_WEBHOOK_AUTO_DEPLOY;
+  return v === "true" || v === "1";
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -79,7 +46,15 @@ export const POST: APIRoute = async ({ request }) => {
   if (shouldTriggerRebuild) {
     console.log(`${event.type} event received`);
     const eventData = event.data.object as { id: string };
-    await triggerBuildHook(event.type, { id: eventData.id });
+    if (stripeWebhookShouldAutoDeploy()) {
+      await triggerProductionDeployHook(`stripe:${event.type}`, {
+        id: eventData.id,
+      });
+    } else {
+      console.log(
+        "[stripe-webhook] STRIPE_WEBHOOK_AUTO_DEPLOY is not true — skipping deploy hook (use Admin → Deploy live site when ready)",
+      );
+    }
   } else if (event.type === "checkout.session.completed") {
     console.log("Checkout completed:", event.data.object);
   } else {

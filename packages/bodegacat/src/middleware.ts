@@ -42,8 +42,12 @@ function isAdminLocalPreviewBypass(
   return isLoopbackHostname(context.url.hostname);
 }
 
-/** `/admin/*` and `/preview/*` (draft storefront SSR) use the same staff gate as admin. */
+/**
+ * Staff-only routes: admin UI, draft preview, and admin APIs.
+ * Public APIs (`/api/stripe-webhook`, checkout, etc.) stay unauthenticated here.
+ */
 function requiresStaffAccess(pathname: string): boolean {
+  if (pathname.startsWith("/api/admin")) return true;
   if (pathname.startsWith("/admin")) return true;
   if (pathname === "/preview" || pathname.startsWith("/preview/")) return true;
   return false;
