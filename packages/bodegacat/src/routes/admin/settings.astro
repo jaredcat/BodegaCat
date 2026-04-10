@@ -1,8 +1,10 @@
 ---
 export const prerender = false;
 
+import AdminNav from "@components/AdminNav";
 import { getEffectiveConfig } from "@config/site";
 import Layout from "@layouts/Layout.astro";
+import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
 import { builtInThemes } from "@themes";
 import type { BuiltInThemeName } from "@themes";
 import { bodegaCatTheme } from "@themes/bodegacat";
@@ -12,6 +14,8 @@ import { env } from "cloudflare:workers";
 
 const kv = env.SETTINGS_KV;
 const siteConfig = await getEffectiveConfig(kv);
+const catalogAll = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 const hasKV = !!kv;
 const canSave = hasKV || import.meta.env.DEV;
 
@@ -39,6 +43,11 @@ const themeVars = siteConfig.theme.variables as unknown as Record<
 
 <Layout title="Store Settings" siteConfig={siteConfig} useSiteTheme={false}>
   <div class="min-h-screen bg-gray-50">
+    <AdminNav
+      client:load
+      currentPage="settings"
+      hasUnpublishedProducts={hasUnpublishedProducts}
+    />
     <header class="bg-white shadow">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between py-6">

@@ -2,13 +2,15 @@
 export const prerender = false;
 
 import { Image } from 'astro:assets';
+import AdminNav from '@components/AdminNav';
 import { DevIndicator } from '@components/DevIndicator';
 import { getSiteConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
-import { getProducts } from '@lib/stripe';
+import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 
 const siteConfig = getSiteConfig();
-const products = await getProducts();
+const products = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(products);
 ---
 
 <Layout title="Admin Dashboard" useSiteTheme={false}>
@@ -18,6 +20,11 @@ const products = await getProducts();
       isDevelopment={Astro.locals.user?.isDevelopment}
       localPreviewBypass={Astro.locals.user?.localPreviewBypass}
       client:load
+    />
+    <AdminNav
+      client:load
+      currentPage="dashboard"
+      hasUnpublishedProducts={hasUnpublishedProducts}
     />
 
     <!-- Admin Header -->
@@ -184,7 +191,7 @@ const products = await getProducts();
             </a>
 
             <a
-              href="/"
+              href={hasUnpublishedProducts ? '/preview' : '/'}
               class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
               <svg
                 class="mr-3 h-6 w-6 text-green-500"
@@ -203,7 +210,9 @@ const products = await getProducts();
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 ></path>
               </svg>
-              <span class="font-medium">View Store</span>
+              <span class="font-medium">
+                {hasUnpublishedProducts ? 'View storefront (drafts)' : 'View storefront'}
+              </span>
             </a>
           </div>
         </div>
@@ -269,14 +278,21 @@ const products = await getProducts();
                       ${(product.basePrice / 100).toFixed(2)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <span
-                        class={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                          product.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                        {product.active ? 'Active' : 'Inactive'}
-                      </span>
+                      <div class="flex flex-col gap-1">
+                        <span
+                          class={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold ${
+                            product.active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                          {product.active ? 'Active' : 'Inactive'}
+                        </span>
+                        {product.metadata.publishedToStorefront === false && (
+                          <span class="inline-flex w-fit rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">
+                            Draft on storefront
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
                       {product.updatedAt.toLocaleDateString()}
@@ -288,7 +304,11 @@ const products = await getProducts();
                         Edit
                       </a>
                       <a
-                        href={`/shop/${product.slug}`}
+                        href={
+                          product.metadata.publishedToStorefront === false
+                            ? `/preview/shop/${product.slug}`
+                            : `/shop/${product.slug}`
+                        }
                         class="text-gray-600 hover:text-gray-900">
                         View
                       </a>

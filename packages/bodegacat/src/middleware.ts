@@ -22,8 +22,6 @@ function parseAccessJwtEmail(token: string | undefined): string | null {
   }
 }
 
-const STOREFRONT_PREVIEW_COOKIE = "bodegacat_storefront_preview";
-
 function isLoopbackHostname(hostname: string): boolean {
   return (
     hostname === "localhost" ||
@@ -44,99 +42,20 @@ function isAdminLocalPreviewBypass(
   return isLoopbackHostname(context.url.hostname);
 }
 
-function isStorefrontCatalogPath(pathname: string): boolean {
-  if (pathname === "/" || pathname === "") return true;
-  return pathname === "/shop" || pathname.startsWith("/shop/");
+/** `/admin/*` and `/preview/*` (draft storefront SSR) use the same staff gate as admin. */
+function requiresStaffAccess(pathname: string): boolean {
+  if (pathname.startsWith("/admin")) return true;
+  if (pathname === "/preview" || pathname.startsWith("/preview/")) return true;
+  return false;
 }
 
-/** Cloudflare Access identity in production, or null for anonymous visitors. */
-function getOptionalProductionAccessUser(
-  context: APIContext,
-): { email: string; jwt: string } | null {
-  const cfAccessJwt =
-    context.request.headers.get("cf-access-jwt-assertion") ??
-    context.cookies.get("CF_Authorization")?.value;
-  const cfAccessEmail =
-    context.request.headers.get("cf-access-user-email") ??
-    parseAccessJwtEmail(cfAccessJwt);
-
-  if (!cfAccessJwt || !cfAccessEmail) {
-    return null;
-  }
-
-  return { email: cfAccessEmail, jwt: cfAccessJwt };
-}
-
-function applyStorefrontPreviewCookie(
-  context: APIContext,
-  previewParam: string | null,
-): void {
-  if (previewParam === "1" || previewParam === "true") {
-    context.cookies.set(STOREFRONT_PREVIEW_COOKIE, "1", {
-      path: "/",
-      maxAge: 60 * 60 * 8,
-      sameSite: "lax",
-    });
-  }
-}
-
-function applyStorefrontPreviewCookieProd(
-  context: APIContext,
-  previewParam: string | null,
-): void {
-  if (previewParam === "1" || previewParam === "true") {
-    context.cookies.set(STOREFRONT_PREVIEW_COOKIE, "1", {
-      path: "/",
-      maxAge: 60 * 60 * 8,
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-    });
-  }
-}
-
-/** Sets locals.user and optional preview cookie when preview mode is active. */
-function resolveStorefrontPreview(
-  context: APIContext,
-  isDevelopment: boolean,
-): boolean {
-  const previewParam = context.url.searchParams.get("preview");
-  const previewCookie =
-    context.cookies.get(STOREFRONT_PREVIEW_COOKIE)?.value ?? null;
-  const wantsPreviewSession =
-    previewParam === "1" ||
-    previewParam === "true" ||
-    previewCookie === "1";
-
-  if (previewParam === "0" || previewParam === "false") {
-    context.cookies.delete(STOREFRONT_PREVIEW_COOKIE, { path: "/" });
-  }
-
-  if (isDevelopment) {
-    if (!wantsPreviewSession) {
-      return false;
-    }
-    context.locals.user = {
-      email: "dev@localhost",
-      jwt: "dev-jwt-token",
-      isDevelopment: true,
-    };
-    applyStorefrontPreviewCookie(context, previewParam);
-    return true;
-  }
-
-  const accessUser = getOptionalProductionAccessUser(context);
-  if (!accessUser || !wantsPreviewSession) {
-    return false;
-  }
-
-  context.locals.user = {
-    email: accessUser.email,
-    jwt: accessUser.jwt,
-    isDevelopment: false,
-  };
-  applyStorefrontPreviewCookieProd(context, previewParam);
-  return true;
+/** Authenticated draft preview catalog (includes unpublished products). */
+function isPreviewCatalogPath(pathname: string): boolean {
+  return (
+    pathname === "/preview" ||
+    pathname === "/preview/shop" ||
+    pathname.startsWith("/preview/shop/")
+  );
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -144,11 +63,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isDevelopment =
     import.meta.env.DEV || import.meta.env.NODE_ENV === "development";
 
-  // Protect all admin routes
-  if (pathname.startsWith("/admin")) {
+  if (requiresStaffAccess(pathname)) {
     if (isDevelopment) {
-      // In development, bypass Cloudflare Access and create a mock user
-      console.log("🔓 Development mode: Bypassing Cloudflare Access authentication");
+      console.log(
+        "🔓 Development mode: Bypassing Cloudflare Access authentication",
+      );
       context.locals.user = {
         email: "dev@localhost",
         jwt: "dev-jwt-token",
@@ -165,8 +84,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
         localPreviewBypass: true,
       };
     } else {
-      // In production, use Cloudflare Access
-      // Headers are injected on traditional Access; cookie is used for workers.dev one-click Access
       const cfAccessJwt =
         context.request.headers.get("cf-access-jwt-assertion") ??
         context.cookies.get("CF_Authorization")?.value;
@@ -178,7 +95,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
         return new Response("Unauthorized", { status: 403 });
       }
 
-      // Add user info to context for use in admin pages
       context.locals.user = {
         email: cfAccessEmail,
         jwt: cfAccessJwt,
@@ -187,10 +103,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (isStorefrontCatalogPath(pathname)) {
-    if (resolveStorefrontPreview(context, isDevelopment)) {
-      context.locals.storefrontPreview = true;
-    }
+  if (isPreviewCatalogPath(pathname)) {
+    context.locals.storefrontPreview = true;
   }
 
   return next();

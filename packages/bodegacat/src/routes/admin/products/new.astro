@@ -1,13 +1,17 @@
 ---
 export const prerender = false;
 
+import AdminNav from '@components/AdminNav';
 import { DevIndicator } from '@components/DevIndicator';
 import ProductForm from '@components/ProductForm';
 import { getSiteConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
+import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import type { Product } from '@models/product';
 
 const siteConfig = getSiteConfig();
+const catalogAll = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 ---
 
 <Layout title="Add New Product">
@@ -17,6 +21,11 @@ const siteConfig = getSiteConfig();
       isDevelopment={Astro.locals.user?.isDevelopment}
       localPreviewBypass={Astro.locals.user?.localPreviewBypass}
       client:load
+    />
+    <AdminNav
+      client:load
+      currentPage="new"
+      hasUnpublishedProducts={hasUnpublishedProducts}
     />
 
     <!-- Admin Header -->
@@ -39,22 +48,22 @@ const siteConfig = getSiteConfig();
       <ProductForm
         productTypes={siteConfig.productTypes}
         onSubmit={async (productData: Partial<Product>) => {
-          // This would call an API endpoint to create the product
-          console.log('Creating product:', productData);
-
-          // For now, we'll just redirect back to the products list
-          // In a real implementation, you'd:
-          // 1. Call your API endpoint
-          // 2. Handle success/error responses
-          // 3. Redirect on success
-
-          await new Promise((resolve) => {
-            alert(
-              'Product creation would be implemented here. For now, check the console for the product data.',
-            );
-            window.location.href = '/admin/products';
-            resolve(undefined);
+          const res = await fetch('/api/admin/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData),
           });
+          const body = (await res.json()) as { error?: string; product?: { metadata?: { slug?: string } } };
+          if (!res.ok) {
+            throw new Error(body.error ?? 'Failed to create product');
+          }
+          const slug = body.product?.metadata?.slug;
+          const isDraft = productData.metadata?.publishedToStorefront === false;
+          if (isDraft && typeof slug === 'string' && slug.length > 0) {
+            window.location.href = `/preview/shop/${slug}`;
+          } else {
+            window.location.href = '/admin/products';
+          }
         }}
         onCancel={() => {
           window.location.href = '/admin/products';

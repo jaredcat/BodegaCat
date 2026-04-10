@@ -11,15 +11,16 @@ interface Props {
   siteConfig: SiteConfig;
   t: Translations;
   copyrightYear: number;
+  catalogShopHref?: string;
 }
 
-const { siteConfig, t, copyrightYear } = Astro.props;
+const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
 ---
 
 <Hero
   title={`Welcome to ${siteConfig.name}`}
   description={siteConfig.description}
-  ctaHref="/shop"
+  ctaHref={catalogShopHref}
   ctaText={t.shop.shopNow}
 />
 
@@ -52,7 +53,7 @@ const { siteConfig, t, copyrightYear } = Astro.props;
   title="Ready for your next adventure?"
   description="Browse the shop and find something you’ll love."
   buttonText={t.shop.shopNow}
-  buttonHref="/shop"
+  buttonHref={catalogShopHref}
 />
 
 <Footer siteConfig={siteConfig} t={t} copyrightYear={copyrightYear} />

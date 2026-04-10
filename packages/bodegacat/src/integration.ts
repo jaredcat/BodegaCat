@@ -138,6 +138,12 @@ export default function bodegacat(
           ["/", routeEntry("./routes/index.astro")],
           ["/shop", routeEntry("./routes/shop/index.astro")],
           ["/shop/[slug]", routeEntry("./routes/shop/[slug].astro")],
+          ["/preview", routeEntry("./routes/preview/index.astro")],
+          ["/preview/shop", routeEntry("./routes/preview/shop/index.astro")],
+          [
+            "/preview/shop/[slug]",
+            routeEntry("./routes/preview/shop/[slug].astro"),
+          ],
           ["/cart", routeEntry("./routes/cart.astro")],
           ["/cart/checkout", routeEntry("./routes/cart/checkout.astro")],
           ["/success", routeEntry("./routes/success.astro")],

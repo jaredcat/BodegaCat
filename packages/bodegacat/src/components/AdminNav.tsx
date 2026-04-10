@@ -1,60 +1,106 @@
 import { useState } from "react";
 
+export type AdminNavPage =
+  | "dashboard"
+  | "products"
+  | "new"
+  | "settings"
+  | "edit";
+
 interface AdminNavProps {
-  readonly currentPage?: string;
+  readonly currentPage?: AdminNavPage;
+  /**
+   * From `getProducts({ includeUnpublished: true })` + `hasUnpublishedDrafts`.
+   * When true, links go to `/preview` (SSR, staff-only) so drafts are visible.
+   */
+  readonly hasUnpublishedProducts?: boolean;
 }
 
 export default function AdminNav({
   currentPage = "dashboard",
+  hasUnpublishedProducts = false,
 }: Readonly<AdminNavProps>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "📊" },
-    { href: "/admin/products", label: "Products", icon: "📦" },
-    { href: "/admin/products/new", label: "Add Product", icon: "➕" },
-    { href: "/admin/settings", label: "Settings", icon: "⚙️" },
-    { href: "/", label: "View Store", icon: "🏪" },
+  const viewStorefrontHref = hasUnpublishedProducts ? "/preview" : "/";
+  const viewLiveHref = "/";
+
+  const navItems: {
+    href: string;
+    label: string;
+    icon: string;
+    page: AdminNavPage | null;
+  }[] = [
+    { href: "/admin", label: "Dashboard", icon: "📊", page: "dashboard" },
+    { href: "/admin/products", label: "Products", icon: "📦", page: "products" },
     {
-      href: "/shop?preview=1",
-      label: "Storefront preview",
-      icon: "👁️",
+      href: "/admin/products/new",
+      label: "Add Product",
+      icon: "➕",
+      page: "new",
+    },
+    { href: "/admin/settings", label: "Settings", icon: "⚙️", page: "settings" },
+    {
+      href: viewStorefrontHref,
+      label: hasUnpublishedProducts
+        ? "View storefront (drafts)"
+        : "View storefront",
+      icon: "🏪",
+      page: null,
     },
   ];
+
+  const isActive = (page: AdminNavPage | null) =>
+    page !== null && currentPage === page;
+
+  const linkClass = (page: AdminNavPage | null) =>
+    `inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium ${
+      isActive(page)
+        ? "border-primary text-gray-900"
+        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+    }`;
+
+  const mobileLinkClass = (page: AdminNavPage | null) =>
+    `block border-l-4 py-2 pr-4 pl-3 text-base font-medium ${
+      isActive(page)
+        ? "bg-primary-50 border-primary text-primary-700"
+        : "border-transparent text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+    }`;
 
   return (
     <nav className="border-b bg-white shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
-          <div className="flex">
+          <div className="flex min-w-0 flex-1">
             <div className="flex shrink-0 items-center">
               <span className="text-xl font-bold text-gray-900">
                 Admin Panel
               </span>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden min-w-0 sm:ml-4 sm:flex sm:flex-wrap sm:items-center sm:gap-x-4 lg:gap-x-6">
               {navItems.map((item) => (
                 <a
-                  key={item.href}
+                  key={item.href + item.label}
                   href={item.href}
-                  className={`inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium ${
-                    currentPage === item.href
-                      ? "border-primary text-gray-900"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
+                  className={linkClass(item.page)}
                 >
                   <span className="mr-2">{item.icon}</span>
                   {item.label}
                 </a>
               ))}
+              {hasUnpublishedProducts && (
+                <a href={viewLiveHref} className={linkClass(null)}>
+                  <span className="mr-2">👤</span>
+                  View live (customers)
+                </a>
+              )}
             </div>
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">
             <button
+              type="button"
               onClick={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
               }}
@@ -94,18 +140,13 @@ export default function AdminNav({
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       <div className={`${isMobileMenuOpen ? "block" : "hidden"} sm:hidden`}>
         <div className="space-y-1 pt-2 pb-3">
           {navItems.map((item) => (
             <a
-              key={item.href}
+              key={item.href + item.label}
               href={item.href}
-              className={`block border-l-4 py-2 pr-4 pl-3 text-base font-medium ${
-                currentPage === item.href
-                  ? "bg-primary-50 border-primary text-primary-700"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
-              }`}
+              className={mobileLinkClass(item.page)}
               onClick={() => {
                 setIsMobileMenuOpen(false);
               }}
@@ -114,6 +155,18 @@ export default function AdminNav({
               {item.label}
             </a>
           ))}
+          {hasUnpublishedProducts && (
+            <a
+              href={viewLiveHref}
+              className={mobileLinkClass(null)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <span className="mr-2">👤</span>
+              View live (customers)
+            </a>
+          )}
         </div>
       </div>
     </nav>

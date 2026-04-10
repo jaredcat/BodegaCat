@@ -8,16 +8,23 @@ interface Props {
   siteConfig: SiteConfig;
   t: Translations;
   copyrightYear: number;
+  /** Public `/shop` or draft preview `/preview/shop`. */
+  catalogShopHref?: string;
 }
 
-const { siteConfig, t, copyrightYear } = Astro.props;
+const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
 
 // Built-in theme routing lives here (theme layer), not in core pages.
 const isPaddleboard = siteConfig.theme.id === 'paddleboard';
 ---
 
 {isPaddleboard ? (
-  <PaddleboardHomePage siteConfig={siteConfig} t={t} copyrightYear={copyrightYear} />
+  <PaddleboardHomePage
+    siteConfig={siteConfig}
+    t={t}
+    copyrightYear={copyrightYear}
+    catalogShopHref={catalogShopHref}
+  />
 ) : (
   <slot />
 )}

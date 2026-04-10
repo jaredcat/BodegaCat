@@ -29,6 +29,11 @@ export interface GetProductsOptions {
   includeUnpublished?: boolean;
 }
 
+/** True when any product is a draft (`bodegacat_published` / publishedToStorefront false). */
+export function hasUnpublishedDrafts(products: Product[]): boolean {
+  return products.some((p) => p.metadata.publishedToStorefront === false);
+}
+
 // Function to generate a slug from a product name
 function generateSlug(name: string): string {
   return name

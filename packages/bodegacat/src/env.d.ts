@@ -64,8 +64,8 @@ declare namespace App {
       localPreviewBypass?: boolean;
     };
     /**
-     * True when this request may include unpublished products (`bodegacat_published=false`).
-     * Requires `?preview=1` or preview cookie, plus Cloudflare Access in production.
+     * True on `/preview/*` draft storefront routes (SSR, staff-only).
+     * Public `/` and `/shop` are prerendered with published products only.
      */
     storefrontPreview?: boolean;
   }

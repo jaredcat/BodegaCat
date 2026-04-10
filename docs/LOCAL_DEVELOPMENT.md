@@ -73,14 +73,25 @@ Useful routes:
 
 ## Storefront preview (unpublished products)
 
-Products can be **active** in Stripe but **not published** to the public catalog (`metadata.bodegacat_published=false`). Everyone else sees only published items; **preview mode** includes drafts on `/` and `/shop`.
+Products can be **active** in Stripe but **not published** to the public catalog (`metadata.bodegacat_published=false`). The **public** site (`/`, `/shop`) is **prerendered** and shows only published items. **Draft preview** is SSR under **`/preview`**, **`/preview/shop`**, **`/preview/shop/[slug]`** — same staff auth as `/admin` (dev bypass locally; Cloudflare Access in production).
 
-| Environment | How to enable |
-|---------------|----------------|
-| **Local dev** | Visit `/shop?preview=1` or `/?preview=1` (no Cloudflare Access required). A short-lived cookie keeps preview on as you click around. |
-| **Production** | You must be logged in via **Cloudflare Access**, then open `https://yoursite/shop?preview=1` (cookie + `?preview=1` on the first visit). Use **Exit preview** in the banner or add `?preview=0` to any URL. |
+| Environment | How to open preview |
+|---------------|---------------------|
+| **Local dev** | Visit `/preview` or `/preview/shop` (middleware uses the same dev user as admin). |
+| **Production** | Cloudflare Access must allow **`/preview*`** (mirror your `/admin` policy). |
 
-The admin nav includes **Storefront preview** linking to `/shop?preview=1`. Uncheck **Published on storefront** in the product form to hide a product from the public site until you are ready.
+The admin nav links to **`/preview`** when you have draft products. Uncheck **Published on storefront** until you are ready; then redeploy (or rely on the webhook build hook below) so the static catalog updates.
+
+## Full static rebuilds (Stripe webhook → deploy hook)
+
+Changing products or prices in Stripe does **not** update prerendered HTML until the next **`astro build`**. The **`POST /api/stripe-webhook`** handler already calls **`BUILD_HOOK_URL`** (if set) after **`product.*`**, **`price.*`**, etc., so your host runs a **full site build + deploy** — the same outcome as pushing to `main` or clicking “Retry deployment.” That rebuild bakes:
+
+- **Catalog**: `getStaticPaths` / `getProducts` from Stripe at build time.
+- **Public copy/theme from env**: `SITE_NAME`, `SITE_*` from the **build environment** (e.g. Cloudflare Pages variables for that build).
+
+**What the webhook does *not* do:** it only runs when **Stripe** sends an event. If you **only** change **Cloudflare env vars** or **KV** in the dashboard, there is no Stripe event — trigger a deploy manually (or a separate workflow) so a new build picks those up.
+
+Set **`BUILD_HOOK_URL`** in production to your Pages deploy hook URL or CI pipeline (see the [Cloudflare deploy guide](../examples/deploy/cloudflare-pages/README.md)).
 
 ## Stripe test data
 
@@ -94,7 +105,7 @@ For card numbers and test mode behavior, see [Stripe testing](https://stripe.com
 |-------|----------------|
 | Admin not loading | `NODE_ENV=development` in `.env`, `pnpm dev` from repo root, browser console |
 | Stripe / empty shop | Keys match test mode, products exist with correct metadata (see VARIATION_SYSTEM) |
-| Draft not on `/shop` | Expected until published or until you use `?preview=1` (see **Storefront preview** above) |
+| Draft not on `/shop` | Expected until published or use **`/preview/shop`**; public `/shop` is static until rebuild |
 | Type / lint errors | `pnpm run typecheck`, `pnpm run lint` from repo root |
 
 ## After local testing

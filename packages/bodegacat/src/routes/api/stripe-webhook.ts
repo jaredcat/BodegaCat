@@ -1,17 +1,28 @@
 import { getSiteConfig } from "@config/site";
 import { stripe } from "@lib/stripe";
+import { BUILD_HOOK_URL } from "astro:env/server";
 import type { APIRoute } from "astro";
 
 export const prerender = false;
 
+/**
+ * When `BUILD_HOOK_URL` is set (e.g. Cloudflare Pages deploy hook or CI dispatch),
+ * product/price webhook events trigger a **full** production build: prerendered `/`,
+ * `/shop`, `/shop/[slug]` plus the Worker — same as a manual deploy.
+ */
 async function triggerBuildHook(
   eventType: string,
   data: Record<string, unknown>,
 ) {
-  if (!process.env.BUILD_HOOK_URL) return;
+  if (!BUILD_HOOK_URL) {
+    console.log(
+      "[stripe-webhook] BUILD_HOOK_URL not set — skipping deploy hook (static catalog will update on next deploy)",
+    );
+    return;
+  }
 
   try {
-    const response = await fetch(process.env.BUILD_HOOK_URL, {
+    const response = await fetch(BUILD_HOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

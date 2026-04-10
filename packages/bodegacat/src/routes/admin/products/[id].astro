@@ -1,11 +1,12 @@
 ---
 export const prerender = false;
 
+import AdminNav from '@components/AdminNav';
 import { DevIndicator } from '@components/DevIndicator';
 import ProductForm from '@components/ProductForm';
 import { getSiteConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
-import { getProductById } from '@lib/stripe';
+import { getProductById, getProducts, hasUnpublishedDrafts } from '@lib/stripe';
 import type { Product } from '@models/product';
 
 const { id } = Astro.params;
@@ -16,6 +17,8 @@ if (!id) {
 
 const siteConfig = getSiteConfig();
 const product = await getProductById(id);
+const catalogAll = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 
 if (!product) {
   return Astro.redirect('/admin/products');
@@ -30,6 +33,11 @@ if (!product) {
       localPreviewBypass={Astro.locals.user?.localPreviewBypass}
       client:load
     />
+    <AdminNav
+      client:load
+      currentPage="edit"
+      hasUnpublishedProducts={hasUnpublishedProducts}
+    />
 
     <!-- Admin Header -->
     <header class="bg-white shadow">
@@ -42,10 +50,15 @@ if (!product) {
           </div>
           <div class="flex space-x-3">
             <a
-              href={`/shop/${product.slug}?preview=1`}
+              href={
+                product.metadata.publishedToStorefront === false
+                  ? `/preview/shop/${product.slug}`
+                  : `/shop/${product.slug}`
+              }
               class="btn btn-outline"
-              target="_blank">
-              View Product
+              target="_blank"
+              rel="noreferrer">
+              View on storefront
             </a>
             <a href="/admin/products" class="btn btn-outline">
               Back to Products
@@ -57,6 +70,25 @@ if (!product) {
 
     <!-- Main Content -->
     <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      {
+        product.metadata.publishedToStorefront === false && (
+          <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-medium text-amber-900">Draft on storefront</h3>
+                <p class="text-sm text-amber-800">
+                  Customers do not see this product until you turn on &quot;Published on
+                  storefront&quot; and save. Use storefront preview to review it.
+                </p>
+              </div>
+              <a href={`/preview/shop/${product.slug}`} class="btn btn-outline shrink-0">
+                Open in preview
+              </a>
+            </div>
+          </div>
+        )
+      }
+
       <!-- Product Status Banner -->
       <div
         class={`mb-6 rounded-lg p-4 ${
@@ -104,22 +136,21 @@ if (!product) {
             product={product}
             productTypes={siteConfig.productTypes}
             onSubmit={async (productData: Partial<Product>) => {
-              // This would call an API endpoint to update the product
-              console.log('Updating product:', productData);
-
-              // For now, we'll just redirect back to the products list
-              // In a real implementation, you'd:
-              // 1. Call your API endpoint
-              // 2. Handle success/error responses
-              // 3. Redirect on success
-
-              await new Promise((resolve) => {
-                alert(
-                  'Product update would be implemented here. For now, check the console for the product data.',
-                );
-                window.location.href = '/admin/products';
-                resolve(undefined);
+              const res = await fetch('/api/admin/products', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: product.id, ...productData }),
               });
+              const body = (await res.json()) as { error?: string };
+              if (!res.ok) {
+                throw new Error(body.error ?? 'Failed to update product');
+              }
+              const nowPublished = productData.metadata?.publishedToStorefront !== false;
+              if (nowPublished) {
+                window.location.href = '/';
+              } else {
+                window.location.href = `/preview/shop/${product.slug}`;
+              }
             }}
             onCancel={() => {
               window.location.href = '/admin/products';

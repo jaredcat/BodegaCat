@@ -1,26 +1,28 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import { Image } from 'astro:assets';
 import Navbar from '@components/Navbar';
-import { getSiteConfig } from '@config/site';
+import { getEffectiveConfig } from '@config/site';
 import { getTranslations, formatPrice } from '@i18n';
 import Layout from '@layouts/Layout.astro';
 import { getProducts } from '@lib/stripe';
-import { publicProductPath, publicShopIndexPath } from '@lib/catalog-paths';
+import { previewProductPath, previewShopIndexPath } from '@lib/catalog-paths';
 import ThemeHomePage from '@themes/runtime/HomePage.astro';
+import { env } from 'cloudflare:workers';
 
-const siteConfig = getSiteConfig();
+const kv = env.SETTINGS_KV;
+const siteConfig = await getEffectiveConfig(kv);
 const t = getTranslations(siteConfig.locale);
 
-const products = await getProducts({ includeUnpublished: false });
+const products = await getProducts({ includeUnpublished: true });
 const featuredProducts = products.slice(0, 6);
 const copyrightYear = new Date().getFullYear();
 
-const shopList = publicShopIndexPath();
+const shopList = previewShopIndexPath();
 ---
 
-<Layout title="Home" siteConfig={siteConfig}>
+<Layout title="Home (preview)" siteConfig={siteConfig} storefrontPreview={true}>
   <Navbar siteConfig={siteConfig} client:load />
 
   <ThemeHomePage
@@ -68,7 +70,7 @@ const shopList = publicShopIndexPath();
                     <span class="text-primary text-2xl font-bold">
                       {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
                     </span>
-                    <a href={publicProductPath(product.slug)} class="btn btn-primary">
+                    <a href={previewProductPath(product.slug)} class="btn btn-primary">
                       {t.shop.viewDetails}
                     </a>
                   </div>
