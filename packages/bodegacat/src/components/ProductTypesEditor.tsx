@@ -16,6 +16,9 @@ export default function ProductTypesEditor({
   const [types, setTypes] = useState<ProductType[]>(() =>
     structuredClone(initialProductTypes),
   );
+  const [expandedTypeIds, setExpandedTypeIds] = useState<Set<string>>(
+    () => new Set(types[0]?.id ? [types[0].id] : []),
+  );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
@@ -62,10 +65,20 @@ export default function ProductTypesEditor({
         variationDefinitions: [],
       },
     ]);
+    setExpandedTypeIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
   };
 
   const removeType = (id: string) => {
     setTypes((prev) => prev.filter((t) => t.id !== id));
+    setExpandedTypeIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
 
   const updateType = (id: string, patch: Partial<ProductType>) => {
@@ -85,9 +98,8 @@ export default function ProductTypesEditor({
         <p className="font-medium">What are product types?</p>
         <p className="mt-1 text-blue-800">
           Each product must use one type. Types define variation templates
-          (size, color, etc.) shown when you create products. Edit them here —
-          no code required. Changes are saved to your store settings (Cloudflare
-          KV).
+          (size, color, etc.) shown when you create products. Edit them here.
+          Changes are saved to your store settings.
         </p>
       </div>
 
@@ -142,27 +154,69 @@ export default function ProductTypesEditor({
       )}
 
       <div className="space-y-8">
-        {types.map((pt, index) => (
-          <section
-            key={pt.id}
-            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-          >
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                Product type {index + 1}
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  removeType(pt.id);
-                }}
-                className="text-sm text-red-600 hover:text-red-800"
-              >
-                Remove
-              </button>
-            </div>
+        {types.map((pt, index) => {
+          const expanded = expandedTypeIds.has(pt.id);
+          return (
+            <section
+              key={pt.id}
+              className="rounded-lg border border-gray-200 bg-white shadow-sm"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpandedTypeIds((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(pt.id)) next.delete(pt.id);
+                      else next.add(pt.id);
+                      return next;
+                    });
+                  }}
+                  className="min-w-0 flex-1 text-left"
+                  aria-controls={`product-type-panel-${pt.id}`}
+                  data-expanded={expanded ? "true" : "false"}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    >
+                      ▾
+                    </span>
+                    <h2 className="truncate text-lg font-medium text-gray-900">
+                      {pt.name.trim()
+                        ? pt.name
+                        : `Product type ${String(index + 1)}`}
+                    </h2>
+                  </div>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    <span className="font-mono">{pt.id}</span>
+                    {pt.description?.trim() ? (
+                      <span className="text-gray-400">
+                        {" "}
+                        · {pt.description}
+                      </span>
+                    ) : null}
+                  </p>
+                </button>
 
-            <div className="grid gap-4 md:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    removeType(pt.id);
+                  }}
+                  className="text-sm font-medium text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </div>
+
+              {expanded && (
+                <div
+                  id={`product-type-panel-${pt.id}`}
+                  className="px-6 pb-6"
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor={`pt-name-${pt.id}`}
@@ -223,9 +277,9 @@ export default function ProductTypesEditor({
             </div>
 
             <div className="mt-6 border-t border-gray-100 pt-4">
-              <h4 className="mb-2 text-sm font-medium text-gray-800">
+              <h3 className="mb-2 text-sm font-medium text-gray-800">
                 Variation templates
-              </h4>
+              </h3>
               <p className="mb-3 text-sm text-gray-500">
                 New products of this type start with these variations; you can
                 still change them per product.
@@ -238,8 +292,11 @@ export default function ProductTypesEditor({
                 productType={pt.name}
               />
             </div>
-          </section>
-        ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </div>
 
       {types.length === 0 && (

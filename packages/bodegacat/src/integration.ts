@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
-import type { AstroIntegration } from "astro";
+import type { AstroIntegration, ViteUserConfig } from "astro";
 import { envField } from "astro/config";
 import type { ProductType } from "./types/product";
 
@@ -36,6 +36,7 @@ export interface BodegaCatUserOptions {
 
 const VIRTUAL_USER_PRODUCT_TYPES = "\0virtual:bodegacat-user-product-types";
 const VIRTUAL_BUILD_KV_SETTINGS = "\0virtual:bodegacat-build-kv-settings";
+const VIRTUAL_BUILD_KV_META = "\0virtual:bodegacat-build-kv-meta";
 
 function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
   return {
@@ -53,7 +54,7 @@ function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
   };
 }
 
-async function fetchBuildKvSettings(): Promise<unknown> {
+async function fetchBuildKvSettings(): Promise<Record<string, unknown>> {
   const enabled =
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "true" ||
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "1";
@@ -86,13 +87,13 @@ async function fetchBuildKvSettings(): Promise<unknown> {
     if (res.status === 404) return {};
     if (!res.ok) {
       console.warn(
-        `[bodegacat] build KV fetch failed (${res.status}) — continuing without KV settings`,
+        `[bodegacat] build KV fetch failed (${String(res.status)}) — continuing without KV settings`,
       );
       return {};
     }
     const text = await res.text();
     if (!text) return {};
-    return JSON.parse(text) as unknown;
+    return JSON.parse(text) as Record<string, unknown>;
   } catch (e) {
     console.warn(
       "[bodegacat] build KV fetch error — continuing without KV settings",
@@ -102,17 +103,54 @@ async function fetchBuildKvSettings(): Promise<unknown> {
   }
 }
 
+function getBuildKvMeta(): {
+  enabled: boolean;
+  hasToken: boolean;
+  hasAccountId: boolean;
+  hasNamespaceId: boolean;
+  configured: boolean;
+} {
+  const enabled =
+    process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "true" ||
+    process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "1";
+  const hasToken = Boolean(
+    process.env.CLOUDFLARE_API_TOKEN ??
+    process.env.BODEGACAT_CLOUDFLARE_API_TOKEN,
+  );
+  const hasAccountId = Boolean(
+    process.env.CLOUDFLARE_ACCOUNT_ID ??
+    process.env.BODEGACAT_CLOUDFLARE_ACCOUNT_ID,
+  );
+  const hasNamespaceId = Boolean(
+    process.env.BODEGACAT_SETTINGS_KV_NAMESPACE_ID ??
+    process.env.SETTINGS_KV_NAMESPACE_ID,
+  );
+  return {
+    enabled,
+    hasToken,
+    hasAccountId,
+    hasNamespaceId,
+    configured: enabled && hasToken && hasAccountId && hasNamespaceId,
+  };
+}
+
 function buildKvSettingsVitePlugin() {
-  let cached: unknown | undefined;
-  let inflight: Promise<unknown> | undefined;
+  let cached: Record<string, unknown> | undefined;
+  let inflight: Promise<Record<string, unknown>> | undefined;
   return {
     name: "bodegacat-build-kv-settings",
     resolveId(id: string) {
       if (id === "virtual:bodegacat-build-kv-settings") {
         return VIRTUAL_BUILD_KV_SETTINGS;
       }
+      if (id === "virtual:bodegacat-build-kv-meta") {
+        return VIRTUAL_BUILD_KV_META;
+      }
     },
     async load(id: string) {
+      if (id === VIRTUAL_BUILD_KV_META) {
+        return `export default ${JSON.stringify(getBuildKvMeta())};`;
+      }
       if (id !== VIRTUAL_BUILD_KV_SETTINGS) return;
       if (cached !== undefined) {
         return `export default ${JSON.stringify(cached)};`;
@@ -134,11 +172,7 @@ export default function bodegacat(
   return {
     name: "bodegacat",
     hooks: {
-      "astro:config:setup": ({
-        injectRoute,
-        addMiddleware,
-        updateConfig,
-      }) => {
+      "astro:config:setup": ({ injectRoute, addMiddleware, updateConfig }) => {
         addMiddleware({
           entrypoint: routeEntry("./middleware.ts"),
           order: "pre",
@@ -154,12 +188,13 @@ export default function bodegacat(
             domains: ["files.stripe.com"],
           },
           vite: {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Vite types differ when multiple copies are hoisted
+            // Vite is duplicated in the dependency tree; Plugin types from different copies are incompatible.
+            // Cast via `unknown` to avoid `any` while still allowing the config assignment.
             plugins: [
               userProductTypesVitePlugin(options?.productTypes),
               buildKvSettingsVitePlugin(),
               tailwindcss(),
-            ] as any,
+            ] as unknown as NonNullable<ViteUserConfig["plugins"]>,
             define: {
               global: "globalThis",
             },
@@ -262,8 +297,14 @@ export default function bodegacat(
             "/admin/product-types",
             routeEntry("./routes/admin/product-types.astro"),
           ],
-          ["/admin/products", routeEntry("./routes/admin/products/index.astro")],
-          ["/admin/products/new", routeEntry("./routes/admin/products/new.astro")],
+          [
+            "/admin/products",
+            routeEntry("./routes/admin/products/index.astro"),
+          ],
+          [
+            "/admin/products/new",
+            routeEntry("./routes/admin/products/new.astro"),
+          ],
           [
             "/admin/products/[id]",
             routeEntry("./routes/admin/products/[id].astro"),
@@ -274,10 +315,7 @@ export default function bodegacat(
           ],
           ["/api/stripe-webhook", routeEntry("./routes/api/stripe-webhook.ts")],
           ["/api/admin/products", routeEntry("./routes/api/admin/products.ts")],
-          [
-            "/api/admin/settings",
-            routeEntry("./routes/api/admin/settings.ts"),
-          ],
+          ["/api/admin/settings", routeEntry("./routes/api/admin/settings.ts")],
           [
             "/api/admin/trigger-deploy",
             routeEntry("./routes/api/admin/trigger-deploy.ts"),

@@ -28,6 +28,17 @@ declare module "virtual:bodegacat-build-kv-settings" {
   export default value;
 }
 
+declare module "virtual:bodegacat-build-kv-meta" {
+  const value: {
+    enabled: boolean;
+    hasToken: boolean;
+    hasAccountId: boolean;
+    hasNamespaceId: boolean;
+    configured: boolean;
+  };
+  export default value;
+}
+
 declare module "cloudflare:workers" {
   const env: {
     SETTINGS_KV?: CloudflareKVNamespace;

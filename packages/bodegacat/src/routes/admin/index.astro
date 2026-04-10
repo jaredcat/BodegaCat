@@ -8,26 +8,13 @@ import { DevIndicator } from '@components/DevIndicator';
 import { getEffectiveConfig } from '@config/site';
 import Layout from '@layouts/Layout.astro';
 import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
+import buildKvMeta from 'virtual:bodegacat-build-kv-meta';
 import { env } from 'cloudflare:workers';
 
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 const products = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(products);
-
-const buildKvEnabled =
-  process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === 'true' ||
-  process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === '1';
-const buildKvHasToken = Boolean(
-  process.env.CLOUDFLARE_API_TOKEN || process.env.BODEGACAT_CLOUDFLARE_API_TOKEN,
-);
-const buildKvHasAccountId = Boolean(
-  process.env.CLOUDFLARE_ACCOUNT_ID || process.env.BODEGACAT_CLOUDFLARE_ACCOUNT_ID,
-);
-const buildKvHasNamespaceId = Boolean(
-  process.env.BODEGACAT_SETTINGS_KV_NAMESPACE_ID || process.env.SETTINGS_KV_NAMESPACE_ID,
-);
-const buildKvConfigured =
-  buildKvEnabled && buildKvHasToken && buildKvHasAccountId && buildKvHasNamespaceId;
+const buildKvConfigured = buildKvMeta.configured;
 ---
 
 <Layout title="Admin Dashboard" useSiteTheme={false}>

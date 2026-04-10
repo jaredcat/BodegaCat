@@ -40,7 +40,7 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
       <div class="lg:col-span-1">
         <div class="card sticky top-8">
-          <h3 class="mb-4 text-lg font-semibold">{t.shop.filters}</h3>
+          <h2 class="mb-4 text-lg font-semibold">{t.shop.filters}</h2>
 
           <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">
@@ -57,7 +57,7 @@ const tags = [...new Set(products.flatMap((p) => p.metadata.tags))];
           {
             categories.length > 0 && (
               <div class="mb-6">
-                <h4 class="mb-3 font-medium">{t.shop.categories}</h4>
+                <h3 class="mb-3 font-medium">{t.shop.categories}</h3>
                 <div class="space-y-2">
                   {categories.map((category) => (
                     <label class="flex items-center">

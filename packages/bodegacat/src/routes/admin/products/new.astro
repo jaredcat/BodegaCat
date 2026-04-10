@@ -54,7 +54,10 @@ const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(productData),
           });
-          const body = (await res.json()) as { error?: string; product?: { metadata?: { slug?: string } } };
+          const body = (await res.json()) as {
+            error?: string;
+            product?: { metadata?: { slug?: string } };
+          };
           if (!res.ok) {
             throw new Error(body.error ?? 'Failed to create product');
           }
