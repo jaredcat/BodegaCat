@@ -1,6 +1,6 @@
 name = "my-store"
-compatibility_date = "2026-02-24"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2026-09-30"
+compatibility_flags = []
 
 # Cloudflare Access configuration for admin routes (optional; set zone to your domain)
 # [[env.production.routes]]

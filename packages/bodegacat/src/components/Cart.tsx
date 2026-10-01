@@ -1,5 +1,5 @@
 import { useStore } from "@nanostores/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   cartCount,
   cartItems,
@@ -11,16 +11,16 @@ import {
   removeFromCart,
   updateQuantity,
 } from "../lib/cartStore";
+import { useIsClient } from "../lib/useIsClient";
 
 export default function Cart() {
   const items = useStore(cartItems);
   const total = useStore(cartTotal);
   const count = useStore(cartCount);
   const open = useStore(isCartOpen);
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
 
   useEffect(() => {
-    setIsClient(true);
     initializeCart();
   }, []);
 

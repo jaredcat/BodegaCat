@@ -1,15 +1,15 @@
 ---
 export const prerender = false;
 
-import { Image } from 'astro:assets';
-import AdminNav from '@components/AdminNav';
-import DeployLiveSiteButton from '@components/DeployLiveSiteButton';
-import { DevIndicator } from '@components/DevIndicator';
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
-import buildKvMeta from 'virtual:bodegacat-build-kv-meta';
-import { env } from 'cloudflare:workers';
+import { Image } from "astro:assets";
+import AdminNav from "@components/AdminNav";
+import DeployLiveSiteButton from "@components/DeployLiveSiteButton";
+import { DevIndicator } from "@components/DevIndicator";
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import buildKvMeta from "virtual:bodegacat-build-kv-meta";
+import { env } from "cloudflare:workers";
 
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 const products = await getProducts({ includeUnpublished: true });
@@ -57,7 +57,8 @@ const buildKvConfigured = buildKvMeta.configured;
                 class="text-primary h-8 w-8"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -82,12 +83,14 @@ const buildKvConfigured = buildKvMeta.configured;
                 class="h-8 w-8 text-green-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
               </svg>
             </div>
             <div class="ml-4">
@@ -106,24 +109,24 @@ const buildKvConfigured = buildKvMeta.configured;
                 class="h-8 w-8 text-yellow-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
               </svg>
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-500">Last Updated</p>
               <p class="text-2xl font-semibold text-gray-900">
-                {
-                  products.length > 0
-                    ? new Date(
-                        Math.max(...products.map((p) => p.updatedAt.getTime())),
-                      ).toLocaleDateString()
-                    : 'Never'
-                }
+                {products.length > 0
+                  ? new Date(
+                      Math.max(...products.map((p) => p.updatedAt.getTime())),
+                    ).toLocaleDateString()
+                  : "Never"}
               </p>
             </div>
           </div>
@@ -132,12 +135,14 @@ const buildKvConfigured = buildKvMeta.configured;
 
       <div class="mb-8 rounded-lg border border-slate-200 bg-white shadow">
         <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-medium text-gray-900">Live static storefront</h2>
+          <h2 class="text-lg font-medium text-gray-900">
+            Live static storefront
+          </h2>
           <p class="mt-1 text-sm text-gray-500">
-            Public pages are pre-built at deploy time. Edit products and use{' '}
+            Public pages are pre-built at deploy time. Edit products and use{" "}
             <a href="/preview" class="text-primary font-medium hover:underline">
               /preview
-            </a>{' '}
+            </a>{" "}
             until you are ready, then deploy once.
           </p>
         </div>
@@ -145,21 +150,24 @@ const buildKvConfigured = buildKvMeta.configured;
           <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
             <p class="font-medium text-gray-900">What updates the live site?</p>
             <p class="mt-1 text-gray-700">
-              Changes you make in the admin are visible right away in{' '}
-              <a href="/preview" class="text-primary font-medium hover:underline">
+              Changes you make in the admin are visible right away in{" "}
+              <a
+                href="/preview"
+                class="text-primary font-medium hover:underline"
+              >
                 Preview
               </a>
               . To update the public storefront, you’ll run a deploy (below).
             </p>
             <p class="mt-2 text-gray-700">
-              <span class="font-medium">Store Settings on the live site:</span>{' '}
+              <span class="font-medium">Store Settings on the live site:</span>{" "}
               {buildKvConfigured ? (
                 <span class="font-medium text-green-700">enabled</span>
               ) : (
                 <span class="font-medium text-amber-700">not enabled</span>
               )}
               <span class="text-gray-600">
-                {' '}
+                {" "}
                 — if this is not enabled, the live site will keep using its
                 current branding for now.
               </span>
@@ -188,46 +196,54 @@ const buildKvConfigured = buildKvMeta.configured;
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <a
               href="/admin/products/new"
-              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
               <svg
                 class="text-primary mr-3 h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
               </svg>
               <span class="font-medium">Add Product</span>
             </a>
 
             <a
               href="/admin/products"
-              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
               <svg
                 class="mr-3 h-6 w-6 text-blue-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                ></path>
               </svg>
               <span class="font-medium">View All Products</span>
             </a>
 
             <a
               href="/admin/settings"
-              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
               <svg
                 class="mr-3 h-6 w-6 text-gray-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -238,24 +254,28 @@ const buildKvConfigured = buildKvMeta.configured;
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
               </svg>
               <span class="font-medium">Store Settings</span>
             </a>
 
             <a
-              href={hasUnpublishedProducts ? '/preview' : '/'}
-              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+              href={hasUnpublishedProducts ? "/preview" : "/"}
+              class="flex items-center rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+            >
               <svg
                 class="mr-3 h-6 w-6 text-green-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -264,7 +284,9 @@ const buildKvConfigured = buildKvMeta.configured;
                 ></path>
               </svg>
               <span class="font-medium">
-                {hasUnpublishedProducts ? 'View storefront (drafts)' : 'View storefront'}
+                {hasUnpublishedProducts
+                  ? "View storefront (drafts)"
+                  : "View storefront"}
               </span>
             </a>
           </div>
@@ -280,109 +302,102 @@ const buildKvConfigured = buildKvMeta.configured;
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Product
                 </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Price
                 </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Status
                 </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Last Updated
                 </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-              {
-                products.slice(0, 5).map((product) => (
-                  <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center">
-                        {product.images.length > 0 && (
-                          <Image
-                            class="mr-3 h-10 w-10 rounded-lg object-cover"
-                            src={product.images[0]}
-                            alt={product.name}
-                            width={40}
-                            height={40}
-                          />
-                        )}
-                        <div>
-                          <div class="text-sm font-medium text-gray-900">
-                            {product.name}
-                          </div>
-                          <div class="text-sm text-gray-500">
-                            {product.slug}
-                          </div>
+              {products.slice(0, 5).map((product) => (
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      {product.images.length > 0 && (
+                        <Image
+                          class="mr-3 h-10 w-10 rounded-lg object-cover"
+                          src={product.images[0]}
+                          alt={product.name}
+                          width={40}
+                          height={40}
+                        />
+                      )}
+                      <div>
+                        <div class="text-sm font-medium text-gray-900">
+                          {product.name}
                         </div>
+                        <div class="text-sm text-gray-500">{product.slug}</div>
                       </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
-                      ${(product.basePrice / 100).toFixed(2)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex flex-col gap-1">
-                        <span
-                          class={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold ${
-                            product.active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                          {product.active ? 'Active' : 'Inactive'}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
+                    ${(product.basePrice / 100).toFixed(2)}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex flex-col gap-1">
+                      <span
+                        class={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold ${
+                          product.active
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {product.active ? "Active" : "Inactive"}
+                      </span>
+                      {product.metadata.publishedToStorefront === false && (
+                        <span class="inline-flex w-fit rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">
+                          Draft on storefront
                         </span>
-                        {product.metadata.publishedToStorefront === false && (
-                          <span class="inline-flex w-fit rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">
-                            Draft on storefront
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {product.updatedAt.toLocaleDateString()}
-                    </td>
-                    <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                      <a
-                        href={`/admin/products/${product.id}`}
-                        class="text-primary hover:text-primary-dark mr-3">
-                        Edit
-                      </a>
-                      <a
-                        href={
-                          product.metadata.publishedToStorefront === false
-                            ? `/preview/shop/${product.slug}`
-                            : `/shop/${product.slug}`
-                        }
-                        class="text-gray-600 hover:text-gray-900">
-                        View
-                      </a>
-                    </td>
-                  </tr>
-                ))
-              }
+                      )}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                    {product.updatedAt.toLocaleDateString()}
+                  </td>
+                  <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                    <a
+                      href={`/admin/products/${product.id}`}
+                      class="text-primary hover:text-primary-dark mr-3"
+                    >
+                      Edit
+                    </a>
+                    <a
+                      href={
+                        product.metadata.publishedToStorefront === false
+                          ? `/preview/shop/${product.slug}`
+                          : `/shop/${product.slug}`
+                      }
+                      class="text-gray-600 hover:text-gray-900"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-        {
-          products.length > 5 && (
-            <div class="border-t border-gray-200 px-6 py-4">
-              <a
-                href="/admin/products"
-                class="text-primary hover:text-primary-dark font-medium">
-                View all {products.length} products →
-              </a>
-            </div>
-          )
-        }
+        {products.length > 5 && (
+          <div class="border-t border-gray-200 px-6 py-4">
+            <a
+              href="/admin/products"
+              class="text-primary hover:text-primary-dark font-medium"
+            >
+              View all {products.length} products →
+            </a>
+          </div>
+        )}
       </div>
     </main>
   </div>

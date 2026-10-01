@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "../../../../../..",
+    },
+    {
+      "path": "../../../../../../../astelts",
+    },
+  ],
+  "settings": {
+    "prettier.documentSelectors": ["**/*.astro"],
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+  },
+}

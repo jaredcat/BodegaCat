@@ -1,9 +1,9 @@
 ---
-import CartPage from '@components/CartPage';
-import Navbar from '@components/Navbar';
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { env } from 'cloudflare:workers';
+import CartPage from "@components/CartPage";
+import Navbar from "@components/Navbar";
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { env } from "cloudflare:workers";
 
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 ---

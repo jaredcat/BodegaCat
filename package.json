@@ -12,37 +12,34 @@
     "deploy": "pnpm --filter @bodegacat/template deploy",
     "astro": "pnpm --filter @bodegacat/template astro",
     "lint": "eslint packages/bodegacat/src",
-    "lint:fix": "eslint packages/bodegacat/src --fix",
+    "lint:fix": "eslint packages/bodegacat/src --fix && prettier --write . && tsc --noEmit -p packages/bodegacat && tsc --noEmit -p apps/template && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "prepare": "husky",
     "typecheck": "pnpm --filter @bodegacat/template typecheck",
     "changeset": "changeset",
     "release": "changeset version && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.30.0",
+    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.6.0",
     "@types/eslint-plugin-jsx-a11y": "^6.10.1",
-    "@typescript-eslint/parser": "^8.58.1",
-    "eslint": "^10.2.0",
-    "eslint-plugin-astro": "^1.7.0",
+    "@types/node": "catalog:",
+    "@typescript-eslint/parser": "^8.71.0",
+    "eslint": "^10.11.0",
+    "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-sonarjs": "^4.0.2",
-    "prettier": "^3.8.2",
-    "prettier-plugin-astro": "0.14.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.1"
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-sonarjs": "^4.2.2",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "1.1.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.71.0"
   },
   "license": "AGPL-3.0",
-  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
-  "pnpm": {
-    "overrides": {
-      "react": "19.2.5",
-      "react-dom": "19.2.5"
-    }
-  }
+  "packageManager": "pnpm@12.8.1"
 }

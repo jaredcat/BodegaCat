@@ -1,30 +1,30 @@
 ---
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { env } from 'cloudflare:workers';
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { env } from "cloudflare:workers";
 
-const sessionId = Astro.url.searchParams.get('session_id');
+const sessionId = Astro.url.searchParams.get("session_id");
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 ---
 
 <Layout title="Order Successful" siteConfig={siteConfig}>
-  <div
-    class="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
+  <div class="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <div class="text-center">
-          <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
             <svg
               class="h-6 w-6 text-green-600"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor">
+              stroke="currentColor"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M5 13l4 4L19 7"></path>
+                d="M5 13l4 4L19 7"
+              ></path>
             </svg>
           </div>
           <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
@@ -33,11 +33,9 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
           <p class="mt-2 text-sm text-gray-600">
             Your payment has been processed successfully.
           </p>
-          {
-            sessionId && (
-              <p class="mt-1 text-xs text-gray-500">Order ID: {sessionId}</p>
-            )
-          }
+          {sessionId && (
+            <p class="mt-1 text-xs text-gray-500">Order ID: {sessionId}</p>
+          )}
         </div>
 
         <div class="mt-8">
@@ -47,11 +45,13 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
                 <svg
                   class="h-5 w-5 text-blue-400"
                   viewBox="0 0 20 20"
-                  fill="currentColor">
+                  fill="currentColor"
+                >
                   <path
                     fill-rule="evenodd"
                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clip-rule="evenodd"></path>
+                    clip-rule="evenodd"
+                  ></path>
                 </svg>
               </div>
               <div class="ml-3">
@@ -72,7 +72,8 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
         <div class="mt-6">
           <a
             href="/shop"
-            class="bg-primary hover:bg-primary/90 focus:ring-primary flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none">
+            class="bg-primary hover:bg-primary/90 focus:ring-primary flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          >
             Continue Shopping
           </a>
         </div>

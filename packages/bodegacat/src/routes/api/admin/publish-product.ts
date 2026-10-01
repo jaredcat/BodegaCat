@@ -29,9 +29,12 @@ export const POST: APIRoute = async ({ request }) => {
     });
   } catch (error) {
     console.error("[publish-product]", error);
-    return new Response(JSON.stringify({ error: "Failed to publish product" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Failed to publish product" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 };

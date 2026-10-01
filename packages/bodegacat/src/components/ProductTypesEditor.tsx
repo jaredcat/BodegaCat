@@ -192,10 +192,7 @@ export default function ProductTypesEditor({
                   <p className="mt-0.5 text-sm text-gray-500">
                     <span className="font-mono">{pt.id}</span>
                     {pt.description?.trim() ? (
-                      <span className="text-gray-400">
-                        {" "}
-                        · {pt.description}
-                      </span>
+                      <span className="text-gray-400"> · {pt.description}</span>
                     ) : null}
                   </p>
                 </button>
@@ -212,86 +209,83 @@ export default function ProductTypesEditor({
               </div>
 
               {expanded && (
-                <div
-                  id={`product-type-panel-${pt.id}`}
-                  className="px-6 pb-6"
-                >
+                <div id={`product-type-panel-${pt.id}`} className="px-6 pb-6">
                   <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor={`pt-name-${pt.id}`}
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Display name *
-                </label>
-                <input
-                  id={`pt-name-${pt.id}`}
-                  type="text"
-                  value={pt.name}
-                  onChange={(e) => {
-                    updateType(pt.id, { name: e.target.value });
-                  }}
-                  className="w-full rounded border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor={`pt-id-${pt.id}`}
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  ID (unique key) *
-                </label>
-                <input
-                  id={`pt-id-${pt.id}`}
-                  type="text"
-                  value={pt.id}
-                  onChange={(e) => {
-                    updateType(pt.id, {
-                      id: e.target.value
-                        .toLowerCase()
-                        .trim()
-                        .replace(/\s+/g, "-"),
-                    });
-                  }}
-                  className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
-                />
-              </div>
-            </div>
+                    <div>
+                      <label
+                        htmlFor={`pt-name-${pt.id}`}
+                        className="mb-1 block text-sm font-medium text-gray-700"
+                      >
+                        Display name *
+                      </label>
+                      <input
+                        id={`pt-name-${pt.id}`}
+                        type="text"
+                        value={pt.name}
+                        onChange={(e) => {
+                          updateType(pt.id, { name: e.target.value });
+                        }}
+                        className="w-full rounded border border-gray-300 px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor={`pt-id-${pt.id}`}
+                        className="mb-1 block text-sm font-medium text-gray-700"
+                      >
+                        ID (unique key) *
+                      </label>
+                      <input
+                        id={`pt-id-${pt.id}`}
+                        type="text"
+                        value={pt.id}
+                        onChange={(e) => {
+                          updateType(pt.id, {
+                            id: e.target.value
+                              .toLowerCase()
+                              .trim()
+                              .replace(/\s+/g, "-"),
+                          });
+                        }}
+                        className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"
+                      />
+                    </div>
+                  </div>
 
-            <div className="mt-4">
-              <label
-                htmlFor={`pt-desc-${pt.id}`}
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Description
-              </label>
-              <input
-                id={`pt-desc-${pt.id}`}
-                type="text"
-                value={pt.description ?? ""}
-                onChange={(e) => {
-                  updateType(pt.id, { description: e.target.value });
-                }}
-                className="w-full rounded border border-gray-300 px-3 py-2"
-              />
-            </div>
+                  <div className="mt-4">
+                    <label
+                      htmlFor={`pt-desc-${pt.id}`}
+                      className="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                      Description
+                    </label>
+                    <input
+                      id={`pt-desc-${pt.id}`}
+                      type="text"
+                      value={pt.description ?? ""}
+                      onChange={(e) => {
+                        updateType(pt.id, { description: e.target.value });
+                      }}
+                      className="w-full rounded border border-gray-300 px-3 py-2"
+                    />
+                  </div>
 
-            <div className="mt-6 border-t border-gray-100 pt-4">
-              <h3 className="mb-2 text-sm font-medium text-gray-800">
-                Variation templates
-              </h3>
-              <p className="mb-3 text-sm text-gray-500">
-                New products of this type start with these variations; you can
-                still change them per product.
-              </p>
-              <VariationManager
-                variations={pt.variationDefinitions}
-                onChange={(variationDefinitions) => {
-                  updateType(pt.id, { variationDefinitions });
-                }}
-                productType={pt.name}
-              />
-            </div>
+                  <div className="mt-6 border-t border-gray-100 pt-4">
+                    <h3 className="mb-2 text-sm font-medium text-gray-800">
+                      Variation templates
+                    </h3>
+                    <p className="mb-3 text-sm text-gray-500">
+                      New products of this type start with these variations; you
+                      can still change them per product.
+                    </p>
+                    <VariationManager
+                      variations={pt.variationDefinitions}
+                      onChange={(variationDefinitions) => {
+                        updateType(pt.id, { variationDefinitions });
+                      }}
+                      productType={pt.name}
+                    />
+                  </div>
                 </div>
               )}
             </section>

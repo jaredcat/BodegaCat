@@ -1,5 +1,5 @@
-import { en } from './locales/en';
-import type { Translations } from './locales/en';
+import { en } from "./locales/en";
+import type { Translations } from "./locales/en";
 
 // Add imports for additional locales here as they are created:
 // import { fr } from './locales/fr';
@@ -20,8 +20,8 @@ const localeMap: Record<string, Translations> = {
  *   <p>{t.shop.title}</p>
  */
 export function getTranslations(locale: string): Translations {
-  const lang = locale.split('-')[0]!;
-  return localeMap[lang] ?? localeMap['en']!;
+  const lang = locale.split("-")[0];
+  return localeMap[lang] ?? localeMap.en;
 }
 
 /**
@@ -37,7 +37,7 @@ export function formatPrice(
 ): string {
   const divisor = getMinorUnitDivisor(currency);
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency: currency.toUpperCase(),
   }).format(amountInCents / divisor);
 }
@@ -49,10 +49,10 @@ export function formatPrice(
  */
 export function formatDate(date: Date | string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(typeof date === 'string' ? new Date(date) : date);
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(typeof date === "string" ? new Date(date) : date);
 }
 
 /**
@@ -61,8 +61,24 @@ export function formatDate(date: Date | string, locale: string): string {
  */
 function getMinorUnitDivisor(currency: string): number {
   const zeroCurrencies = new Set([
-    'BIF', 'CLP', 'DJF', 'GNF', 'ISK', 'JPY', 'KMF', 'KRW',
-    'MGA', 'PYG', 'RWF', 'UGX', 'UYI', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+    "BIF",
+    "CLP",
+    "DJF",
+    "GNF",
+    "ISK",
+    "JPY",
+    "KMF",
+    "KRW",
+    "MGA",
+    "PYG",
+    "RWF",
+    "UGX",
+    "UYI",
+    "VND",
+    "VUV",
+    "XAF",
+    "XOF",
+    "XPF",
   ]);
   return zeroCurrencies.has(currency.toUpperCase()) ? 1 : 100;
 }

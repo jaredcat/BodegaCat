@@ -67,7 +67,7 @@ export async function getStoredSettings(
   try {
     const raw = await kv.get(SETTINGS_KEY, "json");
     if (!raw || typeof raw !== "object") return {};
-    return raw as EditableSettings;
+    return raw;
   } catch {
     // KV unavailable (e.g. placeholder namespace IDs in dev) — use in-memory store
     return getFromDevStore();

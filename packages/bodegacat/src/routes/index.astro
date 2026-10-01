@@ -1,14 +1,14 @@
 ---
 export const prerender = true;
 
-import { Image } from 'astro:assets';
-import Navbar from '@components/Navbar';
-import { getSiteConfig } from '@config/site';
-import { formatPrice, getTranslations } from '@i18n';
-import Layout from '@layouts/Layout.astro';
-import { publicProductPath, publicShopIndexPath } from '@lib/catalog-paths';
-import { getProducts } from '@lib/stripe';
-import ThemeHomePage from '@themes/runtime/HomePage.astro';
+import { Image } from "astro:assets";
+import Navbar from "@components/Navbar";
+import { getSiteConfig } from "@config/site";
+import { formatPrice, getTranslations } from "@i18n";
+import Layout from "@layouts/Layout.astro";
+import { publicProductPath, publicShopIndexPath } from "@lib/catalog-paths";
+import { getProducts } from "@lib/stripe";
+import ThemeHomePage from "@themes/runtime/HomePage.astro";
 
 const siteConfig = getSiteConfig();
 const t = getTranslations(siteConfig.locale);
@@ -27,7 +27,8 @@ const shopList = publicShopIndexPath();
     siteConfig={siteConfig}
     t={t}
     copyrightYear={copyrightYear}
-    catalogShopHref={shopList}>
+    catalogShopHref={shopList}
+  >
     <section class="hero-section py-20 text-white">
       <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <h1 class="mb-6 text-4xl font-bold md:text-6xl">
@@ -46,58 +47,55 @@ const shopList = publicShopIndexPath();
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 class="mb-12 text-center text-3xl font-bold">{t.shop.featured}</h2>
 
-        {
-          featuredProducts.length > 0 ? (
-            <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {featuredProducts.map((product) => (
-                <div class="card transition-shadow hover:shadow-lg">
-                  {product.images.length > 0 && (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      width={400}
-                      height={256}
-                      loading="eager"
-                      class="mb-4 h-64 w-full rounded-t-lg object-cover"
-                    />
-                  )}
-                  <h3 class="mb-2 text-xl font-semibold">{product.name}</h3>
-                  <p class="text-muted mb-4 line-clamp-2">
-                    {product.description}
-                  </p>
-                  <div class="flex items-center justify-between">
-                    <span class="text-primary text-2xl font-bold">
-                      {formatPrice(
-                        product.basePrice,
-                        product.currency || siteConfig.currency,
-                        siteConfig.locale,
-                      )}
-                    </span>
-                    <a
-                      href={publicProductPath(product.slug)}
-                      class="btn btn-primary">
-                      {t.shop.viewDetails}
-                    </a>
-                  </div>
+        {featuredProducts.length > 0 ? (
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {featuredProducts.map((product) => (
+              <div class="card transition-shadow hover:shadow-lg">
+                {product.images.length > 0 && (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    width={400}
+                    height={256}
+                    loading="eager"
+                    class="mb-4 h-64 w-full rounded-t-lg object-cover"
+                  />
+                )}
+                <h3 class="mb-2 text-xl font-semibold">{product.name}</h3>
+                <p class="text-muted mb-4 line-clamp-2">
+                  {product.description}
+                </p>
+                <div class="flex items-center justify-between">
+                  <span class="text-primary text-2xl font-bold">
+                    {formatPrice(
+                      product.basePrice,
+                      product.currency || siteConfig.currency,
+                      siteConfig.locale,
+                    )}
+                  </span>
+                  <a
+                    href={publicProductPath(product.slug)}
+                    class="btn btn-primary"
+                  >
+                    {t.shop.viewDetails}
+                  </a>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div class="py-12 text-center">
-              <p class="text-muted text-lg">{t.shop.noFeatured}</p>
-            </div>
-          )
-        }
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="py-12 text-center">
+            <p class="text-muted text-lg">{t.shop.noFeatured}</p>
+          </div>
+        )}
 
-        {
-          products.length > 6 && (
-            <div class="mt-12 text-center">
-              <a href={shopList} class="btn btn-outline px-8 py-3">
-                {t.shop.viewAll}
-              </a>
-            </div>
-          )
-        }
+        {products.length > 6 && (
+          <div class="mt-12 text-center">
+            <a href={shopList} class="btn btn-outline px-8 py-3">
+              {t.shop.viewAll}
+            </a>
+          </div>
+        )}
       </div>
     </section>
 
@@ -114,62 +112,57 @@ const shopList = publicShopIndexPath();
           <div>
             <h3 class="mb-4 text-lg font-semibold">{siteConfig.name}</h3>
             <p class="text-muted">{siteConfig.description}</p>
-            {
-              siteConfig.contactEmail && (
-                <a
-                  href={`mailto:${siteConfig.contactEmail}`}
-                  class="text-muted hover:text-primary mt-2 block text-sm">
-                  {siteConfig.contactEmail}
-                </a>
-              )
-            }
+            {siteConfig.contactEmail && (
+              <a
+                href={`mailto:${siteConfig.contactEmail}`}
+                class="text-muted hover:text-primary mt-2 block text-sm"
+              >
+                {siteConfig.contactEmail}
+              </a>
+            )}
           </div>
 
-          {
-            siteConfig.footerLinks.length > 0 && (
-              <div>
-                <h3 class="mb-4 text-lg font-semibold">
-                  {t.footer.quickLinks}
-                </h3>
-                <ul class="space-y-2">
-                  {siteConfig.footerLinks.map((link) => (
-                    <li>
-                      <a href={link.href} class="text-muted hover:text-primary">
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
+          {siteConfig.footerLinks.length > 0 && (
+            <div>
+              <h3 class="mb-4 text-lg font-semibold">{t.footer.quickLinks}</h3>
+              <ul class="space-y-2">
+                {siteConfig.footerLinks.map((link) => (
+                  <li>
+                    <a href={link.href} class="text-muted hover:text-primary">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          {
-            siteConfig.socialLinks.length > 0 && (
-              <div>
-                <h3 class="mb-4 text-lg font-semibold">Follow Us</h3>
-                <ul class="space-y-2">
-                  {siteConfig.socialLinks.map((link) => (
-                    <li>
-                      <a
-                        href={link.url}
-                        class="text-muted hover:text-primary"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.label ?? link.platform}>
-                        {link.label ?? link.platform}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
+          {siteConfig.socialLinks.length > 0 && (
+            <div>
+              <h3 class="mb-4 text-lg font-semibold">Follow Us</h3>
+              <ul class="space-y-2">
+                {siteConfig.socialLinks.map((link) => (
+                  <li>
+                    <a
+                      href={link.url}
+                      class="text-muted hover:text-primary"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label ?? link.platform}
+                    >
+                      {link.label ?? link.platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div
           class="mt-8 border-t pt-8 text-center"
-          style="border-color: var(--color-footer-border)">
+          style="border-color: var(--color-footer-border)"
+        >
           <p class="text-muted">
             &copy; {copyrightYear}
             {siteConfig.name}. {t.footer.allRightsReserved}

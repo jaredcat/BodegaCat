@@ -158,7 +158,7 @@ export const PUT: APIRoute = async ({ request }) => {
         bodegacat_active: productData.active ? "true" : "false",
         bodegacat_published: publishedRaw,
         productTypeId:
-          productData.metadata?.productTypeId ?? m.productTypeId ?? "",
+          (productData.metadata?.productTypeId ?? m.productTypeId) || "",
         category: productData.metadata?.category ?? "",
         brand: productData.metadata?.brand ?? "",
         sku: productData.metadata?.sku ?? "",

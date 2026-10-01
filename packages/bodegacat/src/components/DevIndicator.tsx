@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface DevIndicatorProps {
   isDevelopment?: boolean;
@@ -26,7 +26,7 @@ export const DevIndicator: React.FC<DevIndicatorProps> = ({
 
   return (
     <div className="fixed top-4 right-4 z-50">
-      <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-medium shadow-lg border border-yellow-600">
+      <div className="rounded-full border border-yellow-600 bg-yellow-500 px-3 py-1 text-sm font-medium text-black shadow-lg">
         🔓 Development Mode
       </div>
     </div>

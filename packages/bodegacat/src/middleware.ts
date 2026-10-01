@@ -8,11 +8,7 @@ function parseAccessJwtEmail(token: string | undefined): string | null {
     const payloadB64 = token.split(".").at(1);
     if (payloadB64 === undefined || payloadB64 === "") return null;
     const parsed: unknown = JSON.parse(atob(payloadB64));
-    if (
-      parsed === null ||
-      typeof parsed !== "object" ||
-      !("email" in parsed)
-    ) {
+    if (parsed === null || typeof parsed !== "object" || !("email" in parsed)) {
       return null;
     }
     const { email } = parsed as { email?: unknown };
@@ -77,7 +73,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
         jwt: "dev-jwt-token",
         isDevelopment: true,
       };
-    } else if (isAdminLocalPreviewBypass(context, BODEGACAT_ADMIN_LOCAL_BYPASS)) {
+    } else if (
+      isAdminLocalPreviewBypass(context, BODEGACAT_ADMIN_LOCAL_BYPASS)
+    ) {
       console.warn(
         "[bodegacat] BODEGACAT_ADMIN_LOCAL_BYPASS: mock admin (loopback only). Do not set in production.",
       );

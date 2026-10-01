@@ -1,12 +1,7 @@
 import { useState } from "react";
 
 export type AdminNavPage =
-  | "dashboard"
-  | "products"
-  | "new"
-  | "settings"
-  | "product-types"
-  | "edit";
+  "dashboard" | "products" | "new" | "settings" | "product-types" | "edit";
 
 interface AdminNavProps {
   readonly currentPage?: AdminNavPage;
@@ -33,7 +28,12 @@ export default function AdminNav({
     page: AdminNavPage | null;
   }[] = [
     { href: "/admin", label: "Dashboard", icon: "📊", page: "dashboard" },
-    { href: "/admin/products", label: "Products", icon: "📦", page: "products" },
+    {
+      href: "/admin/products",
+      label: "Products",
+      icon: "📦",
+      page: "products",
+    },
     {
       href: "/admin/products/new",
       label: "Add Product",
@@ -46,7 +46,12 @@ export default function AdminNav({
       icon: "🏷️",
       page: "product-types",
     },
-    { href: "/admin/settings", label: "Settings", icon: "⚙️", page: "settings" },
+    {
+      href: "/admin/settings",
+      label: "Settings",
+      icon: "⚙️",
+      page: "settings",
+    },
     {
       href: viewStorefrontHref,
       label: hasUnpublishedProducts

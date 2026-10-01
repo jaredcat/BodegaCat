@@ -1,6 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { useEffect, useState } from "react";
 import { cartCount, initializeCart, toggleCart } from "../lib/cartStore";
+import { useIsClient } from "../lib/useIsClient";
 import type { SiteConfig } from "../types/product";
 
 interface NavbarProps {
@@ -9,14 +10,10 @@ interface NavbarProps {
 
 export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
   const count = useStore(cartCount);
 
   useEffect(() => {
-    // Avoid synchronous setState inside effect body (can cause cascading renders warnings).
-    queueMicrotask(() => {
-      setIsClient(true);
-    });
     initializeCart();
   }, []);
 

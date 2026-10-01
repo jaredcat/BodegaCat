@@ -205,7 +205,11 @@ h6 {
 }
 
 .site-navbar .nav-icon-btn:hover {
-  background-color: color-mix(in srgb, var(--color-navbar-text) 10%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-navbar-text) 10%,
+    transparent
+  );
 }
 
 .site-navbar a:hover {
@@ -268,7 +272,11 @@ h6 {
 
 /* CTA Section — gradient banner, text and button are white */
 .cta-section {
-  background: linear-gradient(to right, var(--color-cta-from, var(--color-primary)), var(--color-cta-to, var(--color-accent)));
+  background: linear-gradient(
+    to right,
+    var(--color-cta-from, var(--color-primary)),
+    var(--color-cta-to, var(--color-accent))
+  );
   color: #ffffff;
 }
 

@@ -12,20 +12,22 @@
     "preview:simple": "astro preview",
     "deploy": "pnpm -s astro build && wrangler deploy --config dist/server/wrangler.json",
     "astro": "astro",
+    "cf-typegen": "wrangler types worker-configuration/worker-configuration.d.ts",
     "typecheck": "astro check"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13.1.8",
-    "@astrojs/react": "^5.0.3",
-    "astro": "^6.1.5",
+    "@astrojs/cloudflare": "^14.3.3",
+    "@astrojs/react": "catalog:",
+    "astro": "catalog:",
     "bodegacat": "workspace:*",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.8",
-    "@astrojs/ts-plugin": "^1.10.7",
-    "typescript": "^6.0.2",
-    "wrangler": "^4.81.1"
+    "@astrojs/check": "catalog:",
+    "@astrojs/ts-plugin": "catalog:",
+    "astro-seo-enforcer": "^1.7.0",
+    "typescript": "catalog:",
+    "wrangler": "^4.145.0"
   }
 }

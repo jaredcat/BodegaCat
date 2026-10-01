@@ -21,7 +21,7 @@ export interface Feature {
   title: string;
   description: string;
   icon?: string;
-  accentColor?: 'primary' | 'accent';
+  accentColor?: "primary" | "accent";
 }
 
 interface Props {
@@ -32,28 +32,35 @@ interface Props {
 
 const { features, heading, subheading } = Astro.props;
 
-const gridCols =
-  features.length === 1 ? '' :
-  features.length === 2 ? 'md:grid-cols-2' :
-  'md:grid-cols-3';
+let gridCols = "md:grid-cols-3";
+if (features.length === 1) {
+  gridCols = "";
+} else if (features.length === 2) {
+  gridCols = "md:grid-cols-2";
+}
 ---
 
 <section class="bg-surface py-16 lg:py-24">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    {(heading || subheading) && (
+    {(heading ?? subheading) && (
       <div class="mb-16 text-center">
-        {heading && <h2 class="mb-4 text-3xl font-bold md:text-4xl">{heading}</h2>}
-        {subheading && <p class="mx-auto max-w-2xl text-xl text-muted">{subheading}</p>}
+        {heading && (
+          <h2 class="mb-4 text-3xl font-bold md:text-4xl">{heading}</h2>
+        )}
+        {subheading && (
+          <p class="mx-auto max-w-2xl text-xl text-muted">{subheading}</p>
+        )}
       </div>
     )}
 
     <div class={`grid grid-cols-1 gap-8 lg:gap-12 ${gridCols}`}>
       {features.map((feature, i) => {
-        const color = feature.accentColor ?? (i % 2 === 0 ? 'primary' : 'accent');
+        const color =
+          feature.accentColor ?? (i % 2 === 0 ? "primary" : "accent");
         return (
           <article class="text-center">
             <div class={`feature-icon feature-icon-${color}`}>
-              {feature.icon ?? '★'}
+              {feature.icon ?? "★"}
             </div>
             <h3 class="mb-4 text-2xl font-bold">{feature.title}</h3>
             <p class="text-muted leading-relaxed">{feature.description}</p>

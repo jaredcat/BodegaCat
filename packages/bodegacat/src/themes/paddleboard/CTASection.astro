@@ -29,7 +29,10 @@ const { title, description, buttonText, buttonHref } = Astro.props;
   <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
     <h2 class="mb-4 text-3xl font-bold md:text-4xl">{title}</h2>
     <p class="mb-8 text-xl opacity-90">{description}</p>
-    <a href={buttonHref} class="btn btn-invert px-8 py-4 text-lg font-semibold shadow-lg">
+    <a
+      href={buttonHref}
+      class="btn btn-invert px-8 py-4 text-lg font-semibold shadow-lg"
+    >
       {buttonText}
     </a>
   </div>

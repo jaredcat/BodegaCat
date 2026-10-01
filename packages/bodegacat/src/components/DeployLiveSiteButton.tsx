@@ -23,7 +23,9 @@ export default function DeployLiveSiteButton() {
         setStatus("error");
         setMessage(
           body.error ??
-            (body.detail ? `Deploy hook failed: ${body.detail}` : "Deploy hook failed"),
+            (body.detail
+              ? `Deploy hook failed: ${body.detail}`
+              : "Deploy hook failed"),
         );
         return;
       }

@@ -1,14 +1,14 @@
 ---
 export const prerender = false;
 
-import AdminNav from '@components/AdminNav';
-import { DevIndicator } from '@components/DevIndicator';
-import ProductForm from '@components/ProductForm';
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
-import type { Product } from '@models/product';
-import { env } from 'cloudflare:workers';
+import AdminNav from "@components/AdminNav";
+import { DevIndicator } from "@components/DevIndicator";
+import ProductForm from "@components/ProductForm";
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import type { Product } from "@models/product";
+import { env } from "cloudflare:workers";
 
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 const catalogAll = await getProducts({ includeUnpublished: true });
@@ -49,9 +49,9 @@ const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
       <ProductForm
         productTypes={siteConfig.productTypes}
         onSubmit={async (productData: Partial<Product>) => {
-          const res = await fetch('/api/admin/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const res = await fetch("/api/admin/products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(productData),
           });
           const body = (await res.json()) as {
@@ -59,18 +59,18 @@ const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
             product?: { metadata?: { slug?: string } };
           };
           if (!res.ok) {
-            throw new Error(body.error ?? 'Failed to create product');
+            throw new Error(body.error ?? "Failed to create product");
           }
           const slug = body.product?.metadata?.slug;
           const isDraft = productData.metadata?.publishedToStorefront === false;
-          if (isDraft && typeof slug === 'string' && slug.length > 0) {
+          if (isDraft && typeof slug === "string" && slug.length > 0) {
             window.location.href = `/preview/shop/${slug}`;
           } else {
-            window.location.href = '/admin/products';
+            window.location.href = "/admin/products";
           }
         }}
         onCancel={() => {
-          window.location.href = '/admin/products';
+          window.location.href = "/admin/products";
         }}
         client:load
       />

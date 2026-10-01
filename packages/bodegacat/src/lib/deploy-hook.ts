@@ -13,9 +13,7 @@ export async function triggerProductionDeployHook(
   data: Record<string, unknown> = {},
 ): Promise<DeployHookResult> {
   if (!BUILD_HOOK_URL) {
-    console.log(
-      `[deploy-hook] BUILD_HOOK_URL not set — skipping (${reason})`,
-    );
+    console.log(`[deploy-hook] BUILD_HOOK_URL not set — skipping (${reason})`);
     return { ok: true, skipped: true };
   }
 
@@ -38,11 +36,7 @@ export async function triggerProductionDeployHook(
     }
 
     const detail = await response.text().catch(() => "");
-    console.error(
-      `[deploy-hook] Failed (${reason}):`,
-      response.status,
-      detail,
-    );
+    console.error(`[deploy-hook] Failed (${reason}):`, response.status, detail);
     return {
       ok: false,
       skipped: false,

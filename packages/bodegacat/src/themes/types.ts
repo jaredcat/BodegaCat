@@ -57,57 +57,57 @@ export interface BodegaCatTheme {
  */
 export interface ThemeVariables {
   // ─── Colors ───────────────────────────────────────────────────────────────
-  '--color-primary': string;
-  '--color-secondary': string;
-  '--color-accent': string;
-  '--color-background': string;
-  '--color-surface': string;
-  '--color-text': string;
-  '--color-text-secondary': string;
+  "--color-primary": string;
+  "--color-secondary": string;
+  "--color-accent": string;
+  "--color-background": string;
+  "--color-surface": string;
+  "--color-text": string;
+  "--color-text-secondary": string;
 
   // ─── Navigation ───────────────────────────────────────────────────────────
   /** Navbar background color. Defaults to white if unset. */
-  '--color-navbar-bg': string;
+  "--color-navbar-bg": string;
   /** Navbar foreground/text color. Defaults to --color-text if unset. */
-  '--color-navbar-text': string;
+  "--color-navbar-text": string;
 
   // ─── Hero Section ─────────────────────────────────────────────────────────
   /** Start color of the hero gradient. Defaults to --color-primary. */
-  '--color-hero-from': string;
+  "--color-hero-from": string;
   /** End color of the hero gradient. Defaults to --color-accent. */
-  '--color-hero-to': string;
+  "--color-hero-to": string;
 
   // ─── Footer ───────────────────────────────────────────────────────────────
   /** Footer background color. Defaults to --color-surface. */
-  '--color-footer-bg': string;
+  "--color-footer-bg": string;
   /** Footer text color. Defaults to --color-text. */
-  '--color-footer-text': string;
+  "--color-footer-text": string;
   /** Footer muted/secondary text (links, sub-labels). */
-  '--color-footer-text-muted': string;
+  "--color-footer-text-muted": string;
   /** Footer top border color. */
-  '--color-footer-border': string;
+  "--color-footer-border": string;
 
   // ─── CTA Section ──────────────────────────────────────────────────────────
   /** Start color of the CTA banner gradient. Defaults to --color-primary. */
-  '--color-cta-from': string;
+  "--color-cta-from": string;
   /** End color of the CTA banner gradient. Defaults to --color-accent. */
-  '--color-cta-to': string;
+  "--color-cta-to": string;
 
   // ─── Typography ───────────────────────────────────────────────────────────
   /** Full font-family stack for headings, e.g. "Playfair Display, serif" */
-  '--font-heading': string;
+  "--font-heading": string;
   /** Full font-family stack for body text, e.g. "Inter, system-ui, sans-serif" */
-  '--font-body': string;
+  "--font-body": string;
 
   // ─── Shape ────────────────────────────────────────────────────────────────
-  '--border-radius': string;
+  "--border-radius": string;
 
   // ─── Spacing ──────────────────────────────────────────────────────────────
-  '--spacing-xs': string;
-  '--spacing-sm': string;
-  '--spacing-md': string;
-  '--spacing-lg': string;
-  '--spacing-xl': string;
+  "--spacing-xs": string;
+  "--spacing-sm": string;
+  "--spacing-md": string;
+  "--spacing-lg": string;
+  "--spacing-xl": string;
 
   // ─── Custom ───────────────────────────────────────────────────────────────
   /** Themes may add any additional CSS custom properties here. */

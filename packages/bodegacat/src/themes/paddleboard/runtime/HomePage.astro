@@ -1,11 +1,11 @@
 ---
-import type { Translations } from '../../../i18n';
-import type { SiteConfig } from '../../../types/product';
+import type { Translations } from "../../../i18n";
+import type { SiteConfig } from "../../../types/product";
 
-import CTASection from '../CTASection.astro';
-import FeatureGrid from '../FeatureGrid.astro';
-import Footer from '../Footer.astro';
-import Hero from '../Hero.astro';
+import CTASection from "../CTASection.astro";
+import FeatureGrid from "../FeatureGrid.astro";
+import Footer from "../Footer.astro";
+import Hero from "../Hero.astro";
 
 interface Props {
   siteConfig: SiteConfig;
@@ -14,7 +14,7 @@ interface Props {
   catalogShopHref?: string;
 }
 
-const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
+const { siteConfig, t, copyrightYear, catalogShopHref = "/shop" } = Astro.props;
 
 const defaultHeroTitle = `Welcome to ${siteConfig.name}`;
 const heroTitle: string = siteConfig.homeHeadline ?? defaultHeroTitle;
@@ -32,23 +32,23 @@ const heroTitle: string = siteConfig.homeHeadline ?? defaultHeroTitle;
   subheading={siteConfig.aboutText}
   features={[
     {
-      title: 'Safety First',
-      description: 'Trusted checkout, clear policies, and reliable support.',
-      icon: '🛟',
-      accentColor: 'primary',
+      title: "Safety First",
+      description: "Trusted checkout, clear policies, and reliable support.",
+      icon: "🛟",
+      accentColor: "primary",
     },
     {
-      title: 'Fast & Simple',
+      title: "Fast & Simple",
       description:
-        'A streamlined shopping experience that gets out of your way.',
-      icon: '⚡',
-      accentColor: 'accent',
+        "A streamlined shopping experience that gets out of your way.",
+      icon: "⚡",
+      accentColor: "accent",
     },
     {
-      title: 'Built for Adventure',
-      description: 'Designed to look great on mobile and desktop.',
-      icon: '🌊',
-      accentColor: 'primary',
+      title: "Built for Adventure",
+      description: "Designed to look great on mobile and desktop.",
+      icon: "🌊",
+      accentColor: "primary",
     },
   ]}
 />

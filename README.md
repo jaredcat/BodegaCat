@@ -4,12 +4,12 @@
 
 ## Repository layout
 
-| Path | Purpose |
-|------|--------|
-| `packages/bodegacat` | npm package source (`bodegacat`): routes, components, Stripe, themes |
-| `apps/template` | Minimal Astro shell that consumes the package (reference / GitHub template) |
-| `docs/` | Deeper guides (local dev, variations) |
-| `examples/deploy/cloudflare-pages/` | Cloudflare Pages, KV, env vars, optional Access |
+| Path                                | Purpose                                                                     |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| `packages/bodegacat`                | npm package source (`bodegacat`): routes, components, Stripe, themes        |
+| `apps/template`                     | Minimal Astro shell that consumes the package (reference / GitHub template) |
+| `docs/`                             | Deeper guides (local dev, variations)                                       |
+| `examples/deploy/cloudflare-pages/` | Cloudflare Pages, KV, env vars, optional Access                             |
 
 ## For store authors (consume the package)
 
@@ -51,11 +51,11 @@ Avoid committing a permanent `file:` dependency in public repos unless everyone 
 
 ## Documentation
 
-| Doc | Contents |
-|-----|----------|
-| [`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md) | Monorepo: run template, Stripe `.env`, admin in dev |
-| [`docs/VARIATION_SYSTEM.md`](docs/VARIATION_SYSTEM.md) | Product variations and Stripe metadata |
-| [`examples/deploy/cloudflare-pages/README.md`](examples/deploy/cloudflare-pages/README.md) | Workers, KV, Stripe env, deploy |
+| Doc                                                                                        | Contents                                            |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| [`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md)                                   | Monorepo: run template, Stripe `.env`, admin in dev |
+| [`docs/VARIATION_SYSTEM.md`](docs/VARIATION_SYSTEM.md)                                     | Product variations and Stripe metadata              |
+| [`examples/deploy/cloudflare-pages/README.md`](examples/deploy/cloudflare-pages/README.md) | Workers, KV, Stripe env, deploy                     |
 
 ## Features (high level)
 

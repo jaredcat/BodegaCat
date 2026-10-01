@@ -27,6 +27,7 @@ export default defineConfig([
       "**/coverage/**",
       "scripts/**",
       ".astro/**",
+      "apps/template/worker-configuration/**",
     ],
   },
   {
@@ -66,13 +67,20 @@ export default defineConfig([
     },
   },
   {
+    // Injected storefront routes live outside src/pages, but Astro still honors prerender.
+    files: ["packages/bodegacat/src/routes/**/*.{astro,ts}"],
+    rules: {
+      "astro/no-prerender-export-outside-pages": "off",
+    },
+  },
+  {
     files: ["**/*.astro"],
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-misused-promises": "off",
-      "sonarjs/prefer-read-only-props": "off",
       // Allow more flexible typing in Astro files
       "jsx-a11y/label-has-associated-control": "off",
+      "unicorn/prefer-ternary": "off",
     },
   },
 ]);

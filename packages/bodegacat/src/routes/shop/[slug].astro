@@ -5,11 +5,11 @@
  */
 export const prerender = true;
 
-import Navbar from '@components/Navbar';
-import { getSiteConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { getProduct, getProducts } from '@lib/stripe';
-import ProductDetailInner from '../_partials/ProductDetailInner.astro';
+import Navbar from "@components/Navbar";
+import { getSiteConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { getProduct, getProducts } from "@lib/stripe";
+import ProductDetailInner from "../_partials/ProductDetailInner.astro";
 
 export async function getStaticPaths() {
   const products = await getProducts({ includeUnpublished: false });
@@ -18,20 +18,21 @@ export async function getStaticPaths() {
 
 const slug = Astro.params.slug;
 if (!slug) {
-  return Astro.redirect('/shop');
+  return Astro.redirect("/shop");
 }
 
 const siteConfig = getSiteConfig();
 const product = await getProduct(slug, { includeUnpublished: false });
 if (!product) {
-  return Astro.redirect('/shop');
+  return Astro.redirect("/shop");
 }
 ---
 
 <Layout
   title={product.name}
   description={product.description}
-  siteConfig={siteConfig}>
+  siteConfig={siteConfig}
+>
   <Navbar siteConfig={siteConfig} client:load />
   <ProductDetailInner product={product} siteConfig={siteConfig} />
 </Layout>

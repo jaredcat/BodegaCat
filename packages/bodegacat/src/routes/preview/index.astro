@@ -1,15 +1,15 @@
 ---
 export const prerender = false;
 
-import { Image } from 'astro:assets';
-import Navbar from '@components/Navbar';
-import { getEffectiveConfig } from '@config/site';
-import { getTranslations, formatPrice } from '@i18n';
-import Layout from '@layouts/Layout.astro';
-import { getProducts, hasUnpublishedDrafts } from '@lib/stripe';
-import { previewProductPath, previewShopIndexPath } from '@lib/catalog-paths';
-import ThemeHomePage from '@themes/runtime/HomePage.astro';
-import { env } from 'cloudflare:workers';
+import { Image } from "astro:assets";
+import Navbar from "@components/Navbar";
+import { getEffectiveConfig } from "@config/site";
+import { getTranslations, formatPrice } from "@i18n";
+import Layout from "@layouts/Layout.astro";
+import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import { previewProductPath, previewShopIndexPath } from "@lib/catalog-paths";
+import ThemeHomePage from "@themes/runtime/HomePage.astro";
+import { env } from "cloudflare:workers";
 
 const kv = env.SETTINGS_KV;
 const siteConfig = await getEffectiveConfig(kv);
@@ -55,40 +55,47 @@ const shopList = previewShopIndexPath();
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 class="mb-12 text-center text-3xl font-bold">{t.shop.featured}</h2>
 
-        {
-          featuredProducts.length > 0 ? (
-            <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {featuredProducts.map((product) => (
-                <div class="card transition-shadow hover:shadow-lg">
-                  {product.images.length > 0 && (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      width={400}
-                      height={256}
-                      loading="eager"
-                      class="mb-4 h-64 w-full rounded-t-lg object-cover"
-                    />
-                  )}
-                  <h3 class="mb-2 text-xl font-semibold">{product.name}</h3>
-                  <p class="text-muted mb-4 line-clamp-2">{product.description}</p>
-                  <div class="flex items-center justify-between">
-                    <span class="text-primary text-2xl font-bold">
-                      {formatPrice(product.basePrice, product.currency || siteConfig.currency, siteConfig.locale)}
-                    </span>
-                    <a href={previewProductPath(product.slug)} class="btn btn-primary">
-                      {t.shop.viewDetails}
-                    </a>
-                  </div>
+        {featuredProducts.length > 0 ? (
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {featuredProducts.map((product) => (
+              <div class="card transition-shadow hover:shadow-lg">
+                {product.images.length > 0 && (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    width={400}
+                    height={256}
+                    loading="eager"
+                    class="mb-4 h-64 w-full rounded-t-lg object-cover"
+                  />
+                )}
+                <h3 class="mb-2 text-xl font-semibold">{product.name}</h3>
+                <p class="text-muted mb-4 line-clamp-2">
+                  {product.description}
+                </p>
+                <div class="flex items-center justify-between">
+                  <span class="text-primary text-2xl font-bold">
+                    {formatPrice(
+                      product.basePrice,
+                      product.currency || siteConfig.currency,
+                      siteConfig.locale,
+                    )}
+                  </span>
+                  <a
+                    href={previewProductPath(product.slug)}
+                    class="btn btn-primary"
+                  >
+                    {t.shop.viewDetails}
+                  </a>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div class="py-12 text-center">
-              <p class="text-muted text-lg">{t.shop.noFeatured}</p>
-            </div>
-          )
-        }
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="py-12 text-center">
+            <p class="text-muted text-lg">{t.shop.noFeatured}</p>
+          </div>
+        )}
 
         {products.length > 6 && (
           <div class="mt-12 text-center">
@@ -116,7 +123,8 @@ const shopList = previewShopIndexPath();
             {siteConfig.contactEmail && (
               <a
                 href={`mailto:${siteConfig.contactEmail}`}
-                class="text-muted hover:text-primary mt-2 block text-sm">
+                class="text-muted hover:text-primary mt-2 block text-sm"
+              >
                 {siteConfig.contactEmail}
               </a>
             )}
@@ -148,7 +156,8 @@ const shopList = previewShopIndexPath();
                       class="text-muted hover:text-primary"
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={link.label ?? link.platform}>
+                      aria-label={link.label ?? link.platform}
+                    >
                       {link.label ?? link.platform}
                     </a>
                   </li>
@@ -160,9 +169,11 @@ const shopList = previewShopIndexPath();
 
         <div
           class="mt-8 border-t pt-8 text-center"
-          style="border-color: var(--color-footer-border)">
+          style="border-color: var(--color-footer-border)"
+        >
           <p class="text-muted">
-            &copy; {copyrightYear} {siteConfig.name}. {t.footer.allRightsReserved}
+            &copy; {copyrightYear} {siteConfig.name}.{" "}
+            {t.footer.allRightsReserved}
           </p>
         </div>
       </div>

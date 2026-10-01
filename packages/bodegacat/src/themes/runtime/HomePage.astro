@@ -1,8 +1,8 @@
 ---
-import type { SiteConfig } from '../../types/product';
-import type { Translations } from '../../i18n';
+import type { SiteConfig } from "../../types/product";
+import type { Translations } from "../../i18n";
 
-import PaddleboardHomePage from '../paddleboard/runtime/HomePage.astro';
+import PaddleboardHomePage from "../paddleboard/runtime/HomePage.astro";
 
 interface Props {
   siteConfig: SiteConfig;
@@ -12,10 +12,10 @@ interface Props {
   catalogShopHref?: string;
 }
 
-const { siteConfig, t, copyrightYear, catalogShopHref = '/shop' } = Astro.props;
+const { siteConfig, t, copyrightYear, catalogShopHref = "/shop" } = Astro.props;
 
 // Built-in theme routing lives here (theme layer), not in core pages.
-const isPaddleboard = siteConfig.theme.id === 'paddleboard';
+const isPaddleboard = siteConfig.theme.id === "paddleboard";
 ---
 
 {isPaddleboard ? (
@@ -28,4 +28,3 @@ const isPaddleboard = siteConfig.theme.id === 'paddleboard';
 ) : (
   <slot />
 )}
-

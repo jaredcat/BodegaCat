@@ -63,22 +63,22 @@ In production, `/admin/*` expects Cloudflare Access (see the deploy guide, secti
 
 Useful routes:
 
-| Path | Purpose |
-|------|--------|
-| `/admin` | Dashboard |
-| `/admin/products` | Product list |
-| `/admin/products/new` | Create product |
+| Path                  | Purpose           |
+| --------------------- | ----------------- |
+| `/admin`              | Dashboard         |
+| `/admin/products`     | Product list      |
+| `/admin/products/new` | Create product    |
 | `/api/admin/products` | List/create (API) |
-| `/api/stripe-webhook` | Webhook endpoint |
+| `/api/stripe-webhook` | Webhook endpoint  |
 
 ## Storefront preview (unpublished products)
 
 Products can be **active** in Stripe but **not published** to the public catalog (`metadata.bodegacat_published=false`). The **public** site (`/`, `/shop`, `/shop/[slug]`) is **prerendered** (`astro build`) and shows only **published** items from Stripe at **build time**, plus **`getSiteConfig()`** (defaults + optional **`SITE_*`** env) — not KV. **Draft preview** is SSR under **`/preview`**, **`/preview/shop`**, **`/preview/shop/[slug]`** — same staff auth as `/admin` (dev bypass locally; Cloudflare Access in production).
 
-| Environment | How to open preview |
-|---------------|---------------------|
-| **Local dev** | Visit `/preview` or `/preview/shop` (middleware uses the same dev user as admin). |
-| **Production** | Cloudflare Access must allow **`/preview*`** (mirror your `/admin` policy). |
+| Environment    | How to open preview                                                               |
+| -------------- | --------------------------------------------------------------------------------- |
+| **Local dev**  | Visit `/preview` or `/preview/shop` (middleware uses the same dev user as admin). |
+| **Production** | Cloudflare Access must allow **`/preview*`** (mirror your `/admin` policy).       |
 
 The admin nav links to **`/preview`** when you have draft products. Uncheck **Published on storefront** until you are ready; then **redeploy** (or use the webhook build hook below) so the **static** catalog updates.
 
@@ -101,12 +101,12 @@ For card numbers and test mode behavior, see [Stripe testing](https://stripe.com
 
 ## Troubleshooting
 
-| Issue | What to check |
-|-------|----------------|
-| Admin not loading | `NODE_ENV=development` in `.env`, `pnpm dev` from repo root, browser console |
-| Stripe / empty shop | Keys match test mode, products exist with correct metadata (see VARIATION_SYSTEM) |
+| Issue                | What to check                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------- |
+| Admin not loading    | `NODE_ENV=development` in `.env`, `pnpm dev` from repo root, browser console                |
+| Stripe / empty shop  | Keys match test mode, products exist with correct metadata (see VARIATION_SYSTEM)           |
 | Draft not on `/shop` | Expected until published or use **`/preview/shop`**; public `/shop` is static until rebuild |
-| Type / lint errors | `pnpm run typecheck`, `pnpm run lint` from repo root |
+| Type / lint errors   | `pnpm run typecheck`, `pnpm run lint` from repo root                                        |
 
 ## After local testing
 
@@ -117,4 +117,4 @@ Staging/production, Cloudflare Access, and Stripe live mode are covered in the *
 - [Stripe Test Mode](https://stripe.com/docs/testing)
 - [Astro dev toolbar](https://docs.astro.build/en/guides/dev-toolbar/)
 - [Product variations & metadata](./VARIATION_SYSTEM.md)
-- **Dogfooding** a separate store repo against a local `packages/bodegacat` clone: *Developing the package with a separate store app* in the [repository README](../README.md)
+- **Dogfooding** a separate store repo against a local `packages/bodegacat` clone: _Developing the package with a separate store app_ in the [repository README](../README.md)

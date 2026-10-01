@@ -1,8 +1,8 @@
 ---
-import Navbar from '@components/Navbar';
-import { getEffectiveConfig } from '@config/site';
-import Layout from '@layouts/Layout.astro';
-import { env } from 'cloudflare:workers';
+import Navbar from "@components/Navbar";
+import { getEffectiveConfig } from "@config/site";
+import Layout from "@layouts/Layout.astro";
+import { env } from "cloudflare:workers";
 
 const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 ---
@@ -24,10 +24,10 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
 
 <script>
   async function initializeCheckout() {
-    const checkoutContainer = document.getElementById('checkout-container');
+    const checkoutContainer = document.getElementById("checkout-container");
     if (!checkoutContainer) return;
 
-    const cart = JSON.parse(localStorage.getItem('cart') ?? '[]');
+    const cart = JSON.parse(localStorage.getItem("cart") ?? "[]");
 
     if (cart.length === 0) {
       checkoutContainer.innerHTML = `
@@ -44,10 +44,10 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
     const firstItem = cart[0];
 
     try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           productId: firstItem.productId,
@@ -62,16 +62,16 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
           // Redirect to Stripe Checkout
           window.location.href = data.url;
         } else {
-          throw new Error('No checkout URL received');
+          throw new Error("No checkout URL received");
         }
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
+        throw new Error(errorData.error || "Failed to create checkout session");
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+      console.error("Checkout error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error occurred';
+        error instanceof Error ? error.message : "Unknown error occurred";
       checkoutContainer.innerHTML = `
         <div class="text-center py-12">
           <p class="text-red-600 text-lg mb-4">Error creating checkout session</p>

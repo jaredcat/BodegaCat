@@ -192,11 +192,7 @@ function transformStripeProduct(
       brand: product.metadata.brand,
       sku: product.metadata.sku,
       deliveryType: product.metadata.deliveryType as
-        | "physical"
-        | "digital"
-        | "service"
-        | "booking"
-        | undefined,
+        "physical" | "digital" | "service" | "booking" | undefined,
       bookingConfig: product.metadata.bookingConfig
         ? (() => {
             try {

@@ -68,7 +68,12 @@ export interface ProductVariationOption {
  * All supported delivery types. Add new values here — the type is derived
  * automatically everywhere it's used.
  */
-export const DELIVERY_TYPES = ["physical", "digital", "service", "booking"] as const;
+export const DELIVERY_TYPES = [
+  "physical",
+  "digital",
+  "service",
+  "booking",
+] as const;
 export type DeliveryType = (typeof DELIVERY_TYPES)[number];
 
 /**
@@ -157,7 +162,6 @@ export interface SocialLink {
   /** Accessible label for screen readers. Defaults to platform if omitted. */
   label?: string;
 }
-
 
 export interface SiteConfig {
   // ─── Identity ───────────────────────────────────────────────────────────

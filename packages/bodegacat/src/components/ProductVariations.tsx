@@ -145,7 +145,7 @@ export default function ProductVariations({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Product Options</h3>
+      <h2 className="text-lg font-semibold">Product Options</h2>
 
       {/* Variation Selectors */}
       {variationState.variations
@@ -336,9 +336,9 @@ export default function ProductVariations({
         if (currentImage) {
           return (
             <div className="border-t pt-4">
-              <h4 className="mb-2 text-sm font-medium">
+              <h3 className="mb-2 text-sm font-medium">
                 Selected Option Preview:
-              </h4>
+              </h3>
               <img
                 src={currentImage}
                 alt="Selected option preview"

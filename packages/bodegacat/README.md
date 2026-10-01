@@ -8,10 +8,10 @@ Deploying: **`examples/deploy/cloudflare-pages/README.md`** in the source repo.
 
 Subpaths are declared in `package.json` `exports` so you can import types and helpers without copying source:
 
-- `import type { BodegaCatTheme } from "bodegacat/themes"` — built-in theme registry + types  
-- `import type { BodegaCatTheme } from "bodegacat/themes/types"` — theme interface only  
-- `import type { SiteConfig, … } from "bodegacat/types/product"` — product/site types  
-- `import { getEffectiveConfig } from "bodegacat/config/site"` — advanced; most config is KV-driven  
+- `import type { BodegaCatTheme } from "bodegacat/themes"` — built-in theme registry + types
+- `import type { BodegaCatTheme } from "bodegacat/themes/types"` — theme interface only
+- `import type { SiteConfig, … } from "bodegacat/types/product"` — product/site types
+- `import { getEffectiveConfig } from "bodegacat/config/site"` — advanced; most config is KV-driven
 
 Use **`moduleResolution`: `"bundler"`** or **`Node16`/`NodeNext`** in the consuming `tsconfig` so these resolve.
 

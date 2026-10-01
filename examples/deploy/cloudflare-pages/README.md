@@ -20,12 +20,12 @@ This guide is for a **standalone store app** that depends on **`bodegacat`** fro
 
 The integration defines an Astro **env schema** (Stripe keys, optional build hook). Set these everywhere you run **`astro build`** and in the **Worker/Pages** runtime:
 
-| Purpose | Notes |
-|--------|--------|
-| `STRIPE_PUBLISHABLE_KEY` | Client + build |
-| `STRIPE_SECRET_KEY` | Server + build (prerender reads Stripe at build time; APIs and `/preview/*` at runtime) |
-| `STRIPE_WEBHOOK_SECRET` | Server webhook route |
-| Optional `BUILD_HOOK_URL` | **Pages deploy hook URL**. Used by **Admin → Deploy live site** (`POST /api/admin/trigger-deploy`). |
+| Purpose                               | Notes                                                                                                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `STRIPE_PUBLISHABLE_KEY`              | Client + build                                                                                                                                                     |
+| `STRIPE_SECRET_KEY`                   | Server + build (prerender reads Stripe at build time; APIs and `/preview/*` at runtime)                                                                            |
+| `STRIPE_WEBHOOK_SECRET`               | Server webhook route                                                                                                                                               |
+| Optional `BUILD_HOOK_URL`             | **Pages deploy hook URL**. Used by **Admin → Deploy live site** (`POST /api/admin/trigger-deploy`).                                                                |
 | Optional `STRIPE_WEBHOOK_AUTO_DEPLOY` | Set to `true` only if you want Stripe `product.*` / `price.*` webhooks to call `BUILD_HOOK_URL` automatically. Omit or `false` to batch edits and deploy manually. |
 
 ### Optional: use KV as build-time source of truth (SSG copy)
@@ -79,7 +79,7 @@ For a minimal file layout, mirror **`apps/template`** in the bodegacat repositor
 
 ## 8. Troubleshooting: `sharp` fails during `pnpm install`
 
-Astro’s **Cloudflare adapter** with **`imageService: "compile"`** (as in the template) pulls **`sharp`**, which runs an **install script** (native binaries or a **node-gyp** build). If install fails with *“Attempting to build from source”* / *“Please add node-addon-api”*:
+Astro’s **Cloudflare adapter** with **`imageService: "compile"`** (as in the template) pulls **`sharp`**, which runs an **install script** (native binaries or a **node-gyp** build). If install fails with _“Attempting to build from source”_ / _“Please add node-addon-api”_:
 
 1. **Use an active Node LTS** (20 or 22) — odd Node versions often lack prebuilt `sharp` binaries.
 2. **macOS:** Install system libs so a source build can succeed:
@@ -96,4 +96,3 @@ Astro’s **Cloudflare adapter** with **`imageService: "compile"`** (as in the t
 5. **Optional:** if you don’t need compile-time image processing, in **your** `astro.config.mjs` you can try `adapter: cloudflare({ imageService: "passthrough" })` instead of `"compile"` to avoid the `sharp` path (verify [Astro + Cloudflare image docs](https://docs.astro.build/en/guides/images/) for your version).
 
 `npm warn Unknown env config …` lines during `sharp`’s script usually come from **extra `NPM_CONFIG_*` environment variables** in your shell or tooling; they’re noisy but unrelated to the failure — fix the items above first.
-

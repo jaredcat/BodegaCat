@@ -70,8 +70,8 @@ interface ImportMeta {
 
 /** Minimal typing for Cloudflare KV namespaces available in the Worker runtime. */
 interface CloudflareKVNamespace {
-  get(key: string, type: 'json'): Promise<unknown>;
-  get(key: string, type?: 'text'): Promise<string | null>;
+  get(key: string, type: "json"): Promise<unknown>;
+  get(key: string, type?: "text"): Promise<string | null>;
   put(key: string, value: string): Promise<void>;
   delete(key: string): Promise<void>;
 }

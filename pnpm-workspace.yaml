@@ -1,8 +1,32 @@
 packages:
   - "packages/*"
   - "apps/*"
-
+catalogMode: strict
+catalogPrune: true
+catalog:
+  typescript: ^6.0.3
+  "@types/node": ^26.6.3
+  astro: ^7.3.5
+  "@astrojs/react": ^7.0.0
+  "@astrojs/check": ^0.9.10
+  "@astrojs/ts-plugin": ^1.10.12
+  react: ^19.3.0
+  react-dom: ^19.3.0
+  husky: ^9.1.7
+  lint-staged: ^17.6.0
+overrides:
+  react: "catalog:"
+  react-dom: "catalog:"
 allowBuilds:
   esbuild: true
   sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - "@cloudflare/workerd-darwin-64@1.20260930.2"
+  - "@cloudflare/workerd-darwin-arm64@1.20260930.2"
+  - "@cloudflare/workerd-linux-64@1.20260930.2"
+  - "@cloudflare/workerd-linux-arm64@1.20260930.2"
+  - "@cloudflare/workerd-windows-64@1.20260930.2"
+  - "miniflare@5.20260930.0-alpha"
+  - "workerd@1.20260930.2"
+  - "wrangler@4.145.0"

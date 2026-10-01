@@ -228,6 +228,9 @@ export default function bodegacat(
             },
           },
           output: "server",
+          // Templates were written for HTML-aware spacing. Astro 7 defaults to
+          // JSX whitespace, which drops spaces between adjacent interpolations.
+          compressHTML: true,
           build: {
             assets: "_astro",
           },
@@ -272,7 +275,7 @@ export default function bodegacat(
               STRIPE_API_VERSION: envField.string({
                 context: "client",
                 access: "public",
-                default: "2026-03-25.dahlia",
+                default: "2026-08-26.dahlia",
               }),
             },
           },

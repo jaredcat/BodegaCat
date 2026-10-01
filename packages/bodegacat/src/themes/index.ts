@@ -8,10 +8,14 @@
  * Complex themes are a directory with an index.ts + Astro/React components.
  * See src/themes/paddleboard/ for a complex theme example.
  */
-export type { BodegaCatTheme, ThemeVariables } from './types';
-export { bodegaCatTheme } from './bodegacat';
-export { voidKittenTheme } from './voidkitten';
-export { paddleboardTheme } from './paddleboard/index';
+export type { BodegaCatTheme, ThemeVariables } from "./types";
+export { bodegaCatTheme } from "./bodegacat";
+export { voidKittenTheme } from "./voidkitten";
+export { paddleboardTheme } from "./paddleboard/index";
 
-export const builtInThemes = ['bodegacat', 'voidkitten', 'paddleboard'] as const;
+export const builtInThemes = [
+  "bodegacat",
+  "voidkitten",
+  "paddleboard",
+] as const;
 export type BuiltInThemeName = (typeof builtInThemes)[number];

@@ -1,13 +1,13 @@
 ---
 export const prerender = false;
 
-import Navbar from '@components/Navbar';
-import Layout from '@layouts/Layout.astro';
-import ProductDetailInner from '../../_partials/ProductDetailInner.astro';
-import { getEffectiveConfig } from '@config/site';
-import { getProduct, getProducts, hasUnpublishedDrafts } from '@lib/stripe';
-import { previewShopIndexPath } from '@lib/catalog-paths';
-import { env } from 'cloudflare:workers';
+import Navbar from "@components/Navbar";
+import Layout from "@layouts/Layout.astro";
+import ProductDetailInner from "../../_partials/ProductDetailInner.astro";
+import { getEffectiveConfig } from "@config/site";
+import { getProduct, getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import { previewShopIndexPath } from "@lib/catalog-paths";
+import { env } from "cloudflare:workers";
 
 const slug = Astro.params.slug;
 if (!slug) {

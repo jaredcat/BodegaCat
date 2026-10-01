@@ -13,8 +13,7 @@ export const POST: APIRoute = async () => {
     return new Response(
       JSON.stringify({
         ok: false,
-        error:
-          "Deploy isn’t available for this site yet.",
+        error: "Deploy isn’t available for this site yet.",
         learnMore:
           "https://github.com/jaredcat/BodegaCat/blob/main/examples/deploy/cloudflare-pages/README.md",
       }),

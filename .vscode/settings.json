@@ -14,7 +14,10 @@
     "astro"
   ],
   "prettier.documentSelectors": ["**/*.astro"],
-  "astro.enableCodeLens": true,
-  "astro.enableTypeScript": true,
-  "typescript.preferences.includePackageJsonAutoImports": "on"
+  "js/ts.preferences.includePackageJsonAutoImports": "on",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "MyCompanySonarQube",
+    "projectKey": "bodegacat"
+  },
+  "cSpell.words": ["BodegaCat"]
 }
