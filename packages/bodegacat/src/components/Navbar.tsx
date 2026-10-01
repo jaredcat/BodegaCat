@@ -4,6 +4,7 @@ import { cartCount, initializeCart, toggleCart } from "../lib/cartStore";
 import { themeText } from "../lib/theme-content";
 import { useIsClient } from "../lib/useIsClient";
 import type { SiteConfig } from "../types/product";
+import MobileMenuButton from "./MobileMenuButton";
 
 interface NavbarProps {
   siteConfig: SiteConfig;
@@ -91,42 +92,14 @@ export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
 
           {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">
-            <button
-              onClick={() => {
+            <MobileMenuButton
+              open={isMobileMenuOpen}
+              onToggle={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
               }}
               className="nav-icon-btn focus:ring-primary inline-flex items-center justify-center rounded-md p-2 focus:ring-2 focus:outline-none focus:ring-inset"
-              aria-label="Toggle mobile menu"
-            >
-              <svg
-                className={`${isMobileMenuOpen ? "hidden" : "block"} h-6 w-6`}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-              <svg
-                className={`${isMobileMenuOpen ? "block" : "hidden"} h-6 w-6`}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+              label="Toggle mobile menu"
+            />
           </div>
         </div>
       </div>

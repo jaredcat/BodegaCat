@@ -28,6 +28,6 @@
     "@astrojs/ts-plugin": "catalog:",
     "astro-seo-enforcer": "^1.7.0",
     "typescript": "catalog:",
-    "wrangler": "^4.145.0"
+    "wrangler": "^4.147.0"
   }
 }

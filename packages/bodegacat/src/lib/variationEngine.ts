@@ -1,3 +1,4 @@
+import { exampleProductTypes } from "../config/exampleProductTypes";
 import type {
   ProductVariation,
   ProductVariationDefinition,
@@ -317,187 +318,15 @@ export function getCurrentVariationImage(
 }
 
 /**
- * Creates example variation definitions for common product types
+ * Variation definitions from the starter product type with this name or id.
+ * Returns a copy so the editor does not mutate `exampleProductTypes`.
  */
 export function createExampleVariations(
   productType: string,
 ): ProductVariationDefinition[] {
-  switch (productType.toLowerCase()) {
-    case "shirt":
-      return [
-        {
-          id: "size",
-          name: "size",
-          displayName: "Size",
-          type: "independent",
-          order: 1,
-          required: true,
-          options: [
-            {
-              id: "xs",
-              name: "xs",
-              displayName: "XS",
-              priceModifier: 0,
-              available: true,
-            },
-            {
-              id: "s",
-              name: "s",
-              displayName: "S",
-              priceModifier: 0,
-              available: true,
-            },
-            {
-              id: "m",
-              name: "m",
-              displayName: "M",
-              priceModifier: 0,
-              available: true,
-            },
-            {
-              id: "l",
-              name: "l",
-              displayName: "L",
-              priceModifier: 0,
-              available: true,
-            },
-            {
-              id: "xl",
-              name: "xl",
-              displayName: "XL",
-              priceModifier: 500,
-              available: true,
-            },
-            {
-              id: "xxl",
-              name: "xxl",
-              displayName: "XXL",
-              priceModifier: 1000,
-              available: true,
-            },
-          ],
-        },
-        {
-          id: "color",
-          name: "color",
-          displayName: "Color",
-          type: "dependent",
-          order: 2,
-          required: true,
-          dependsOn: ["size"],
-          options: [
-            {
-              id: "red",
-              name: "red",
-              displayName: "Red",
-              priceModifier: 0,
-              available: true,
-              availableFor: [
-                { variationId: "size", optionIds: ["s", "m", "l", "xl"] },
-              ],
-            },
-            {
-              id: "blue",
-              name: "blue",
-              displayName: "Blue",
-              priceModifier: 0,
-              available: true,
-              availableFor: [
-                { variationId: "size", optionIds: ["m", "l", "xl", "xxl"] },
-              ],
-            },
-            {
-              id: "green",
-              name: "green",
-              displayName: "Green",
-              priceModifier: 200,
-              available: true,
-              availableFor: [{ variationId: "size", optionIds: ["l", "xl"] }],
-            },
-          ],
-        },
-      ];
-
-    case "art":
-      return [
-        {
-          id: "material",
-          name: "material",
-          displayName: "Material",
-          type: "independent",
-          order: 1,
-          required: true,
-          options: [
-            {
-              id: "canvas",
-              name: "canvas",
-              displayName: "Canvas",
-              priceModifier: 0,
-              available: true,
-            },
-            {
-              id: "paper",
-              name: "paper",
-              displayName: "Paper",
-              priceModifier: -500,
-              available: true,
-            },
-            {
-              id: "metal",
-              name: "metal",
-              displayName: "Metal",
-              priceModifier: 1000,
-              available: true,
-            },
-          ],
-        },
-        {
-          id: "size",
-          name: "size",
-          displayName: "Size",
-          type: "dependent",
-          order: 2,
-          required: true,
-          dependsOn: ["material"],
-          options: [
-            {
-              id: "small",
-              name: "small",
-              displayName: "Small (8x10)",
-              priceModifier: 0,
-              available: true,
-              availableFor: [
-                { variationId: "material", optionIds: ["canvas", "paper"] },
-              ],
-            },
-            {
-              id: "medium",
-              name: "medium",
-              displayName: "Medium (16x20)",
-              priceModifier: 1500,
-              available: true,
-              availableFor: [
-                {
-                  variationId: "material",
-                  optionIds: ["canvas", "paper", "metal"],
-                },
-              ],
-            },
-            {
-              id: "large",
-              name: "large",
-              displayName: "Large (24x36)",
-              priceModifier: 3000,
-              available: true,
-              availableFor: [
-                { variationId: "material", optionIds: ["canvas", "metal"] },
-              ],
-            },
-          ],
-        },
-      ];
-
-    default:
-      return [];
-  }
+  const key = productType.toLowerCase();
+  const match = exampleProductTypes.find(
+    (type) => type.id.toLowerCase() === key || type.name.toLowerCase() === key,
+  );
+  return structuredClone(match?.variationDefinitions ?? []);
 }

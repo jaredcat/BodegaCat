@@ -1,18 +1,17 @@
 import { useStore } from "@nanostores/react";
 import { useEffect, type ReactNode } from "react";
+import { beginCheckout } from "../lib/checkout";
 import {
   cartCount,
   cartItems,
-  cartLineAmount,
   cartTotal,
   clearCart,
   closeCart,
   initializeCart,
   isCartOpen,
-  removeFromCart,
-  updateQuantity,
 } from "../lib/cartStore";
 import { useIsClient } from "../lib/useIsClient";
+import CartLine from "./CartLine";
 
 function CartDrawer({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -30,6 +29,33 @@ function CartDrawer({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
+function CartHeader({ title }: Readonly<{ title: ReactNode }>) {
+  return (
+    <div className="flex items-center justify-between border-b p-4">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <button
+        onClick={closeCart}
+        className="text-gray-400 hover:text-gray-600"
+        aria-label="Close cart"
+      >
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
 export default function Cart() {
   const items = useStore(cartItems);
   const total = useStore(cartTotal);
@@ -41,70 +67,18 @@ export default function Cart() {
     initializeCart();
   }, []);
 
-  const handleCheckout = async () => {
-    try {
-      // Create checkout session with all cart items
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: Object.values(items).map((item) => ({
-            priceId: item.priceId,
-            quantity: item.quantity,
-          })),
-        }),
-      });
-
-      const data = (await response.json()) as { url?: string; error?: string };
-
-      if (data.url) {
-        // Clear cart and redirect to Stripe Checkout
-        clearCart();
-        closeCart();
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error ?? "Failed to create checkout session");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Failed to start checkout. Please try again.");
-    }
-  };
-
   // Don't render if cart is not open
   if (!open) {
     return null;
   }
 
   const cartItemsArray = Object.values(items);
+  const countLabel = isClient ? ` (${count.toString()})` : "";
 
   if (count === 0) {
     return (
       <CartDrawer>
-        <div className="flex items-center justify-between border-b p-4">
-          <h2 className="text-lg font-semibold">Shopping Cart</h2>
-          <button
-            onClick={closeCart}
-            className="text-gray-400 hover:text-gray-600"
-            aria-label="Close cart"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+        <CartHeader title="Shopping Cart" />
         <div className="flex flex-1 items-center justify-center">
           <div className="text-center">
             <svg
@@ -134,107 +108,12 @@ export default function Cart() {
 
   return (
     <CartDrawer>
-      {/* Header */}
-      <div className="flex items-center justify-between border-b p-4">
-        <h2 className="text-lg font-semibold">
-          Shopping Cart {isClient && `(${count.toString()})`}
-        </h2>
-        <button
-          onClick={closeCart}
-          className="text-gray-400 hover:text-gray-600"
-          aria-label="Close cart"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
+      <CartHeader title={`Shopping Cart${countLabel}`} />
 
-      {/* Cart Items */}
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        {cartItemsArray.map((item) => {
-          const itemKey = `${item.product.id}-${item.priceId}`;
-          return (
-            <div key={itemKey} className="flex space-x-4 border-b pb-4">
-              {/* Product Image */}
-              <div className="shrink-0">
-                <img
-                  src={item.product.images[0] ?? "/placeholder-image.jpg"}
-                  alt={item.product.name}
-                  className="h-16 w-16 rounded object-cover"
-                />
-              </div>
-
-              {/* Product Details */}
-              <div className="min-w-0 flex-1">
-                <h3 className="truncate text-sm font-medium text-gray-900">
-                  {item.product.name}
-                </h3>
-
-                {/* Variations */}
-                {Object.keys(item.selectedVariations).length > 0 && (
-                  <div className="mt-1 text-xs text-gray-500">
-                    {Object.entries(item.selectedVariations).map(
-                      ([key, value]) => (
-                        <div key={key}>
-                          {key}: {value}
-                        </div>
-                      ),
-                    )}
-                  </div>
-                )}
-
-                {/* Price */}
-                <p className="mt-1 text-sm text-gray-900">
-                  ${(cartLineAmount(item) / 100).toFixed(2)} each
-                </p>
-
-                {/* Quantity Controls */}
-                <div className="mt-2 flex items-center space-x-2">
-                  <button
-                    onClick={() => {
-                      updateQuantity(itemKey, item.quantity - 1);
-                    }}
-                    className="flex h-6 w-6 items-center justify-center rounded border border-gray-300 hover:bg-gray-50"
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
-                  <span className="w-8 text-center text-sm">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() => {
-                      updateQuantity(itemKey, item.quantity + 1);
-                    }}
-                    className="flex h-6 w-6 items-center justify-center rounded border border-gray-300 hover:bg-gray-50"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                  <button
-                    onClick={() => {
-                      removeFromCart(itemKey);
-                    }}
-                    className="ml-2 text-sm text-red-500 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {cartItemsArray.map((item) => (
+          <CartLine key={`${item.product.id}-${item.priceId}`} item={item} />
+        ))}
       </div>
 
       {/* Footer */}
@@ -250,7 +129,7 @@ export default function Cart() {
         {/* Checkout Button */}
         <button
           onClick={() => {
-            void handleCheckout();
+            void beginCheckout(items, { beforeRedirect: closeCart });
           }}
           className="bg-primary hover:bg-primary/90 w-full rounded-md px-4 py-3 font-medium text-white transition-colors"
         >

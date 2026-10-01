@@ -1,5 +1,11 @@
 # bodegacat
 
+## 0.8.1
+
+### Patch Changes
+
+- **Themes:** Bodega Cat, Void Kitten, and Paddleboard each declare their own `settings` list. Editing one theme's admin fields does not change the others.
+
 ## 0.8.0
 
 ### Minor Changes
