@@ -5,9 +5,6 @@
   "description": "Monorepo for the bodegacat Astro integration and reference app template",
   "scripts": {
     "build": "pnpm --filter @bodegacat/template build",
-    "build:with-products": "node scripts/build-with-products.js",
-    "test:stripe": "node scripts/test-stripe.js",
-    "setup:stripe": "node scripts/setup-stripe-products.js",
     "preview": "pnpm --filter @bodegacat/template preview",
     "deploy": "pnpm --filter @bodegacat/template deploy",
     "astro": "pnpm --filter @bodegacat/template astro",

@@ -374,7 +374,7 @@ export default function VariationManager({
                             onChange={(e) => {
                               updateOption(variation.id, option.id, {
                                 priceModifier: Math.round(
-                                  parseFloat(e.target.value) * 100,
+                                  Number.parseFloat(e.target.value) * 100,
                                 ),
                               });
                             }}
@@ -395,7 +395,7 @@ export default function VariationManager({
                               }}
                               className="mr-1"
                             />
-                            Available
+                            <span>Available</span>
                           </label>
                         </div>
                         <button

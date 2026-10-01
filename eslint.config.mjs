@@ -25,7 +25,6 @@ export default defineConfig([
       "**/build/**",
       "**/dist/**",
       "**/coverage/**",
-      "scripts/**",
       ".astro/**",
       "apps/template/worker-configuration/**",
     ],

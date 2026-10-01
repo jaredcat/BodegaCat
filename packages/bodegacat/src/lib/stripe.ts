@@ -205,7 +205,7 @@ function transformStripeProduct(
           })()
         : undefined,
       weight: product.metadata.weight
-        ? parseFloat(product.metadata.weight)
+        ? Number.parseFloat(product.metadata.weight)
         : undefined,
       dimensions: product.metadata.dimensions
         ? (JSON.parse(product.metadata.dimensions) as {

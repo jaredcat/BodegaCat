@@ -64,7 +64,7 @@ function isVariationVisible(
   // Dependent variations are only visible if their dependencies are satisfied
   if (variation.dependsOn && variation.dependsOn.length > 0) {
     return variation.dependsOn.every((depId) => {
-      const depVariation = allVariations.find((v) => v.id === depId);
+      const depVariation = allVariations.some((v) => v.id === depId);
       if (!depVariation) return false;
 
       const selectedOptionId = selections[depId];

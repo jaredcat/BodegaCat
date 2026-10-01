@@ -61,7 +61,7 @@ export default function ProductForm({
       newErrors.description = "Product description is required";
     }
 
-    if (!formData.basePrice || parseFloat(formData.basePrice) <= 0) {
+    if (!formData.basePrice || Number.parseFloat(formData.basePrice) <= 0) {
       newErrors.basePrice = "Valid price is required";
     }
 
@@ -88,7 +88,7 @@ export default function ProductForm({
     const productData = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      basePrice: Math.round(parseFloat(formData.basePrice) * 100),
+      basePrice: Math.round(Number.parseFloat(formData.basePrice) * 100),
       currency: formData.currency,
       metadata: {
         productTypeId: formData.productTypeId,
@@ -617,7 +617,7 @@ export default function ProductForm({
         {formData.images.length > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
             {formData.images.map((image, index) => (
-              <div key={index} className="relative">
+              <div key={image} className="relative">
                 <img
                   src={image}
                   alt={`Product ${String(index + 1)}`}

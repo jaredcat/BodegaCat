@@ -28,20 +28,20 @@ export const cartTotal = computed(cartItems, (items) =>
 export function addToCart(
   product: Product,
   quantity: number,
-  selectedVariations: Record<string, string> = {},
   totalPrice: number,
+  selectedVariations: Record<string, string> = {},
 ) {
   console.log("Adding to cart:", {
     product: product.name,
     quantity,
-    selectedVariations,
     totalPrice,
+    selectedVariations,
   });
 
   const currentItems = cartItems.get();
   const itemKey = `${product.id}-${JSON.stringify(selectedVariations)}`;
 
-  if (Object.prototype.hasOwnProperty.call(currentItems, itemKey)) {
+  if (Object.hasOwn(currentItems, itemKey)) {
     // Update existing item
     const existingItem = currentItems[itemKey];
     cartItems.setKey(itemKey, {
@@ -81,7 +81,7 @@ export function updateQuantity(itemKey: string, quantity: number) {
 
   const currentItems = cartItems.get();
 
-  if (Object.prototype.hasOwnProperty.call(currentItems, itemKey)) {
+  if (Object.hasOwn(currentItems, itemKey)) {
     const existingItem = currentItems[itemKey];
     cartItems.setKey(itemKey, { ...existingItem, quantity });
   }

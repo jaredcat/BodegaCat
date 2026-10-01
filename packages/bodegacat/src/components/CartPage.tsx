@@ -108,7 +108,7 @@ export default function CartPage() {
             return (
               <div key={itemKey} className="flex space-x-4 border-b pb-4">
                 {/* Product Image */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <img
                     src={item.product.images[0] ?? "/placeholder-image.jpg"}
                     alt={item.product.name}

@@ -104,7 +104,7 @@ export default function AdminNav({
               {hasUnpublishedProducts && (
                 <a href={viewLiveHref} className={linkClass(null)}>
                   <span className="mr-2">👤</span>
-                  View live (customers)
+                  <span>View live (customers)</span>
                 </a>
               )}
             </div>
@@ -176,7 +176,7 @@ export default function AdminNav({
               }}
             >
               <span className="mr-2">👤</span>
-              View live (customers)
+              <span>View live (customers)</span>
             </a>
           )}
         </div>
