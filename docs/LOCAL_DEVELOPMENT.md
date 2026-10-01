@@ -117,4 +117,5 @@ Staging/production, Cloudflare Access, and Stripe live mode are covered in the *
 - [Stripe Test Mode](https://stripe.com/docs/testing)
 - [Astro dev toolbar](https://docs.astro.build/en/guides/dev-toolbar/)
 - [Product variations & metadata](./VARIATION_SYSTEM.md)
+- **Themes:** [THEMES.md](./THEMES.md)
 - **Dogfooding** a separate store repo against a local `packages/bodegacat` clone: _Developing the package with a separate store app_ in the [repository README](../README.md)

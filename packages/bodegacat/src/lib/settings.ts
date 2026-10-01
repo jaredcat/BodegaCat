@@ -1,4 +1,4 @@
-import type { BodegaCatTheme } from "../themes/types";
+import type { BodegaCatTheme, ThemeContent } from "../themes/types";
 import type { FooterLink, ProductType, SocialLink } from "../types/product";
 
 const SETTINGS_KEY = "site_settings";
@@ -33,6 +33,8 @@ export interface EditableSettings {
   socialLinks?: SocialLink[];
   footerLinks?: FooterLink[];
   theme?: BodegaCatTheme;
+  /** Text, links, and image paths declared by the active theme. */
+  content?: ThemeContent;
   /** Variation templates for the product editor; stored in KV. Replaces the merged list when set. */
   productTypes?: ProductType[];
 }

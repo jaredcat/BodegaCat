@@ -6,8 +6,9 @@
  *   within a major version of Bodega Cat.
  * - New optional variables may be added in minor versions; themes that don't
  *   include them will fall back to the framework's CSS defaults.
- * - The `variables` property shape is the only interface theme authors need
- *   to depend on. Everything else in this file is informational.
+ * - The `variables` property shape is the stable styling interface.
+ * - `slots` are optional layout components, matched by theme `id`.
+ * - `settings` lists the admin fields this theme renders. It is JSON and is saved with the theme.
  *
  * CREATING A THEME (npm package):
  *   import type { BodegaCatTheme } from 'bodegacat/themes/types';
@@ -16,8 +17,85 @@
  *   export default myTheme;
  *
  * INSTALLING A THEME:
- *   In src/config/site.ts, set `theme: myTheme` in your site config.
+ *   Pass slot files to bodegacat({ themeSlots }) and set the theme id
+ *   in site config or Admin → Settings. CSS variables still come from
+ *   the theme object. Slot components are not stored in KV.
  */
+export interface ThemeSlots {
+  /**
+   * Replaces the default home page body.
+   * Props: siteConfig, t, copyrightYear, catalogShopHref.
+   */
+  home?: ThemeSlotComponent;
+  /**
+   * Extra block on the product page, under the buy box.
+   * Props: product, siteConfig. Built-in themes leave this empty.
+   */
+  productExtra?: ThemeSlotComponent;
+  /**
+   * Replaces the default shop catalog body.
+   * Props: siteConfig, products, t, productPath.
+   */
+  shop?: ThemeSlotComponent;
+}
+
+/** A label and href row on a theme settings form. */
+export interface ThemeLink {
+  label: string;
+  href: string;
+}
+
+export type ThemeContentValue = string | ThemeLink[];
+
+/** Values for a theme's text, link, and image fields. Colors stay on `variables`. */
+export type ThemeContent = Record<string, ThemeContentValue>;
+
+interface ThemeSettingBase {
+  id: string;
+  label: string;
+  help?: string;
+}
+
+export interface ThemeSettingText extends ThemeSettingBase {
+  type: "text" | "textarea" | "url";
+  placeholder?: string;
+  /**
+   * When set, this field edits a CSS variable instead of theme content.
+   * Fonts use this. Colors use `type: "color"`.
+   */
+  variable?: `--${string}`;
+}
+
+export interface ThemeSettingImage extends ThemeSettingBase {
+  type: "image";
+}
+
+export interface ThemeSettingLinks extends ThemeSettingBase {
+  type: "links";
+}
+
+export interface ThemeSettingColor extends ThemeSettingBase {
+  type: "color";
+  variable: `--${string}`;
+}
+
+export interface ThemeSettingSelect extends ThemeSettingBase {
+  type: "select";
+  variable: `--${string}`;
+  options: { value: string; label: string }[];
+}
+
+export type ThemeSettingField =
+  | ThemeSettingText
+  | ThemeSettingImage
+  | ThemeSettingLinks
+  | ThemeSettingColor
+  | ThemeSettingSelect;
+
+/**
+ * Component rendered by a slot. The storefront calls it. KV cannot store it.
+ */
+export type ThemeSlotComponent = (props: Record<string, unknown>) => unknown;
 export interface BodegaCatTheme {
   /**
    * Stable identifier for the theme (useful for routing to theme runtimes).
@@ -48,6 +126,19 @@ export interface BodegaCatTheme {
    * framework updates will conflict with it. Prefer variables.
    */
   css?: string;
+
+  /**
+   * Layout components for this theme object when it is the build-time theme.
+   * Admin saves of the theme do not keep these. Prefer `themeSlots` on
+   * `bodegacat()` keyed by `id`, which still apply after a settings save.
+   */
+  slots?: ThemeSlots;
+
+  /**
+   * Admin fields this layout uses. Omitted fields are not shown.
+   * Stored with the theme because it is plain data, unlike slot components.
+   */
+  settings?: ThemeSettingField[];
 }
 
 /**

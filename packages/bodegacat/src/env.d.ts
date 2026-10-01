@@ -1,5 +1,10 @@
 /// <reference types="astro/client" />
 
+declare module "*.astro" {
+  const Component: import("./themes/types").ThemeSlotComponent;
+  export default Component;
+}
+
 declare module "virtual:bodegacat-user-product-types" {
   const value: import("./types/product").ProductType[];
   export default value;
@@ -26,6 +31,11 @@ declare module "astro:env/server" {
 declare module "virtual:bodegacat-build-kv-settings" {
   const value: import("./lib/settings").EditableSettings;
   export default value;
+}
+
+declare module "virtual:bodegacat-theme-slots" {
+  const slots: Record<string, import("./themes/types").ThemeSlots>;
+  export { slots };
 }
 
 declare module "virtual:bodegacat-build-kv-meta" {

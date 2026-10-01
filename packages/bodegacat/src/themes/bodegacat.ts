@@ -1,3 +1,4 @@
+import { defaultThemeSettings } from "./default-settings";
 import type { BodegaCatTheme } from "./types";
 
 export const bodegaCatTheme: BodegaCatTheme = {
@@ -33,4 +34,5 @@ export const bodegaCatTheme: BodegaCatTheme = {
     "--spacing-lg": "1.5rem",
     "--spacing-xl": "2rem",
   },
+  settings: defaultThemeSettings,
 };

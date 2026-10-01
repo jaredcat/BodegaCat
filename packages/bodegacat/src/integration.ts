@@ -25,9 +25,21 @@ function viteAliases(): Record<string, string> {
   };
 }
 
+export interface ThemeSlotPaths {
+  /** Module Vite can import, such as `./src/shore/Home.astro`. Props: siteConfig, t, copyrightYear, catalogShopHref. */
+  home?: string;
+  /** Module Vite can import. Props: product, siteConfig. */
+  productExtra?: string;
+  /** Module Vite can import. Props: siteConfig, products, t, productPath. Replaces the catalog page. */
+  shop?: string;
+}
+
 export interface BodegaCatUserOptions {
-  /** Optional theme override (reserved for future use; KV theme remains default). */
-  theme?: unknown;
+  /**
+   * Layouts keyed by theme id. CSS variables still come from the theme object
+   * (site config or Admin → Settings). These files are not stored in KV.
+   */
+  themeSlots?: Record<string, ThemeSlotPaths>;
   /**
    * Optional dev override for default product types before KV exists.
    * Merchants should use **Admin → Product types** (KV); no code is required for normal setup.
@@ -38,6 +50,7 @@ export interface BodegaCatUserOptions {
 const VIRTUAL_USER_PRODUCT_TYPES = "\0virtual:bodegacat-user-product-types";
 const VIRTUAL_BUILD_KV_SETTINGS = "\0virtual:bodegacat-build-kv-settings";
 const VIRTUAL_BUILD_KV_META = "\0virtual:bodegacat-build-kv-meta";
+const VIRTUAL_THEME_SLOTS = "\0virtual:bodegacat-theme-slots";
 
 function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
   return {
@@ -163,6 +176,64 @@ function buildKvSettingsVitePlugin() {
   };
 }
 
+function themeSlotsVitePlugin(
+  root: string,
+  themeSlots: Record<string, ThemeSlotPaths> | undefined,
+) {
+  const entries = Object.entries(themeSlots ?? {}).filter(([, slots]) => {
+    return (
+      Boolean(slots.home) || Boolean(slots.productExtra) || Boolean(slots.shop)
+    );
+  });
+
+  const imports: string[] = [];
+  const body: string[] = [];
+  entries.forEach(([id, slots], index) => {
+    const fields: string[] = [];
+    if (slots.home) {
+      const local = `home_${String(index)}`;
+      imports.push(
+        `import ${local} from ${JSON.stringify(resolveSlotSpecifier(root, slots.home))};`,
+      );
+      fields.push(`home: ${local}`);
+    }
+    if (slots.productExtra) {
+      const local = `extra_${String(index)}`;
+      imports.push(
+        `import ${local} from ${JSON.stringify(resolveSlotSpecifier(root, slots.productExtra))};`,
+      );
+      fields.push(`productExtra: ${local}`);
+    }
+    if (slots.shop) {
+      const local = `shop_${String(index)}`;
+      imports.push(
+        `import ${local} from ${JSON.stringify(resolveSlotSpecifier(root, slots.shop))};`,
+      );
+      fields.push(`shop: ${local}`);
+    }
+    body.push(`${JSON.stringify(id)}: { ${fields.join(", ")} }`);
+  });
+
+  const source = `${imports.join("\n")}
+export const slots = {${body.join(",")}};
+`;
+
+  return {
+    name: "bodegacat-theme-slots",
+    resolveId(id: string) {
+      if (id === "virtual:bodegacat-theme-slots") return VIRTUAL_THEME_SLOTS;
+    },
+    load(id: string) {
+      if (id === VIRTUAL_THEME_SLOTS) return source;
+    },
+  };
+}
+
+function resolveSlotSpecifier(root: string, specifier: string): string {
+  if (specifier.startsWith(".")) return path.resolve(root, specifier);
+  return specifier;
+}
+
 function routeEntry(pathFromIntegration: string): URL {
   return new URL(pathFromIntegration, import.meta.url);
 }
@@ -173,7 +244,12 @@ export default function bodegacat(
   return {
     name: "bodegacat",
     hooks: {
-      "astro:config:setup": ({ injectRoute, addMiddleware, updateConfig }) => {
+      "astro:config:setup": ({
+        injectRoute,
+        addMiddleware,
+        updateConfig,
+        config,
+      }) => {
         addMiddleware({
           entrypoint: routeEntry("./middleware.ts"),
           order: "pre",
@@ -193,6 +269,10 @@ export default function bodegacat(
             // Cast via `unknown` to avoid `any` while still allowing the config assignment.
             plugins: [
               userProductTypesVitePlugin(options?.productTypes),
+              themeSlotsVitePlugin(
+                fileURLToPath(config.root),
+                options?.themeSlots,
+              ),
               buildKvSettingsVitePlugin(),
               tailwindcss(),
             ] as unknown as NonNullable<ViteUserConfig["plugins"]>,
@@ -323,6 +403,11 @@ export default function bodegacat(
             "/api/admin/trigger-deploy",
             routeEntry("./routes/api/admin/trigger-deploy.ts"),
           ],
+          [
+            "/api/admin/theme-asset",
+            routeEntry("./routes/api/admin/theme-asset.ts"),
+          ],
+          ["/files/[...key]", routeEntry("./routes/files/[...key].ts")],
         ];
 
         for (const [pattern, entrypoint] of routes) {

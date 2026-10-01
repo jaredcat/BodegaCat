@@ -20,6 +20,12 @@ binding = "SETTINGS_KV"
 id = "placeholder-settings-id"
 preview_id = "placeholder-settings-preview-id"
 
+# R2: theme photos served from /files/theme/<field>
+# Create with: wrangler r2 bucket create bodegacat-files
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "bodegacat-files"
+
 # KV: sessions (reserved for future use)
 [[kv_namespaces]]
 binding = "SESSION"

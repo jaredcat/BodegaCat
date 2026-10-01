@@ -13,12 +13,18 @@
 
 ## For store authors (consume the package)
 
+The public shop (`/`, `/shop`, `/shop/[slug]`) is static HTML from the build. Admin, draft preview, and checkout are Cloudflare functions beside that HTML. Redeploy when the live catalog or build-time copy should change.
+
+**Launch a shop:** copy `apps/template`, set Stripe keys, pick a built-in theme in Admin → Settings, and deploy on Cloudflare. Start with **`examples/deploy/cloudflare-pages/README.md`**.
+
+**Change the shop:** publish a theme that implements `BodegaCatTheme`, and pass home or product-page slot files to `bodegacat({ themeSlots })`. Product-type presets live in admin. Vite aliases for `@config`, `@themes`, and `@models` go further without forking route source. Details: **`docs/THEMES.md`**.
+
 1. Create or use an Astro app with the [Cloudflare adapter](https://docs.astro.build/en/guides/integrations-guide/cloudflare/).
 2. Install: `pnpm add bodegacat` (see [peer deps](https://github.com/jaredcat/BodegaCat/blob/main/packages/bodegacat/package.json) in the package manifest).
 3. In `astro.config.mjs`, add `import bodegacat from "bodegacat"` and `integrations: [bodegacat()]`.
-4. Configure Stripe and deploy — start with **`examples/deploy/cloudflare-pages/README.md`**.
+4. Configure Stripe and deploy — **`examples/deploy/cloudflare-pages/README.md`**.
 
-Exports, types, and Vite alias overrides are documented in **`packages/bodegacat/README.md`**.
+Exports and types are documented in **`packages/bodegacat/README.md`**.
 
 ## Quick start (this monorepo — contributors)
 
@@ -54,16 +60,17 @@ Avoid committing a permanent `file:` dependency in public repos unless everyone 
 | Doc                                                                                        | Contents                                            |
 | ------------------------------------------------------------------------------------------ | --------------------------------------------------- |
 | [`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md)                                   | Monorepo: run template, Stripe `.env`, admin in dev |
+| [`docs/THEMES.md`](docs/THEMES.md)                                                         | Launch a shop, or replace layouts with theme slots  |
 | [`docs/VARIATION_SYSTEM.md`](docs/VARIATION_SYSTEM.md)                                     | Product variations and Stripe metadata              |
 | [`examples/deploy/cloudflare-pages/README.md`](examples/deploy/cloudflare-pages/README.md) | Workers, KV, Stripe env, deploy                     |
 
 ## Features (high level)
 
-- Stripe catalog, Checkout, and webhooks
-- Shop index and product detail routes (SSR on Cloudflare Workers)
-- Optional KV-backed site settings and admin UI
-- Themes and product-type templates shipped in the package
+- Stripe catalog, one Checkout Session for a single item or a cart, and webhooks
+- Static home, shop, and product pages, rebuilt when the catalog or copy changes
+- Cloudflare functions for admin, preview, and checkout
+- Built-in themes, theme slots, and product-type templates
 
 ## License
 
-[AGPL-3.0](LICENSE).
+[AGPL-3.0](LICENSE). You can customize Bodega Cat. If you offer a modified copy to users, including running that copy as the shop they use, you share the source of those modifications. A separate theme package that only uses the public theme interface is your code. See [docs/THEMES.md](docs/THEMES.md).

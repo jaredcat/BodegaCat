@@ -1,3 +1,4 @@
+import { paddleboardThemeSettings } from "./settings";
 import type { BodegaCatTheme } from "../types";
 
 export const paddleboardTheme: BodegaCatTheme = {
@@ -72,4 +73,5 @@ export const paddleboardTheme: BodegaCatTheme = {
   background-color: #61ce70 !important;
 }
 `,
+  settings: paddleboardThemeSettings,
 };

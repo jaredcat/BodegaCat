@@ -1,4 +1,4 @@
-import type { BodegaCatTheme } from "../themes/types";
+import type { BodegaCatTheme, ThemeContent } from "../themes/types";
 
 // ─── Product Types (variation templates) ──────────────────────────────────────
 
@@ -210,6 +210,12 @@ export interface SiteConfig {
    * See src/themes/types.ts for the BodegaCatTheme interface.
    */
   theme: BodegaCatTheme;
+
+  /**
+   * Values for the active theme's text, link, and image fields.
+   * Older shops may still have the same copy on the fields above.
+   */
+  content?: ThemeContent;
 
   // ─── Product variation templates ────────────────────────────────────────
   /** Templates shown in the admin UI when creating a new product. Leave empty to start from scratch. */

@@ -1,6 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { useEffect, useState } from "react";
 import { cartCount, initializeCart, toggleCart } from "../lib/cartStore";
+import { themeText } from "../lib/theme-content";
 import { useIsClient } from "../lib/useIsClient";
 import type { SiteConfig } from "../types/product";
 
@@ -12,6 +13,8 @@ export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isClient = useIsClient();
   const count = useStore(cartCount);
+  const logo = themeText(siteConfig, "logo");
+  const showLogo = logo !== "" && logo !== "/logo.png";
 
   useEffect(() => {
     initializeCart();
@@ -24,7 +27,13 @@ export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
           <div className="flex items-center">
             {/* Logo */}
             <div className="flex shrink-0 items-center">
-              <a href="/" className="text-primary text-xl font-bold">
+              <a
+                href="/"
+                className="text-primary flex items-center text-xl font-bold"
+              >
+                {showLogo ? (
+                  <img src={logo} alt="" className="mr-2 h-8 w-auto" />
+                ) : null}
                 {siteConfig.name}
               </a>
             </div>

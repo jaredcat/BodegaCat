@@ -1,5 +1,13 @@
 # bodegacat
 
+## 0.8.0
+
+### Minor Changes
+
+- **Theme settings:** Admin → Settings keeps the store name, description, favicon, locale, currency, theme picker, and payment section. Copy, links, colors, fonts, and photos come from a `settings` list on the active theme. Text, links, and images are stored as `content`. Color and font fields write `theme.variables`. Older saved copy still fills a field when `content` has no value for that id. Bodega Cat and Void Kitten share one list. Paddleboard declares the homepage, feature copy, hero image, and shop tagline its layout reads.
+- **Uploads:** An image field posts to `/api/admin/theme-asset` and the shop loads it from `/files/theme/<field>`. The template binds an R2 bucket as `FILES`. Replacing a photo shows up without a rebuild. Text changes still need the next build.
+- **Shop slot:** `/shop` and `/preview/shop` can be replaced with `themeSlots.shop`. Without that slot, the catalog page stays the default.
+
 ## 0.7.0
 
 ### Minor Changes
@@ -8,6 +16,7 @@
 - **Checkout:** The cart drawer and `/cart` share one Checkout Session. Payment Links and `/cart/checkout` are removed.
 - **Runtime:** Admin, preview, cart, and checkout use a host runtime. This release ships the Cloudflare adapter (Workers, KV, and Access). Static pages do not import Worker bindings.
 - **Storefront:** `/`, `/shop`, and `/shop/[slug]` are static HTML from the build. Redeploy when the live catalog or build-time copy should change. Staff drafts stay on `/preview`.
+- **Themes:** Layouts are named slots (`home`, `productExtra`) matched by theme id. Pass files to `bodegacat({ themeSlots })`. Paddleboard uses the home slot. CSS variables stay on the theme object. Consumer docs describe launching a shop, customizing it, and the AGPL when you offer a modified copy.
 
 ## 0.3.0
 

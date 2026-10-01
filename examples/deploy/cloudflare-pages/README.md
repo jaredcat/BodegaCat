@@ -6,8 +6,9 @@ This guide is for a **standalone store app** that depends on **`bodegacat`** fro
 
 ## 1. Create the app
 
-- Add dependencies: `astro`, `@astrojs/cloudflare`, `@astrojs/react`, `react`, `react-dom`, and **`bodegacat`**.
+- Copy **`apps/template`** from the bodegacat repo, or add dependencies: `astro`, `@astrojs/cloudflare`, `@astrojs/react`, `react`, `react-dom`, and **`bodegacat`**.
 - In `astro.config.mjs`, use the Cloudflare adapter and **`bodegacat()`** as in the template.
+- Leave the default theme, or pick one in **Admin → Settings** after the first deploy, then redeploy so the static pages pick it up. Custom layouts: **`docs/THEMES.md`**.
 - Add a minimal `src/env.d.ts` if you need `App.Locals` / `cloudflare:workers` typings (copy from the template).
 
 ## 2. Wrangler and KV
@@ -15,6 +16,7 @@ This guide is for a **standalone store app** that depends on **`bodegacat`** fro
 - Add **`wrangler.toml`** at your app root. Copy and edit **`apps/template/wrangler.toml`** from the bodegacat source tree (adjust `name`, KV ids).
 - Create KV namespaces, e.g. `wrangler kv namespace create SETTINGS_KV`, and paste **id** / **preview_id** into `wrangler.toml`.
 - Bindings must include at least **`SETTINGS_KV`** (and **`SESSION`** if you use the integration’s session features).
+- Theme photos need an R2 bucket bound as **`FILES`**. Create it with `wrangler r2 bucket create bodegacat-files` and set `bucket_name` in `wrangler.toml`. Uploads land under `theme/<field>` and the shop loads them from `/files/theme/<field>`. Without that binding, image fields on Admin → Settings say file storage is not configured. Text, links, and colors do not use the bucket.
 
 ## 3. Environment variables and secrets
 
@@ -52,7 +54,7 @@ In **Pages → Settings → Environment variables**, add the same names for **Pr
 5. If the app lives in a **monorepo subfolder**, set **Root directory** to that folder so `dist` is relative to it.
 6. Add the same **environment variables** as in section 3.
 
-Cloudflare builds and deploys; SSR runs on Pages’ Workers integration.
+Cloudflare builds and deploys. `/`, `/shop`, and `/shop/[slug]` are static files from that build. Admin, preview, and checkout run as Workers functions.
 
 ## 5. Deploy from your machine (wrangler)
 

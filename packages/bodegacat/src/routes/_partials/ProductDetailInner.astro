@@ -4,6 +4,7 @@ import ProductVariations from "@components/ProductVariations";
 import BookingEmbed from "@components/BookingEmbed";
 import { formatPrice, getTranslations } from "@i18n";
 import type { Product, SiteConfig } from "@models/product";
+import { resolveThemeSlots } from "@themes/slots";
 
 interface Props {
   product: Product;
@@ -12,6 +13,7 @@ interface Props {
 
 const { product, siteConfig } = Astro.props;
 const t = getTranslations(siteConfig.locale);
+const ProductExtra = resolveThemeSlots(siteConfig.theme).productExtra;
 
 const productType = siteConfig.productTypes.find(
   (pt) => pt.id === product.metadata.productTypeId,
@@ -122,6 +124,10 @@ const productType = siteConfig.productTypes.find(
           </div>
         )}
       </div>
+
+      {ProductExtra && (
+        <ProductExtra product={product} siteConfig={siteConfig} />
+      )}
     </div>
   </div>
 </div>

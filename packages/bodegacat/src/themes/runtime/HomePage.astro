@@ -1,8 +1,7 @@
 ---
-import type { SiteConfig } from "../../types/product";
 import type { Translations } from "../../i18n";
-
-import PaddleboardHomePage from "../paddleboard/runtime/HomePage.astro";
+import type { SiteConfig } from "../../types/product";
+import { resolveThemeSlots } from "../slots";
 
 interface Props {
   siteConfig: SiteConfig;
@@ -13,13 +12,11 @@ interface Props {
 }
 
 const { siteConfig, t, copyrightYear, catalogShopHref = "/shop" } = Astro.props;
-
-// Built-in theme routing lives here (theme layer), not in core pages.
-const isPaddleboard = siteConfig.theme.id === "paddleboard";
+const Home = resolveThemeSlots(siteConfig.theme).home;
 ---
 
-{isPaddleboard ? (
-  <PaddleboardHomePage
+{Home ? (
+  <Home
     siteConfig={siteConfig}
     t={t}
     copyrightYear={copyrightYear}

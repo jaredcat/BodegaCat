@@ -122,6 +122,26 @@ function isSettingsStore(
   );
 }
 
+function applyThemeAndContent(
+  merged: SiteConfig,
+  base: SiteConfig,
+  overrides: EditableSettings,
+): void {
+  if (overrides.theme !== undefined) {
+    merged.theme = {
+      ...base.theme,
+      ...overrides.theme,
+      variables: {
+        ...base.theme.variables,
+        ...overrides.theme.variables,
+      },
+    };
+  }
+  if (overrides.content !== undefined) {
+    merged.content = { ...base.content, ...overrides.content };
+  }
+}
+
 function mergeSettings(
   base: SiteConfig,
   overrides: EditableSettings,
@@ -148,16 +168,7 @@ function mergeSettings(
     merged.socialLinks = overrides.socialLinks;
   if (overrides.footerLinks !== undefined)
     merged.footerLinks = overrides.footerLinks;
-  if (overrides.theme !== undefined) {
-    merged.theme = {
-      ...base.theme,
-      ...overrides.theme,
-      variables: {
-        ...base.theme.variables,
-        ...overrides.theme.variables,
-      },
-    };
-  }
+  applyThemeAndContent(merged, base, overrides);
   if (overrides.productTypes !== undefined) {
     merged.productTypes = structuredClone(overrides.productTypes);
   }

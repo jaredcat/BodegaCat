@@ -14,11 +14,12 @@
 interface Props {
   title: string;
   description: string;
+  image?: string;
   ctaText?: string;
   ctaHref?: string;
 }
 
-const { title, description, ctaText, ctaHref } = Astro.props;
+const { title, description, image, ctaText, ctaHref } = Astro.props;
 ---
 
 <section
@@ -26,6 +27,13 @@ const { title, description, ctaText, ctaHref } = Astro.props;
   style="padding-bottom: calc(2.5rem + 60px)"
 >
   <div class="mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 lg:px-8 pb-0">
+    {image && (
+      <img
+        src={image}
+        alt=""
+        class="mx-auto mb-8 max-h-72 w-auto rounded-lg object-cover"
+      />
+    )}
     <h1 class="mb-6 text-4xl font-bold md:text-6xl">{title}</h1>
     <p class="mx-auto mb-8 max-w-3xl text-xl opacity-90 md:text-2xl">
       {description}

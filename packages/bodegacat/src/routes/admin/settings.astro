@@ -2,7 +2,9 @@
 export const prerender = false;
 
 import AdminNav from "@components/AdminNav";
+import ThemeSettingsEditor from "@components/ThemeSettingsEditor";
 import Layout from "@layouts/Layout.astro";
+import { seedThemeContent } from "@lib/theme-content";
 import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
 import { builtInThemes } from "@themes";
 import type { BuiltInThemeName } from "@themes";
@@ -33,14 +35,11 @@ const isCustomTheme = !builtInThemes.some(
   (t) => builtInThemeMap[t] === siteConfig.theme.name,
 );
 
-// Cast for safe runtime string indexing of CSS variables in the template
-const themeVars = siteConfig.theme.variables as unknown as Record<
-  string,
-  string
->;
-
-const homeHeadlinePlaceholder = `Welcome to ${siteConfig.name}`;
-const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
+const themeChoices = {
+  bodegacat: bodegaCatTheme,
+  voidkitten: voidKittenTheme,
+  paddleboard: paddleboardTheme,
+};
 ---
 
 <Layout title="Store Settings" siteConfig={siteConfig} useSiteTheme={false}>
@@ -56,7 +55,7 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Store Settings</h1>
             <p class="text-gray-600">
-              Configure your store's identity, copy, theme, and localization
+              Configure your store's identity, theme, and localization
             </p>
           </div>
           <a href="/admin" class="btn btn-outline">
@@ -149,22 +148,6 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
             </div>
             <div>
               <label
-                for="logo"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                Logo URL
-              </label>
-              <input
-                id="logo"
-                name="logo"
-                type="text"
-                value={siteConfig.logo ?? ""}
-                class="input"
-                placeholder="https://example.com/logo.png"
-              />
-            </div>
-            <div>
-              <label
                 for="favicon"
                 class="mb-2 block text-sm font-medium text-gray-700"
               >
@@ -178,100 +161,6 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
                 class="input"
                 placeholder="https://example.com/favicon.ico"
               />
-            </div>
-            <div class="md:col-span-2">
-              <label
-                for="contactEmail"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                Contact Email <span class="text-gray-400">(optional)</span>
-              </label>
-              <input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={siteConfig.contactEmail ?? ""}
-                class="input"
-                placeholder="hello@mystore.com"
-              />
-            </div>
-          </div>
-        </section>
-
-        <!-- ── Page Copy ──────────────────────────────────────────────────── -->
-        <section class="rounded-lg bg-white shadow">
-          <div class="border-b border-gray-200 px-6 py-4">
-            <h2 class="text-lg font-medium text-gray-900">Page Copy</h2>
-            <p class="mt-1 text-sm text-gray-500">
-              Customizable text that appears on the homepage and shop page.
-            </p>
-          </div>
-          <div class="space-y-6 p-6">
-            <div>
-              <label
-                for="homeHeadline"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                Homepage Headline
-              </label>
-              <input
-                id="homeHeadline"
-                name="homeHeadline"
-                type="text"
-                value={homeHeadlineValue}
-                class="input"
-                placeholder={homeHeadlinePlaceholder}
-              />
-              <p class="mt-1 text-xs text-gray-500">
-                This is the large headline (H1) on the homepage.
-              </p>
-            </div>
-            <div>
-              <label
-                for="shopTagline"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                Shop Page Tagline
-              </label>
-              <input
-                id="shopTagline"
-                name="shopTagline"
-                type="text"
-                value={siteConfig.shopTagline}
-                class="input"
-                placeholder="Discover our collection of products"
-              />
-            </div>
-            <div>
-              <label
-                for="aboutTitle"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                About Section Title
-              </label>
-              <input
-                id="aboutTitle"
-                name="aboutTitle"
-                type="text"
-                value={siteConfig.aboutTitle}
-                class="input"
-                placeholder="About Us"
-              />
-            </div>
-            <div>
-              <label
-                for="aboutText"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                About Section Body
-              </label>
-              <textarea
-                id="aboutText"
-                name="aboutText"
-                rows="4"
-                class="input"
-                placeholder="Tell customers about your store..."
-              >{siteConfig.aboutText}</textarea>
             </div>
           </div>
         </section>
@@ -339,261 +228,25 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
           </div>
         </section>
 
-        <!-- ── Theme ──────────────────────────────────────────────────────── -->
         <section class="rounded-lg bg-white shadow">
           <div class="border-b border-gray-200 px-6 py-4">
             <h2 class="text-lg font-medium text-gray-900">Theme</h2>
             <p class="mt-1 text-sm text-gray-500">
-              Choose a built-in theme or install a third-party theme via npm.
-              Custom themes override any color values set below.
+              Copy, links, photos, and colors for the active theme. Text changes
+              appear on the live shop after the next build. A replaced photo is
+              available as soon as it uploads.
             </p>
           </div>
           <div class="space-y-6 p-6">
-            <!-- Built-in theme picker -->
-            <div>
-              <label class="mb-3 block text-sm font-medium text-gray-700">
-                Built-in Theme
-              </label>
-              <div class="flex gap-4">
-                {builtInThemes.map((id) => (
-                  <label class="flex cursor-pointer items-center gap-2">
-                    <input
-                      type="radio"
-                      name="builtInTheme"
-                      value={id}
-                      checked={activeBuiltInTheme === id}
-                      class="accent-primary"
-                    />
-                    <span class="text-sm capitalize">{id}</span>
-                  </label>
-                ))}
-                <label class="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="radio"
-                    name="builtInTheme"
-                    value="custom"
-                    checked={isCustomTheme}
-                    class="accent-primary"
-                  />
-                  <span class="text-sm">Custom (use colors below)</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Color overrides -->
-            <div>
-              <p class="mb-3 text-sm font-medium text-gray-700">
-                Color Overrides
-                <span class="ml-2 text-xs font-normal text-gray-400">
-                  Applied on top of the selected theme
-                </span>
-              </p>
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {(
-                  [
-                    ["primaryColor", "Primary Color", "--color-primary"],
-                    ["secondaryColor", "Secondary Color", "--color-secondary"],
-                    ["accentColor", "Accent Color", "--color-accent"],
-                    ["backgroundColor", "Background", "--color-background"],
-                    ["surfaceColor", "Surface", "--color-surface"],
-                    ["textColor", "Text Color", "--color-text"],
-                  ] as [string, string, string][]
-                ).map(([fieldName, label, cssVar]) => (
-                  <div>
-                    <label class="mb-2 block text-sm text-gray-600">
-                      {label}
-                    </label>
-                    <div class="flex items-center gap-2">
-                      <input
-                        type="color"
-                        name={`${fieldName}_picker`}
-                        value={themeVars[cssVar] ?? "#000000"}
-                        class="h-9 w-10 cursor-pointer rounded border"
-                        data-target={fieldName}
-                      />
-                      <input
-                        type="text"
-                        id={fieldName}
-                        name={fieldName}
-                        value={themeVars[cssVar] ?? ""}
-                        class="input flex-1 font-mono text-sm"
-                        placeholder="#3B82F6"
-                        pattern="^#[0-9A-Fa-f]{6}$"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <!-- Typography -->
-            <div>
-              <p class="mb-3 text-sm font-medium text-gray-700">Typography</p>
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label
-                    for="fontHeading"
-                    class="mb-2 block text-sm text-gray-600"
-                  >
-                    Heading Font
-                  </label>
-                  <input
-                    id="fontHeading"
-                    name="fontHeading"
-                    type="text"
-                    value={siteConfig.theme.variables["--font-heading"]}
-                    class="input font-mono text-sm"
-                    placeholder='"Inter", system-ui, sans-serif'
-                  />
-                </div>
-                <div>
-                  <label
-                    for="fontBody"
-                    class="mb-2 block text-sm text-gray-600"
-                  >
-                    Body Font
-                  </label>
-                  <input
-                    id="fontBody"
-                    name="fontBody"
-                    type="text"
-                    value={siteConfig.theme.variables["--font-body"]}
-                    class="input font-mono text-sm"
-                    placeholder='"Inter", system-ui, sans-serif'
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Border radius -->
-            <div>
-              <label
-                for="borderRadius"
-                class="mb-2 block text-sm font-medium text-gray-700"
-              >
-                Border Radius
-              </label>
-              <select
-                id="borderRadius"
-                name="borderRadius"
-                class="input max-w-xs"
-              >
-                {[
-                  ["0", "None"],
-                  ["0.25rem", "Small"],
-                  ["0.5rem", "Medium"],
-                  ["0.75rem", "Large"],
-                  ["1rem", "Extra Large"],
-                  ["9999px", "Pill"],
-                ].map(([val, label]) => (
-                  <option
-                    value={val}
-                    selected={
-                      siteConfig.theme.variables["--border-radius"] === val
-                    }
-                  >
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <!-- ── Footer Links ───────────────────────────────────────────────── -->
-        <section class="rounded-lg bg-white shadow">
-          <div class="border-b border-gray-200 px-6 py-4">
-            <h2 class="text-lg font-medium text-gray-900">Footer Links</h2>
-            <p class="mt-1 text-sm text-gray-500">
-              Navigation links shown in the site footer.
-            </p>
-          </div>
-          <div class="p-6">
-            <div id="footer-links" class="space-y-3">
-              {siteConfig.footerLinks.map((link, i) => (
-                <div class="footer-link-row flex gap-3">
-                  <input
-                    type="text"
-                    name={`footerLinks[${String(i)}][label]`}
-                    value={link.label}
-                    placeholder="Label"
-                    class="input flex-1"
-                  />
-                  <input
-                    type="text"
-                    name={`footerLinks[${String(i)}][href]`}
-                    value={link.href}
-                    placeholder="/page"
-                    class="input flex-1"
-                  />
-                  <button
-                    type="button"
-                    class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              id="add-footer-link"
-              class="btn btn-outline mt-4"
-            >
-              + Add Link
-            </button>
-          </div>
-        </section>
-
-        <!-- ── Social Links ───────────────────────────────────────────────── -->
-        <section class="rounded-lg bg-white shadow">
-          <div class="border-b border-gray-200 px-6 py-4">
-            <h2 class="text-lg font-medium text-gray-900">Social Links</h2>
-            <p class="mt-1 text-sm text-gray-500">
-              Social media and external profile links shown in the footer.
-            </p>
-          </div>
-          <div class="p-6">
-            <div id="social-links" class="space-y-3">
-              {siteConfig.socialLinks.map((link, i) => (
-                <div class="social-link-row grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-center">
-                  <input
-                    type="text"
-                    name={`socialLinks[${String(i)}][platform]`}
-                    value={link.platform}
-                    placeholder="instagram"
-                    class="input sm:col-span-3"
-                  />
-                  <input
-                    type="url"
-                    name={`socialLinks[${String(i)}][url]`}
-                    value={link.url}
-                    placeholder="https://instagram.com/yourstore"
-                    class="input sm:col-span-6"
-                  />
-                  <input
-                    type="text"
-                    name={`socialLinks[${String(i)}][label]`}
-                    value={link.label ?? ""}
-                    placeholder="Label (optional)"
-                    class="input sm:col-span-2"
-                  />
-                  <button
-                    type="button"
-                    class="btn btn-outline remove-social-link w-full px-3 text-red-500 hover:border-red-500 sm:col-span-1 sm:w-auto"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              id="add-social-link"
-              class="btn btn-outline mt-4"
-            >
-              + Add Social Link
-            </button>
+            <ThemeSettingsEditor
+              client:load
+              themes={themeChoices}
+              initialThemeId={isCustomTheme ? "custom" : activeBuiltInTheme}
+              initialBaseId={activeBuiltInTheme}
+              initialContent={seedThemeContent(siteConfig)}
+              initialVariables={siteConfig.theme.variables}
+              filesAvailable={runtime.files.available}
+            />
           </div>
         </section>
 
@@ -640,8 +293,10 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
 
 <script>
   import { bodegaCatTheme } from "@themes/bodegacat";
+  import { legacyFromContent } from "@lib/theme-content";
   import { paddleboardTheme } from "@themes/paddleboard/index";
   import { voidKittenTheme } from "@themes/voidkitten";
+  import type { ThemeContent, ThemeVariables } from "@themes/types";
 
   const themeMap = {
     bodegacat: bodegaCatTheme,
@@ -651,183 +306,13 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
 
   type ThemeId = keyof typeof themeMap;
 
-  const customBaseThemeInput = (() => {
-    const el = document.getElementById(
-      "customBaseTheme",
-    ) as HTMLInputElement | null;
-    if (el) return el;
-    const hidden = document.createElement("input");
-    hidden.type = "hidden";
-    hidden.id = "customBaseTheme";
-    hidden.name = "customBaseTheme";
-    // Default is replaced below using the currently selected preset (if any).
-    hidden.value = "bodegacat";
-    document.getElementById("settings-form")?.appendChild(hidden);
-    return hidden;
-  })();
-
-  // Initialize the "custom base" to the currently selected preset so a user can:
-  // 1) pick Void Kitten, then 2) tweak a color => switches to Custom but stays based on Void Kitten.
-  const activeTheme =
-    (document
-      .getElementById("settings-form")
-      ?.getAttribute("data-active-theme") as ThemeId | null) ?? null;
-  if (activeTheme && activeTheme in themeMap) {
-    customBaseThemeInput.value = activeTheme;
+  interface ThemePayload {
+    themeId: string;
+    customBaseId: string;
+    content: ThemeContent;
+    variables: ThemeVariables;
   }
 
-  function setThemeRadio(value: ThemeId | "custom") {
-    const input = document.querySelector<HTMLInputElement>(
-      `input[name="builtInTheme"][value="${value}"]`,
-    );
-    if (input) input.checked = true;
-  }
-
-  function applyThemeToInputs(theme: (typeof themeMap)[ThemeId]) {
-    const colorFields: Record<string, string> = {
-      "--color-primary": "primaryColor",
-      "--color-secondary": "secondaryColor",
-      "--color-accent": "accentColor",
-      "--color-background": "backgroundColor",
-      "--color-surface": "surfaceColor",
-      "--color-text": "textColor",
-    };
-
-    for (const [cssVar, fieldName] of Object.entries(colorFields)) {
-      const val = theme.variables[cssVar as keyof typeof theme.variables];
-      const text = document.querySelector<HTMLInputElement>(
-        `input[name="${fieldName}"]`,
-      );
-      const picker = document.querySelector<HTMLInputElement>(
-        `input[type="color"][data-target="${fieldName}"]`,
-      );
-      if (text) text.value = val;
-      if (picker) picker.value = val;
-    }
-
-    const fontHeading = document.querySelector<HTMLInputElement>(
-      'input[name="fontHeading"]',
-    );
-    const fontBody = document.querySelector<HTMLInputElement>(
-      'input[name="fontBody"]',
-    );
-    if (fontHeading) fontHeading.value = theme.variables["--font-heading"];
-    if (fontBody) fontBody.value = theme.variables["--font-body"];
-
-    const radius = document.querySelector<HTMLSelectElement>(
-      'select[name="borderRadius"]',
-    );
-    if (radius) radius.value = theme.variables["--border-radius"];
-  }
-
-  // ── Color picker sync ──────────────────────────────────────────────────────
-  document
-    .querySelectorAll<HTMLInputElement>('input[type="color"][data-target]')
-    .forEach((picker) => {
-      const targetId = picker.dataset.target!;
-      const textInput = document.getElementById(
-        targetId,
-      ) as HTMLInputElement | null;
-      if (!textInput) return;
-
-      picker.addEventListener("input", () => {
-        textInput.value = picker.value;
-      });
-      textInput.addEventListener("input", () => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
-          picker.value = textInput.value;
-        }
-      });
-    });
-
-  // ── Theme preset vs custom behavior ─────────────────────────────────────────
-  // - Selecting a preset resets inputs to that preset (no overrides applied).
-  // - Editing any theme field switches selection to "custom" and saves as Custom.
-  document
-    .querySelectorAll<HTMLInputElement>('input[name="builtInTheme"]')
-    .forEach((radio) => {
-      radio.addEventListener("change", () => {
-        const val = radio.value as ThemeId | "custom";
-        if (val === "custom") return;
-        customBaseThemeInput.value = val;
-        applyThemeToInputs(themeMap[val]);
-      });
-    });
-
-  const themeFieldSelectors = [
-    'input[name="primaryColor"]',
-    'input[name="secondaryColor"]',
-    'input[name="accentColor"]',
-    'input[name="backgroundColor"]',
-    'input[name="surfaceColor"]',
-    'input[name="textColor"]',
-    'input[name="fontHeading"]',
-    'input[name="fontBody"]',
-    'select[name="borderRadius"]',
-  ];
-
-  for (const sel of themeFieldSelectors) {
-    document.querySelector(sel)?.addEventListener("input", () => {
-      setThemeRadio("custom");
-    });
-    document.querySelector(sel)?.addEventListener("change", () => {
-      setThemeRadio("custom");
-    });
-  }
-
-  // ── Add/remove footer links ────────────────────────────────────────────────
-  let footerLinkCount = document.querySelectorAll(".footer-link-row").length;
-
-  document.getElementById("add-footer-link")?.addEventListener("click", () => {
-    const container = document.getElementById("footer-links")!;
-    const row = document.createElement("div");
-    row.className = "footer-link-row flex gap-3";
-    row.innerHTML = `
-      <input type="text" name="footerLinks[${footerLinkCount}][label]" placeholder="Label" class="input flex-1" />
-      <input type="text" name="footerLinks[${footerLinkCount}][href]" placeholder="/page" class="input flex-1" />
-      <button type="button" class="btn btn-outline remove-footer-link px-3 text-red-500 hover:border-red-500">✕</button>
-    `;
-    container.appendChild(row);
-    row
-      .querySelector(".remove-footer-link")
-      ?.addEventListener("click", () => row.remove());
-    footerLinkCount++;
-  });
-
-  document.querySelectorAll(".remove-footer-link").forEach((btn) => {
-    btn.addEventListener("click", () =>
-      (btn.closest(".footer-link-row") as HTMLElement)?.remove(),
-    );
-  });
-
-  // ── Add/remove social links ────────────────────────────────────────────────
-  let socialLinkCount = document.querySelectorAll(".social-link-row").length;
-
-  document.getElementById("add-social-link")?.addEventListener("click", () => {
-    const container = document.getElementById("social-links")!;
-    const row = document.createElement("div");
-    row.className =
-      "social-link-row grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-center";
-    row.innerHTML = `
-      <input type="text" name="socialLinks[${socialLinkCount}][platform]" placeholder="instagram" class="input sm:col-span-3" />
-      <input type="url" name="socialLinks[${socialLinkCount}][url]" placeholder="https://..." class="input sm:col-span-6" />
-      <input type="text" name="socialLinks[${socialLinkCount}][label]" placeholder="Label (optional)" class="input sm:col-span-2" />
-      <button type="button" class="btn btn-outline remove-social-link w-full px-3 text-red-500 hover:border-red-500 sm:col-span-1 sm:w-auto">✕</button>
-    `;
-    container.appendChild(row);
-    row
-      .querySelector(".remove-social-link")
-      ?.addEventListener("click", () => row.remove());
-    socialLinkCount++;
-  });
-
-  document.querySelectorAll(".remove-social-link").forEach((btn) => {
-    btn.addEventListener("click", () =>
-      (btn.closest(".social-link-row") as HTMLElement)?.remove(),
-    );
-  });
-
-  // ── Form submission ────────────────────────────────────────────────────────
   document
     .getElementById("settings-form")
     ?.addEventListener("submit", async (e) => {
@@ -842,117 +327,36 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
       try {
         const form = e.target as HTMLFormElement;
         const data = new FormData(form);
+        const raw = data.get("themePayload");
+        if (typeof raw !== "string") throw new Error("Missing theme settings");
+        const parsed = JSON.parse(raw) as ThemePayload;
 
-        // Theme behavior:
-        // - Presets (bodegacat/voidkitten/paddleboard): store the preset theme exactly.
-        // - Custom: store "Custom" theme built on top of last selected preset.
-        const selectedTheme = data.get("builtInTheme") as string;
         const customBaseId =
-          (data.get("customBaseTheme") as string) || "bodegacat";
-        const customBaseTheme =
-          customBaseId in themeMap
-            ? themeMap[customBaseId as ThemeId]
-            : themeMap.bodegacat;
+          parsed.customBaseId in themeMap ? parsed.customBaseId : "bodegacat";
+        const customBaseTheme = themeMap[customBaseId as ThemeId];
         const presetTheme =
-          selectedTheme in themeMap
-            ? themeMap[selectedTheme as ThemeId]
+          parsed.themeId in themeMap
+            ? themeMap[parsed.themeId as ThemeId]
             : themeMap.bodegacat;
 
-        const colorFields: Record<string, string> = {
-          "--color-primary": "primaryColor",
-          "--color-secondary": "secondaryColor",
-          "--color-accent": "accentColor",
-          "--color-background": "backgroundColor",
-          "--color-surface": "surfaceColor",
-          "--color-text": "textColor",
-        };
-
-        const variableOverrides: Record<string, string> = {};
-        if (selectedTheme === "custom") {
-          for (const [cssVar, fieldName] of Object.entries(colorFields)) {
-            const val = (data.get(fieldName) as string)?.trim();
-            if (!val) continue;
-            const baseVal =
-              customBaseTheme.variables[
-                cssVar as keyof typeof customBaseTheme.variables
-              ];
-            if (val !== baseVal) {
-              variableOverrides[cssVar] = val;
-            }
-          }
-        }
-
-        const fontHeading = (data.get("fontHeading") as string)?.trim();
-        const fontBody = (data.get("fontBody") as string)?.trim();
-        const borderRadius = (data.get("borderRadius") as string)?.trim();
-        if (selectedTheme === "custom") {
-          if (
-            fontHeading &&
-            fontHeading !== customBaseTheme.variables["--font-heading"]
-          ) {
-            variableOverrides["--font-heading"] = fontHeading;
-          }
-          if (
-            fontBody &&
-            fontBody !== customBaseTheme.variables["--font-body"]
-          ) {
-            variableOverrides["--font-body"] = fontBody;
-          }
-          if (
-            borderRadius &&
-            borderRadius !== customBaseTheme.variables["--border-radius"]
-          ) {
-            variableOverrides["--border-radius"] = borderRadius;
-          }
-        }
-
-        // Collect footer links
-        const footerLinks: { label: string; href: string }[] = [];
-        document.querySelectorAll(".footer-link-row").forEach((row) => {
-          const inputs =
-            row.querySelectorAll<HTMLInputElement>('input[type="text"]');
-          const label = inputs[0]?.value.trim() ?? "";
-          const href = inputs[1]?.value.trim() ?? "";
-          if (label && href) footerLinks.push({ label, href });
-        });
-
-        // Collect social links
-        const socialLinks: { platform: string; url: string; label?: string }[] =
-          [];
-        document.querySelectorAll(".social-link-row").forEach((row) => {
-          const inputs = row.querySelectorAll<HTMLInputElement>("input");
-          const platform = inputs[0]?.value.trim() ?? "";
-          const url = inputs[1]?.value.trim() ?? "";
-          const label = inputs[2]?.value.trim() || undefined;
-          if (platform && url) socialLinks.push({ platform, url, label });
-        });
+        const content = parsed.content;
+        const legacy = legacyFromContent(content);
 
         const payload = {
           name: (data.get("name") as string)?.trim(),
           description: (data.get("description") as string)?.trim(),
-          logo: (data.get("logo") as string)?.trim() || undefined,
           favicon: (data.get("favicon") as string)?.trim() || undefined,
-          contactEmail:
-            (data.get("contactEmail") as string)?.trim() || undefined,
           locale: (data.get("locale") as string)?.trim(),
           currency: (data.get("currency") as string)?.trim().toUpperCase(),
-          homeHeadline:
-            (data.get("homeHeadline") as string)?.trim() || undefined,
-          shopTagline: (data.get("shopTagline") as string)?.trim(),
-          aboutTitle: (data.get("aboutTitle") as string)?.trim(),
-          aboutText: (data.get("aboutText") as string)?.trim(),
-          footerLinks,
-          socialLinks,
+          content,
+          ...legacy,
           theme:
-            selectedTheme === "custom"
+            parsed.themeId === "custom"
               ? {
                   ...customBaseTheme,
                   name: "Custom",
                   description: "Custom theme overrides",
-                  variables: {
-                    ...customBaseTheme.variables,
-                    ...variableOverrides,
-                  },
+                  variables: parsed.variables,
                 }
               : presetTheme,
         };
@@ -967,7 +371,6 @@ const homeHeadlineValue: string = siteConfig.homeHeadline ?? "";
 
         status.textContent = "Settings saved!";
         status.className = "text-sm text-green-600";
-        // Reload so the page (and theme vars) reflect the saved settings.
         queueMicrotask(() => window.location.reload());
       } catch (err) {
         console.error(err);

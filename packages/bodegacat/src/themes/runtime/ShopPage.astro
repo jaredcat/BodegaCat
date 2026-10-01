@@ -1,0 +1,32 @@
+---
+import type { Translations } from "../../i18n";
+import type { Product, SiteConfig } from "../../types/product";
+import { resolveThemeSlots } from "../slots";
+import DefaultShop from "./DefaultShop.astro";
+
+interface Props {
+  siteConfig: SiteConfig;
+  products: Product[];
+  t: Translations;
+  productPath: (slug: string) => string;
+}
+
+const { siteConfig, products, t, productPath } = Astro.props;
+const Shop = resolveThemeSlots(siteConfig.theme).shop;
+---
+
+{Shop ? (
+  <Shop
+    siteConfig={siteConfig}
+    products={products}
+    t={t}
+    productPath={productPath}
+  />
+) : (
+  <DefaultShop
+    siteConfig={siteConfig}
+    products={products}
+    t={t}
+    productPath={productPath}
+  />
+)}
