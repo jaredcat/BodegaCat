@@ -79,9 +79,7 @@ const productType = siteConfig.productTypes.find(
       {product.metadata.deliveryType === "booking" &&
       product.metadata.bookingConfig ? (
         <>
-          {product.variationDefinitions.length > 0 && (
-            <ProductVariations product={product} client:load />
-          )}
+          <ProductVariations product={product} client:load />
           <BookingEmbed
             config={product.metadata.bookingConfig}
             productName={product.name}
@@ -89,46 +87,7 @@ const productType = siteConfig.productTypes.find(
           />
         </>
       ) : (
-        <>
-          {product.variationDefinitions.length > 0 && (
-            <ProductVariations product={product} client:load />
-          )}
-
-          <div class="border-t pt-6">
-            <div class="mb-4 flex items-center space-x-4">
-              <label for="quantity" class="text-sm font-medium text-gray-700">
-                {t.product.quantity}:
-              </label>
-              <div class="flex items-center rounded-md border">
-                <button
-                  type="button"
-                  onclick="updateQuantity(-1)"
-                  class="px-3 py-1 text-gray-600 hover:text-gray-800"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  id="quantity"
-                  value="1"
-                  min="1"
-                  class="w-16 border-0 text-center focus:ring-0"
-                />
-                <button
-                  type="button"
-                  onclick="updateQuantity(1)"
-                  class="px-3 py-1 text-gray-600 hover:text-gray-800"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <button onclick="addToCart()" class="btn btn-primary w-full">
-              {t.product.addToCart}
-            </button>
-          </div>
-        </>
+        <ProductVariations product={product} client:load />
       )}
 
       <div class="space-y-2 border-t pt-6">

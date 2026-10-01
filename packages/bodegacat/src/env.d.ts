@@ -43,6 +43,7 @@ declare module "cloudflare:workers" {
   const env: {
     SETTINGS_KV?: CloudflareKVNamespace;
     SESSION?: CloudflareKVNamespace;
+    FILES?: CloudflareR2Bucket;
   };
   export { env };
 }
@@ -74,6 +75,20 @@ interface CloudflareKVNamespace {
   get(key: string, type?: "text"): Promise<string | null>;
   put(key: string, value: string): Promise<void>;
   delete(key: string): Promise<void>;
+}
+
+interface CloudflareR2Object {
+  body: ReadableStream;
+  httpMetadata?: { contentType?: string };
+}
+
+interface CloudflareR2Bucket {
+  put(
+    key: string,
+    value: ArrayBuffer | ReadableStream,
+    options?: { httpMetadata?: { contentType?: string } },
+  ): Promise<unknown>;
+  get(key: string): Promise<CloudflareR2Object | null>;
 }
 
 declare namespace App {

@@ -4,16 +4,16 @@ export const prerender = false;
 import AdminNav from "@components/AdminNav";
 import ProductTypesEditor from "@components/ProductTypesEditor";
 import { DevIndicator } from "@components/DevIndicator";
-import { exampleProductTypes, getEffectiveConfig } from "@config/site";
+import { exampleProductTypes } from "@config/site";
 import Layout from "@layouts/Layout.astro";
 import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
-import { env } from "cloudflare:workers";
+import { getCloudflareRuntime, loadEffectiveConfig } from "@runtime/cloudflare";
 
-const kv = env.SETTINGS_KV;
-const siteConfig = await getEffectiveConfig(kv);
+const runtime = getCloudflareRuntime();
+const siteConfig = await loadEffectiveConfig();
 const catalogAll = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
-const hasKV = !!kv;
+const hasKV = runtime.settings.available;
 const canSave = hasKV || import.meta.env.DEV;
 ---
 

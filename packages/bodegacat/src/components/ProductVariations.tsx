@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addToCart } from "../lib/cartStore";
+import { findOffer } from "../lib/offers";
 import {
   createVariationState,
   getCurrentVariationImage,
@@ -13,6 +14,12 @@ interface ProductVariationsProps {
     selections: Record<string, string>,
     totalPrice: number,
   ) => void;
+}
+
+function addToCartLabel(ready: boolean, hasOffer: boolean): string {
+  if (!ready) return "Please select required options";
+  if (!hasOffer) return "Unavailable";
+  return "Add to Cart";
 }
 
 export default function ProductVariations({
@@ -34,15 +41,16 @@ export default function ProductVariations({
     [product.variationDefinitions, selections],
   );
 
+  const offer = useMemo(
+    () => findOffer(product, selections),
+    [product, selections],
+  );
+  const displayAmount =
+    offer?.unitAmount ?? product.basePrice + variationState.totalPrice;
+
   useEffect(() => {
-    const totalPrice = product.basePrice + variationState.totalPrice;
-    onVariationChange?.(selections, totalPrice);
-  }, [
-    selections,
-    product.basePrice,
-    onVariationChange,
-    variationState.totalPrice,
-  ]);
+    onVariationChange?.(selections, displayAmount);
+  }, [selections, displayAmount, onVariationChange]);
 
   // Handle selection changes
   const handleSelectionChange = useCallback(
@@ -69,24 +77,8 @@ export default function ProductVariations({
 
   // Handle add to cart
   const handleAddToCart = () => {
-    console.log("handleAddToCart called with:", {
-      product: product.name,
-      quantity,
-      selections,
-      totalPrice: product.basePrice + variationState.totalPrice,
-    });
-
-    try {
-      addToCart(
-        product,
-        quantity,
-        selections,
-        product.basePrice + variationState.totalPrice,
-      );
-      console.log("addToCart completed successfully");
-    } catch (error) {
-      console.error("Error in addToCart:", error);
-    }
+    if (!offer) return;
+    addToCart(product, quantity, selections, offer.priceId);
   };
 
   // If no variations, show simple add to cart
@@ -127,7 +119,7 @@ export default function ProductVariations({
           <div className="flex items-center justify-between">
             <span className="text-lg font-medium">Total Price:</span>
             <span className="text-primary text-2xl font-bold">
-              ${(product.basePrice / 100).toFixed(2)}
+              ${(displayAmount / 100).toFixed(2)}
             </span>
           </div>
         </div>
@@ -135,9 +127,10 @@ export default function ProductVariations({
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          className="bg-primary hover:bg-primary/90 w-full rounded-md px-4 py-3 font-medium text-white transition-colors"
+          disabled={!offer}
+          className="bg-primary hover:bg-primary/90 w-full rounded-md px-4 py-3 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
         >
-          Add to Cart
+          {offer ? "Add to Cart" : "Unavailable"}
         </button>
       </div>
     );
@@ -298,8 +291,7 @@ export default function ProductVariations({
         <div className="flex items-center justify-between">
           <span className="text-lg font-medium">Total Price:</span>
           <span className="text-primary text-2xl font-bold">
-            $
-            {((product.basePrice + variationState.totalPrice) / 100).toFixed(2)}
+            ${(displayAmount / 100).toFixed(2)}
           </span>
         </div>
         {variationState.totalPrice !== 0 && (
@@ -313,16 +305,14 @@ export default function ProductVariations({
       {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
-        disabled={!variationState.isValid}
+        disabled={!variationState.isValid || !offer}
         className={`w-full rounded-md px-4 py-3 font-medium transition-colors ${
-          variationState.isValid
+          variationState.isValid && offer
             ? "bg-primary hover:bg-primary/90 text-white"
             : "cursor-not-allowed bg-gray-300 text-gray-500"
         }`}
       >
-        {variationState.isValid
-          ? "Add to Cart"
-          : "Please select required options"}
+        {addToCartLabel(variationState.isValid, Boolean(offer))}
       </button>
 
       {/* Current Image Display */}

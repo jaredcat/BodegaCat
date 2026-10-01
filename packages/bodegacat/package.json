@@ -1,19 +1,26 @@
 {
   "name": "bodegacat",
   "type": "module",
-  "version": "0.6.3",
-  "description": "Astro integration for Bodega Cat e-commerce stores (Cloudflare + Stripe)",
+  "version": "0.7.0",
+  "description": "Astro integration for Bodega Cat e-commerce stores",
   "license": "AGPL-3.0",
   "author": "JaredCat",
-  "organization": "CodeKitties",
+  "organization": "CodeKitties LLC",
   "organizationUrl": "https://codekitties.com",
   "keywords": [
+    "shop",
+    "online store",
+    "online shop",
+    "online storefront",
+    "online shopfront",
+    "online storefront",
     "e-commerce",
     "ecommerce",
     "astro",
     "astro-integration",
     "stripe",
-    "cloudflare"
+    "cloudflare",
+    "serverless"
   ],
   "exports": {
     ".": "./src/integration.ts",

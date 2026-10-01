@@ -3,6 +3,7 @@ import { STRIPE_WEBHOOK_SECRET } from "astro:env/server";
 import userProductTypesFromIntegration from "virtual:bodegacat-user-product-types";
 import buildKvSettings from "virtual:bodegacat-build-kv-settings";
 import type { EditableSettings, KVNamespace } from "../lib/settings";
+import type { SettingsStore } from "../runtime/types";
 import { getStoredSettings } from "../lib/settings";
 import { bodegaCatTheme } from "../themes/bodegacat";
 import type { BodegaCatTheme } from "../themes/types";
@@ -100,20 +101,25 @@ export function getSiteConfig(): SiteConfig {
 }
 
 /**
- * Returns the site config with Cloudflare KV overrides merged on top.
- * Use this in dynamic (SSR) pages so admin UI changes take effect immediately
- * without requiring a redeploy.
- *
- * For routes that cannot access KV (e.g. static-only adapters), use getSiteConfig().
- *
- * @param kv - The SETTINGS_KV binding from `cloudflare:workers` env
+ * Returns the site config with stored settings merged on top.
+ * Dynamic pages pass the host settings store. Static pages use getSiteConfig().
  */
 export async function getEffectiveConfig(
-  kv: KVNamespace | undefined,
+  source?: KVNamespace | SettingsStore,
 ): Promise<SiteConfig> {
   const base = getSiteConfig();
-  const overrides: EditableSettings = await getStoredSettings(kv);
+  const overrides: EditableSettings = isSettingsStore(source)
+    ? await source.get()
+    : await getStoredSettings(source);
   return mergeSettings(base, overrides);
+}
+
+function isSettingsStore(
+  source: KVNamespace | SettingsStore | undefined,
+): source is SettingsStore {
+  return (
+    source != null && "available" in source && typeof source.save === "function"
+  );
 }
 
 function mergeSettings(

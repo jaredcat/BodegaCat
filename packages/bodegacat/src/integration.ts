@@ -21,6 +21,7 @@ function viteAliases(): Record<string, string> {
     "@styles": path.join(packageSrcDir, "styles"),
     "@themes": path.join(packageSrcDir, "themes"),
     "@i18n": path.join(packageSrcDir, "i18n"),
+    "@runtime": path.join(packageSrcDir, "runtime"),
   };
 }
 
@@ -292,7 +293,6 @@ export default function bodegacat(
             routeEntry("./routes/preview/shop/[slug].astro"),
           ],
           ["/cart", routeEntry("./routes/cart.astro")],
-          ["/cart/checkout", routeEntry("./routes/cart/checkout.astro")],
           ["/success", routeEntry("./routes/success.astro")],
           ["/admin", routeEntry("./routes/admin/index.astro")],
           ["/admin/settings", routeEntry("./routes/admin/settings.astro")],

@@ -1,8 +1,62 @@
 import { stripe } from "@lib/stripe";
+import { syncCatalogPrices } from "@lib/catalog-prices";
+import {
+  variationMetadataPatch,
+  readVariationMetadata,
+} from "@lib/variation-metadata";
 import type { APIRoute } from "astro";
-import type { Product } from "@models/product";
+import type { Product, ProductVariationDefinition } from "@models/product";
 
 export const prerender = false;
+
+function variationDefinitionsFrom(
+  productData: Partial<Product>,
+): ProductVariationDefinition[] {
+  return productData.variationDefinitions ?? [];
+}
+
+function stringMeta(value: string | undefined): string {
+  return value ?? "";
+}
+
+function productMetadata(
+  productData: Partial<Product>,
+  existing: Record<string, string> = {},
+  definitions: ProductVariationDefinition[] = [],
+  basePrice = productData.basePrice ?? 0,
+): Record<string, string> {
+  const publishedRaw =
+    productData.metadata?.publishedToStorefront === false ? "false" : "true";
+  const variationPatch = variationMetadataPatch(
+    definitions,
+    Object.keys(existing),
+  );
+
+  return {
+    ...existing,
+    ...variationPatch,
+    bodegacat_active: productData.active ? "true" : "false",
+    bodegacat_published: publishedRaw,
+    bodegacat_base_price: String(basePrice),
+    productTypeId: stringMeta(
+      productData.metadata?.productTypeId ?? existing.productTypeId,
+    ),
+    category: productData.metadata?.category ?? "",
+    brand: productData.metadata?.brand ?? "",
+    sku: productData.metadata?.sku ?? "",
+    tags: JSON.stringify(productData.metadata?.tags ?? []),
+    slug:
+      existing.slug ||
+      (productData.name ?? "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, ""),
+    deliveryType: productData.metadata?.deliveryType ?? "",
+    bookingConfig: productData.metadata?.bookingConfig
+      ? JSON.stringify(productData.metadata.bookingConfig)
+      : "",
+  };
+}
 
 export const GET: APIRoute = async () => {
   try {
@@ -51,45 +105,25 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create product in Stripe
+    const definitions = variationDefinitionsFrom(productData);
     const stripeProduct = await stripe.products.create({
       name: productData.name,
       description: productData.description,
       images: productData.images,
-      metadata: {
-        bodegacat_active: productData.active ? "true" : "false",
-        bodegacat_published:
-          productData.metadata?.publishedToStorefront === false
-            ? "false"
-            : "true",
-        productTypeId: productData.metadata?.productTypeId ?? "",
-        category: productData.metadata?.category ?? "",
-        brand: productData.metadata?.brand ?? "",
-        sku: productData.metadata?.sku ?? "",
-        tags: JSON.stringify(productData.metadata?.tags ?? []),
-        slug: productData.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, ""),
-        ...(productData.metadata?.deliveryType && {
-          deliveryType: productData.metadata.deliveryType,
-        }),
-        ...(productData.metadata?.bookingConfig && {
-          bookingConfig: JSON.stringify(productData.metadata.bookingConfig),
-        }),
-      },
+      metadata: productMetadata(
+        productData,
+        {},
+        definitions,
+        productData.basePrice,
+      ),
       active: productData.active,
     });
 
-    // Create price for the product
-    const stripePrice = await stripe.prices.create({
-      product: stripeProduct.id,
-      unit_amount: productData.basePrice,
+    await syncCatalogPrices({
+      productId: stripeProduct.id,
+      basePrice: productData.basePrice,
       currency: productData.currency ?? "usd",
-    });
-
-    // Update product with default price
-    await stripe.products.update(stripeProduct.id, {
-      default_price: stripePrice.id,
+      definitions: variationDefinitionsFrom(productData),
     });
 
     return new Response(
@@ -102,7 +136,10 @@ export const POST: APIRoute = async ({ request }) => {
           images: stripeProduct.images,
           active: stripeProduct.active,
           metadata: stripeProduct.metadata,
-          default_price: stripePrice.id,
+          default_price:
+            typeof stripeProduct.default_price === "string"
+              ? stripeProduct.default_price
+              : stripeProduct.default_price?.id,
         },
       }),
       {
@@ -144,45 +181,33 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     const existing = await stripe.products.retrieve(id);
-    const m = existing.metadata;
-    const publishedRaw =
-      productData.metadata?.publishedToStorefront === false ? "false" : "true";
+    const definitions =
+      productData.variationDefinitions ??
+      readVariationMetadata(existing.metadata) ??
+      [];
+    const basePrice =
+      productData.basePrice ??
+      Number(existing.metadata.bodegacat_base_price || "0");
 
-    // Update product in Stripe (merge metadata so slugs and other keys are preserved)
     const updatedProduct = await stripe.products.update(id, {
       name: productData.name,
       description: productData.description,
       images: productData.images,
-      metadata: {
-        ...m,
-        bodegacat_active: productData.active ? "true" : "false",
-        bodegacat_published: publishedRaw,
-        productTypeId:
-          (productData.metadata?.productTypeId ?? m.productTypeId) || "",
-        category: productData.metadata?.category ?? "",
-        brand: productData.metadata?.brand ?? "",
-        sku: productData.metadata?.sku ?? "",
-        tags: JSON.stringify(productData.metadata?.tags ?? []),
-        deliveryType: productData.metadata?.deliveryType ?? "",
-        bookingConfig: productData.metadata?.bookingConfig
-          ? JSON.stringify(productData.metadata.bookingConfig)
-          : "",
-      },
+      metadata: productMetadata(
+        productData,
+        existing.metadata,
+        definitions,
+        basePrice,
+      ),
       active: productData.active,
     });
 
-    // If price changed, create new price
-    if (productData.basePrice) {
-      const newPrice = await stripe.prices.create({
-        product: id,
-        unit_amount: productData.basePrice,
-        currency: productData.currency ?? "usd",
-      });
-
-      await stripe.products.update(id, {
-        default_price: newPrice.id,
-      });
-    }
+    await syncCatalogPrices({
+      productId: id,
+      basePrice,
+      currency: productData.currency ?? "usd",
+      definitions,
+    });
 
     return new Response(
       JSON.stringify({

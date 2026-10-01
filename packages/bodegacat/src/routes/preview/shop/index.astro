@@ -4,14 +4,12 @@ export const prerender = false;
 import { Image } from "astro:assets";
 import Layout from "@layouts/Layout.astro";
 import Navbar from "@components/Navbar";
-import { getEffectiveConfig } from "@config/site";
 import { getTranslations, formatPrice } from "@i18n";
 import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
 import { previewProductPath } from "@lib/catalog-paths";
-import { env } from "cloudflare:workers";
+import { loadEffectiveConfig } from "@runtime/cloudflare";
 
-const kv = env.SETTINGS_KV;
-const siteConfig = await getEffectiveConfig(kv);
+const siteConfig = await loadEffectiveConfig();
 const t = getTranslations(siteConfig.locale);
 
 const products = await getProducts({ includeUnpublished: true });

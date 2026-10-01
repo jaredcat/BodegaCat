@@ -4,18 +4,16 @@ export const prerender = false;
 import Navbar from "@components/Navbar";
 import Layout from "@layouts/Layout.astro";
 import ProductDetailInner from "../../_partials/ProductDetailInner.astro";
-import { getEffectiveConfig } from "@config/site";
 import { getProduct, getProducts, hasUnpublishedDrafts } from "@lib/stripe";
 import { previewShopIndexPath } from "@lib/catalog-paths";
-import { env } from "cloudflare:workers";
+import { loadEffectiveConfig } from "@runtime/cloudflare";
 
 const slug = Astro.params.slug;
 if (!slug) {
   return Astro.redirect(previewShopIndexPath());
 }
 
-const kv = env.SETTINGS_KV;
-const siteConfig = await getEffectiveConfig(kv);
+const siteConfig = await loadEffectiveConfig();
 
 const product = await getProduct(slug, { includeUnpublished: true });
 if (!product) {

@@ -1,192 +1,154 @@
-import { STRIPE_SECRET_KEY } from "astro:env/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
+import { stripe } from "./stripe-client";
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: "2026-08-26.dahlia",
-});
-
-// Helper function to construct proper URLs
-function constructUrl(path: string, requestUrl?: string): string {
+function checkoutUrl(path: string, requestUrl?: string): string {
   if (requestUrl) {
-    // Use the request URL to determine the base URL dynamically
     const url = new URL(requestUrl);
-    const baseUrl = `${url.protocol}//${url.host}`;
-    return `${baseUrl}${path}`;
+    return `${url.protocol}//${url.host}${path}`;
   }
-
-  // Fallback: use environment variable if available
-  const siteUrl = process.env.SITE_URL;
-  if (siteUrl) {
-    const url = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
-    return `${url}${path}`;
-  }
-
-  // Final fallback for development
-  return `http://localhost:8787${path}`;
+  return `http://localhost:4321${path}`;
 }
 
-interface CartItem {
-  productId: string;
+export interface CheckoutLine {
+  priceId: string;
   quantity: number;
-  selectedVariations: Record<string, string>;
 }
 
-async function findMatchingPrice(
-  productId: string,
-  selectedVariations: Record<string, string>,
-): Promise<string> {
-  const product = await stripe.products.retrieve(productId);
-  let priceId = product.default_price as string;
+interface VerifiedLine {
+  priceId: string;
+  quantity: number;
+  productId: string;
+  selection: string;
+  physical: boolean;
+}
 
-  if (Object.keys(selectedVariations).length > 0) {
-    const prices = await stripe.prices.list({
-      product: productId,
-      active: true,
-    });
+function isPhysical(deliveryType: string | undefined): boolean {
+  return (
+    deliveryType === undefined ||
+    deliveryType === "" ||
+    deliveryType === "physical"
+  );
+}
 
-    const matchingPrice = prices.data.find((price) => {
-      return Object.entries(selectedVariations).every(
-        ([key, value]) => price.metadata[key] === value,
-      );
-    });
-
-    if (matchingPrice) {
-      priceId = matchingPrice.id;
-    }
+async function verifyLine(line: CheckoutLine): Promise<VerifiedLine> {
+  if (
+    !Number.isInteger(line.quantity) ||
+    line.quantity < 1 ||
+    line.quantity > 99
+  ) {
+    throw new Error("Quantity must be a whole number from 1 to 99");
   }
 
-  return priceId;
-}
+  const price = await stripe.prices.retrieve(line.priceId, {
+    expand: ["product"],
+  });
 
-async function createLineItemsForCart(
-  cartItems: CartItem[],
-): Promise<Stripe.Checkout.SessionCreateParams.LineItem[]> {
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-
-  for (const item of cartItems) {
-    const priceId = await findMatchingPrice(
-      item.productId,
-      item.selectedVariations,
-    );
-    lineItems.push({
-      price: priceId,
-      quantity: item.quantity,
-    });
+  if (!price.active || price.metadata.bodegacat_unsellable === "true") {
+    throw new Error("That option is not for sale");
   }
 
-  return lineItems;
+  const product = price.product;
+  if (typeof product === "string" || product.deleted) {
+    throw new Error("That option is not for sale");
+  }
+  if (product.metadata.bodegacat_active !== "true") {
+    throw new Error("That option is not for sale");
+  }
+  if (product.metadata.bodegacat_published === "false") {
+    throw new Error("That option is not for sale");
+  }
+
+  return {
+    priceId: price.id,
+    quantity: line.quantity,
+    productId: product.id,
+    selection: price.metadata.bodegacat_options || "{}",
+    physical: isPhysical(product.metadata.deliveryType),
+  };
 }
 
+/**
+ * One Checkout Session for one line or many. Amounts come from Stripe Prices
+ * created when the product was published. The browser cannot set the charge.
+ */
 export async function createCheckoutSession(
-  productIdOrItems: string | CartItem[],
-  quantity?: number,
-  selectedVariations?: Record<string, string>,
+  lines: CheckoutLine[],
   requestUrl?: string,
-) {
-  try {
-    // Handle cart checkout (multiple items)
-    if (Array.isArray(productIdOrItems)) {
-      const lineItems = await createLineItemsForCart(productIdOrItems);
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: lineItems,
-        mode: "payment",
-        success_url: constructUrl(
-          "/success?session_id={CHECKOUT_SESSION_ID}",
-          requestUrl,
-        ),
-        cancel_url: constructUrl("/shop", requestUrl),
-      });
-
-      return session;
-    }
-
-    // Handle single item checkout
-    const productId = productIdOrItems;
-    const priceId = await findMatchingPrice(
-      productId,
-      selectedVariations ?? {},
-    );
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: quantity ?? 1,
-        },
-      ],
-      mode: "payment",
-      success_url: constructUrl(
-        "/success?session_id={CHECKOUT_SESSION_ID}",
-        requestUrl,
-      ),
-      cancel_url: constructUrl("/shop", requestUrl),
-      metadata: {
-        productId,
-        selectedVariations: selectedVariations
-          ? JSON.stringify(selectedVariations)
-          : "",
-      },
-    });
-
-    return session;
-  } catch (error) {
-    console.error("Error creating checkout session:", error);
-    throw error;
+): Promise<Stripe.Checkout.Session> {
+  if (lines.length === 0) {
+    throw new Error("Cart is empty");
   }
-}
 
-export async function createPaymentLink(
-  productId: string,
-  quantity = 1,
-  selectedVariations: Record<string, string> = {},
-) {
-  try {
-    // Get the product from Stripe
-    const product = await stripe.products.retrieve(productId);
-
-    // Find the appropriate price based on variations
-    let priceId = product.default_price as string;
-
-    // If there are variations, find the matching price
-    if (Object.keys(selectedVariations).length > 0) {
-      const prices = await stripe.prices.list({
-        product: productId,
-        active: true,
-      });
-
-      // Find price that matches the selected variations
-      const matchingPrice = prices.data.find((price) => {
-        // Check if price metadata matches selected variations
-        return Object.entries(selectedVariations).every(
-          ([key, value]) => price.metadata[key] === value,
-        );
-      });
-
-      if (matchingPrice) {
-        priceId = matchingPrice.id;
-      }
-    }
-
-    // Create payment link
-    const paymentLink = await stripe.paymentLinks.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: quantity,
-        },
-      ],
-      metadata: {
-        productId,
-        selectedVariations: JSON.stringify(selectedVariations),
-      },
+  const merged = new Map<string, CheckoutLine>();
+  for (const line of lines) {
+    const current = merged.get(line.priceId);
+    merged.set(line.priceId, {
+      priceId: line.priceId,
+      quantity: (current?.quantity ?? 0) + line.quantity,
     });
-
-    return paymentLink;
-  } catch (error) {
-    console.error("Error creating payment link:", error);
-    throw error;
   }
+
+  const verified = await Promise.all(
+    [...merged.values()].map((line) => verifyLine(line)),
+  );
+
+  const summary = JSON.stringify(
+    verified.map((line) => ({
+      productId: line.productId,
+      priceId: line.priceId,
+      options: line.selection,
+    })),
+  );
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: verified.map((line) => ({
+      price: line.priceId,
+      quantity: line.quantity,
+    })),
+    success_url: checkoutUrl(
+      "/success?session_id={CHECKOUT_SESSION_ID}",
+      requestUrl,
+    ),
+    cancel_url: checkoutUrl("/shop", requestUrl),
+    ...(verified.some((line) => line.physical)
+      ? {
+          shipping_address_collection: {
+            allowed_countries: [
+              "AU",
+              "AT",
+              "BE",
+              "CA",
+              "DK",
+              "FI",
+              "FR",
+              "DE",
+              "IE",
+              "IT",
+              "JP",
+              "MX",
+              "NL",
+              "NZ",
+              "NO",
+              "PT",
+              "SG",
+              "KR",
+              "ES",
+              "SE",
+              "CH",
+              "GB",
+              "US",
+            ],
+          },
+        }
+      : {}),
+    metadata: {
+      ...(summary.length <= 500 ? { bodegacat_lines: summary } : {}),
+      ...(verified.length === 1 && verified[0]
+        ? { productId: verified[0].productId }
+        : {}),
+    },
+  });
+
+  return session;
 }

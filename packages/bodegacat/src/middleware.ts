@@ -1,22 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import type { APIContext } from "astro";
 import { BODEGACAT_ADMIN_LOCAL_BYPASS } from "astro:env/server";
-
-function parseAccessJwtEmail(token: string | undefined): string | null {
-  if (!token) return null;
-  try {
-    const payloadB64 = token.split(".").at(1);
-    if (payloadB64 === undefined || payloadB64 === "") return null;
-    const parsed: unknown = JSON.parse(atob(payloadB64));
-    if (parsed === null || typeof parsed !== "object" || !("email" in parsed)) {
-      return null;
-    }
-    const { email } = parsed as { email?: unknown };
-    return typeof email === "string" ? email : null;
-  } catch {
-    return null;
-  }
-}
+import { getCloudflareAdminIdentity } from "@runtime/cloudflare-access";
 
 function isLoopbackHostname(hostname: string): boolean {
   return (
@@ -86,20 +71,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         localPreviewBypass: true,
       };
     } else {
-      const cfAccessJwt =
-        context.request.headers.get("cf-access-jwt-assertion") ??
-        context.cookies.get("CF_Authorization")?.value;
-      const cfAccessEmail =
-        context.request.headers.get("cf-access-user-email") ??
-        parseAccessJwtEmail(cfAccessJwt);
+      const identity = getCloudflareAdminIdentity(context.request);
 
-      if (!cfAccessJwt || !cfAccessEmail) {
+      if (!identity) {
         return new Response("Unauthorized", { status: 403 });
       }
 
       context.locals.user = {
-        email: cfAccessEmail,
-        jwt: cfAccessJwt,
+        email: identity.email,
+        jwt: identity.jwt,
         isDevelopment: false,
       };
     }

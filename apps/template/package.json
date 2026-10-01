@@ -8,9 +8,9 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
-    "preview": "pnpm -s astro build && wrangler dev --local --config dist/server/wrangler.json",
+    "preview": "astro build && wrangler dev --local --config dist/server/wrangler.json",
     "preview:simple": "astro preview",
-    "deploy": "pnpm -s astro build && wrangler deploy --config dist/server/wrangler.json",
+    "deploy": "astro build && wrangler deploy --config dist/server/wrangler.json",
     "astro": "astro",
     "cf-typegen": "wrangler types worker-configuration/worker-configuration.d.ts",
     "typecheck": "astro check"

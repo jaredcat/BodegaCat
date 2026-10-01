@@ -1,19 +1,18 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
-import { getStoredSettings, saveSettings } from "@lib/settings";
+import { getCloudflareRuntime } from "@runtime/cloudflare";
 
 export const GET: APIRoute = async () => {
-  const kv = env.SETTINGS_KV;
-  const settings = await getStoredSettings(kv);
+  const runtime = getCloudflareRuntime();
+  const settings = await runtime.settings.get();
   return new Response(JSON.stringify(settings), {
     headers: { "Content-Type": "application/json" },
   });
 };
 
 export const POST: APIRoute = async ({ request }) => {
-  const kv = env.SETTINGS_KV;
+  const runtime = getCloudflareRuntime();
 
   let body: unknown;
   try {
@@ -32,10 +31,9 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Strip any attempt to override Stripe secrets via this endpoint
   const { stripe: _stripe, ...safeSettings } = body as Record<string, unknown>;
 
-  await saveSettings(kv, safeSettings);
+  await runtime.settings.save(safeSettings);
 
   return new Response(JSON.stringify({ ok: true }), {
     headers: { "Content-Type": "application/json" },

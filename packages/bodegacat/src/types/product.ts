@@ -115,6 +115,16 @@ export interface ProductMetadata {
   };
 }
 
+/** A Stripe Price written when the product is published. The browser checks out with this id. */
+export interface ProductOffer {
+  priceId: string;
+  /** Charge in the smallest currency unit (cents). */
+  unitAmount: number;
+  currency: string;
+  /** Variation id to option id. Empty when the product has no variations. */
+  selection: Record<string, string>;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -123,9 +133,12 @@ export interface Product {
   images: string[];
   active: boolean;
   slug: string;
+  /** Admin base price in cents, before option modifiers. */
   basePrice: number;
   currency: string;
   variationDefinitions: ProductVariationDefinition[];
+  /** Sellable Stripe Prices. One entry per available combination. */
+  offers: ProductOffer[];
   createdAt: Date;
   updatedAt: Date;
 }

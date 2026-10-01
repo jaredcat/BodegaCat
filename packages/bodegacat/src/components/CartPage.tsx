@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import {
   cartCount,
   cartItems,
+  cartLineAmount,
   cartTotal,
   clearCart,
   initializeCart,
@@ -31,9 +32,8 @@ export default function CartPage() {
         },
         body: JSON.stringify({
           items: Object.values(items).map((item) => ({
-            productId: item.product.id,
+            priceId: item.priceId,
             quantity: item.quantity,
-            selectedVariations: item.selectedVariations,
           })),
         }),
       });
@@ -104,7 +104,7 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="space-y-4 p-6">
           {cartItemsArray.map((item) => {
-            const itemKey = `${item.product.id}-${JSON.stringify(item.selectedVariations)}`;
+            const itemKey = `${item.product.id}-${item.priceId}`;
             return (
               <div key={itemKey} className="flex space-x-4 border-b pb-4">
                 {/* Product Image */}
@@ -137,7 +137,7 @@ export default function CartPage() {
 
                   {/* Price */}
                   <p className="mt-1 text-sm text-gray-900">
-                    ${(item.totalPrice / 100).toFixed(2)} each
+                    ${(cartLineAmount(item) / 100).toFixed(2)} each
                   </p>
 
                   {/* Quantity Controls */}

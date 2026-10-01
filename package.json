@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Monorepo for the bodegacat Astro integration and reference app template",
   "scripts": {
+    "dev": "pnpm --filter @bodegacat/template dev",
     "build": "pnpm --filter @bodegacat/template build",
     "preview": "pnpm --filter @bodegacat/template preview",
     "deploy": "pnpm --filter @bodegacat/template deploy",

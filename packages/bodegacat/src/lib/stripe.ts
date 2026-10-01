@@ -1,23 +1,14 @@
-import { STRIPE_API_VERSION } from "astro:env/client";
-import { STRIPE_SECRET_KEY } from "astro:env/server";
-import Stripe from "stripe";
-import type {
-  Product,
-  ProductVariationDefinition,
-  ProductVariationOptionDefinition,
-} from "../types/product";
+import type Stripe from "stripe";
+import {
+  isUnsellablePrice,
+  listActivePrices,
+  selectionFromPrice,
+} from "./catalog-prices";
+import { stripe } from "./stripe-client";
+import { readVariationMetadata } from "./variation-metadata";
+import type { Product, ProductOffer } from "../types/product";
 
-if (!STRIPE_SECRET_KEY) {
-  throw new Error(
-    "STRIPE_SECRET_KEY is required: set it for the Worker at runtime and for `astro build` so static /shop/[slug] pages can be generated.",
-  );
-}
-
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: STRIPE_API_VERSION,
-} as ConstructorParameters<typeof Stripe>[1]);
-
-/** Public storefront hides products with `metadata.bodegacat_published === "false"`. */
+export { stripe };
 export function isPublishedOnStorefront(
   metadata: Stripe.Metadata | Record<string, string>,
 ): boolean {
@@ -62,15 +53,10 @@ export async function getProducts(
         (product) =>
           includeUnpublished || isPublishedOnStorefront(product.metadata),
       )
-      .map(async (product) => {
-        // Get all prices for this product
-        const prices = await stripe.prices.list({
-          product: product.id,
-          active: true,
-        });
-
-        return { product, prices: prices.data };
-      }),
+      .map(async (product) => ({
+        product,
+        prices: await listActivePrices(product.id),
+      })),
   );
 
   return productsWithPrices
@@ -98,15 +84,11 @@ export async function getProduct(
 
   if (!product) return null;
 
-  // Get all prices for this product
-  const prices = await stripe.prices.list({
-    product: product.id,
-    active: true,
-  });
+  const prices = await listActivePrices(product.id);
 
-  if (prices.data.length === 0) return null;
+  if (prices.length === 0) return null;
 
-  return transformStripeProduct(product, prices.data);
+  return transformStripeProduct(product, prices);
 }
 
 export async function getProductById(
@@ -121,15 +103,11 @@ export async function getProductById(
       return null;
     }
 
-    // Get all prices for this product
-    const prices = await stripe.prices.list({
-      product: product.id,
-      active: true,
-    });
+    const prices = await listActivePrices(product.id);
 
-    if (prices.data.length === 0) return null;
+    if (prices.length === 0) return null;
 
-    return transformStripeProduct(product, prices.data);
+    return transformStripeProduct(product, prices);
   } catch (error) {
     console.error("Error fetching product by ID:", error);
     return null;
@@ -156,24 +134,41 @@ function transformStripeProduct(
     throw new Error(`No valid prices found for product ${product.id}`);
   }
 
-  // Group prices by currency for variations
-  const pricesByCurrency = prices.reduce<Record<string, Stripe.Price[]>>(
-    (acc, price) => {
-      acc[price.currency] = acc[price.currency] ?? [];
-      acc[price.currency].push(price);
-      return acc;
-    },
-    {},
-  );
-
-  // Use the currency of the lowest price
   const baseCurrency = lowestPrice.currency;
 
-  // Parse variations from metadata or create default structure
-  const variations = parseProductVariations(
-    product,
-    pricesByCurrency[baseCurrency] ?? [],
+  const variations = readVariationMetadata(product.metadata) ?? [];
+
+  const metaBase = product.metadata.bodegacat_base_price;
+  const parsedBase = metaBase ? Number(metaBase) : Number.NaN;
+  const basePrice = Number.isFinite(parsedBase)
+    ? parsedBase
+    : (lowestPrice.unit_amount ?? 0);
+
+  let offerPrices = prices.filter(
+    (price) =>
+      price.currency === baseCurrency &&
+      price.unit_amount != null &&
+      !isUnsellablePrice(price),
   );
+  if (variations.length === 0) {
+    const only = offerPrices.reduce<Stripe.Price | undefined>(
+      (lowest, price) => {
+        if (!lowest || (price.unit_amount ?? 0) < (lowest.unit_amount ?? 0)) {
+          return price;
+        }
+        return lowest;
+      },
+      undefined,
+    );
+    offerPrices = only ? [only] : [];
+  }
+
+  const offers: ProductOffer[] = offerPrices.map((price) => ({
+    priceId: price.id,
+    unitAmount: price.unit_amount ?? 0,
+    currency: price.currency,
+    selection: selectionFromPrice(price),
+  }));
 
   // Generate slug if not provided
   const slug = product.metadata.slug || generateSlug(product.name);
@@ -219,163 +214,11 @@ function transformStripeProduct(
     images: product.images,
     active: product.active,
     slug,
-    basePrice: lowestPrice.unit_amount ?? 0,
+    basePrice,
     currency: baseCurrency,
-    // New: robust variation system
     variationDefinitions: variations,
+    offers,
     createdAt: new Date(product.created * 1000),
     updatedAt: new Date(),
   };
 }
-
-function parseProductVariations(
-  product: Stripe.Product,
-  prices: Stripe.Price[],
-): ProductVariationDefinition[] {
-  // Try to parse variations from metadata
-  if (product.metadata.variations) {
-    try {
-      const parsedVariations = JSON.parse(
-        product.metadata.variations,
-      ) as ProductVariationDefinition[];
-      return parsedVariations.map((variation) => ({
-        ...variation,
-        options: variation.options.map((option) => ({
-          ...option,
-          available: option.available,
-        })),
-      }));
-    } catch (error) {
-      console.warn(
-        `Failed to parse variations for product ${product.id}:`,
-        error,
-      );
-    }
-  }
-
-  // Fallback: Create variations from prices
-  // Group prices by their metadata to create variations
-  const priceGroups = new Map<string, Stripe.Price[]>();
-
-  prices.forEach((price) => {
-    const variationName = price.metadata.variation || "Default";
-    const optionName = price.metadata.option || "Standard";
-    const key = `${variationName}:${optionName}`;
-
-    if (!priceGroups.has(key)) {
-      priceGroups.set(key, []);
-    }
-    const group = priceGroups.get(key);
-    if (group) {
-      group.push(price);
-    }
-  });
-
-  if (priceGroups.size === 0) {
-    // No variations found, create a default variation
-    return [
-      {
-        id: "default",
-        name: "default",
-        displayName: "Default",
-        type: "independent",
-        order: 1,
-        required: false,
-        options: prices.map((price, index) => ({
-          id: `option-${String(index)}`,
-          name: price.metadata.option || "Standard",
-          displayName: price.metadata.option || "Standard",
-          priceModifier:
-            (price.unit_amount ?? 0) - (prices[0]?.unit_amount ?? 0),
-          available: true,
-          images: price.metadata.images
-            ? (JSON.parse(price.metadata.images) as string[])
-            : undefined,
-        })),
-      },
-    ];
-  }
-
-  // Group by variation name
-  const variationsMap = new Map<string, ProductVariationOptionDefinition[]>();
-
-  priceGroups.forEach((priceList, key) => {
-    const [variationName, optionName] = key.split(":");
-    const price = priceList[0]; // Use the first price for this option
-
-    if (!variationsMap.has(variationName)) {
-      variationsMap.set(variationName, []);
-    }
-
-    const variationOptions = variationsMap.get(variationName);
-    if (variationOptions) {
-      variationOptions.push({
-        id: optionName,
-        name: optionName,
-        displayName: optionName,
-        priceModifier: (price.unit_amount ?? 0) - (prices[0]?.unit_amount ?? 0),
-        available: true,
-        images: price.metadata.images
-          ? (JSON.parse(price.metadata.images) as string[])
-          : undefined,
-      });
-    }
-  });
-
-  return Array.from(variationsMap.entries()).map(([name, options], index) => ({
-    id: name,
-    name: name,
-    displayName: name,
-    type: "independent" as const,
-    order: index + 1,
-    required: false,
-    options,
-  }));
-}
-
-// Helper function to validate and construct proper URLs
-function validateUrl(url: string): string {
-  if (!url) {
-    throw new Error("URL is required for checkout session");
-  }
-
-  // If URL already has protocol, return as is
-  if (url.startsWith("http")) {
-    return url;
-  }
-
-  // For relative URLs, construct absolute URL
-  const siteUrl = import.meta.env.SITE_URL as string | undefined;
-  if (siteUrl) {
-    const baseUrl = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
-    const path = url.startsWith("/") ? url : `/${url}`;
-    return `${baseUrl}${path}`;
-  }
-
-  // Fallback for development
-  const protocol = import.meta.env.DEV ? "http" : "https";
-  const host = import.meta.env.DEV ? "localhost:4321" : "your-domain.com";
-  const path = url.startsWith("/") ? url : `/${url}`;
-  return `${protocol}://${host}${path}`;
-}
-
-export async function createCheckoutSession(
-  items: {
-    priceId: string;
-    quantity: number;
-  }[],
-  successUrl: string,
-  cancelUrl: string,
-) {
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: items,
-    mode: "payment",
-    success_url: validateUrl(successUrl),
-    cancel_url: validateUrl(cancelUrl),
-  });
-
-  return session;
-}
-
-export { stripe };

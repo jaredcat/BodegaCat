@@ -1,11 +1,16 @@
 import { atom, computed, map } from "nanostores";
 import type { Product } from "../types/product";
+import { unitAmountFor } from "./offers";
 
 export interface CartItem {
   product: Product;
   quantity: number;
   selectedVariations: Record<string, string>;
-  totalPrice: number;
+  priceId: string;
+}
+
+export function cartLineAmount(item: CartItem): number {
+  return unitAmountFor(item.product, item.priceId, item.selectedVariations);
 }
 
 // Cart state using map for better performance
@@ -19,7 +24,7 @@ export const cartCount = computed(cartItems, (items) =>
 
 export const cartTotal = computed(cartItems, (items) =>
   Object.values(items).reduce(
-    (total, item) => total + item.totalPrice * item.quantity,
+    (total, item) => total + cartLineAmount(item) * item.quantity,
     0,
   ),
 );
@@ -28,41 +33,28 @@ export const cartTotal = computed(cartItems, (items) =>
 export function addToCart(
   product: Product,
   quantity: number,
-  totalPrice: number,
-  selectedVariations: Record<string, string> = {},
+  selectedVariations: Record<string, string>,
+  priceId: string,
 ) {
-  console.log("Adding to cart:", {
-    product: product.name,
-    quantity,
-    totalPrice,
-    selectedVariations,
-  });
-
   const currentItems = cartItems.get();
-  const itemKey = `${product.id}-${JSON.stringify(selectedVariations)}`;
+  const itemKey = `${product.id}-${priceId}`;
 
   if (Object.hasOwn(currentItems, itemKey)) {
-    // Update existing item
     const existingItem = currentItems[itemKey];
     cartItems.setKey(itemKey, {
       ...existingItem,
       quantity: existingItem.quantity + quantity,
     });
-    console.log("Updated existing item in cart");
   } else {
-    // Add new item
     cartItems.setKey(itemKey, {
       product,
       quantity,
       selectedVariations,
-      totalPrice,
+      priceId,
     });
-    console.log("Added new item to cart");
   }
 
-  // Open cart after adding item
   isCartOpen.set(true);
-  console.log("Cart opened");
 }
 
 export function removeFromCart(itemKey: string) {

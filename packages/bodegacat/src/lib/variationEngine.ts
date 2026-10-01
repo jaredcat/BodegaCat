@@ -3,6 +3,7 @@ import type {
   ProductVariationDefinition,
   ProductVariationOptionDefinition,
 } from "../types/product";
+import { canonicalSelection } from "./selection";
 
 export interface VariationSelection {
   variationId: string;
@@ -179,6 +180,68 @@ function validateSelections(
 /**
  * Gets available options for a variation based on current selections
  */
+/**
+ * Every combination a buyer can check out. Option `available: false` is omitted.
+ * Dependent options are included only when their parent selection allows them.
+ * A product with no variation definitions has one empty selection.
+ */
+export function listSellableCombinations(
+  definitions: ProductVariationDefinition[],
+): { selection: Record<string, string>; priceModifier: number }[] {
+  if (definitions.length === 0) {
+    return [{ selection: {}, priceModifier: 0 }];
+  }
+
+  const results: {
+    selection: Record<string, string>;
+    priceModifier: number;
+  }[] = [];
+
+  function walk(
+    remaining: ProductVariationDefinition[],
+    selection: Record<string, string>,
+  ) {
+    const ready = remaining.filter((definition) => {
+      if (!isVariationVisible(definition, definitions, selection)) return false;
+      return definition.options.some((option) =>
+        isOptionVisible(definition, option, definitions, selection),
+      );
+    });
+
+    if (ready.length === 0) {
+      if (Object.keys(selection).length === 0) return;
+      const { isValid } = validateSelections(definitions, selection);
+      if (!isValid) return;
+      results.push({
+        selection,
+        priceModifier: calculateTotalPrice(definitions, selection),
+      });
+      return;
+    }
+
+    const next = ready[0];
+    const rest = remaining.filter((definition) => definition.id !== next.id);
+    const options = next.options.filter((option) =>
+      isOptionVisible(next, option, definitions, selection),
+    );
+
+    for (const option of options) {
+      walk(rest, { ...selection, [next.id]: option.id });
+    }
+  }
+
+  walk(definitions, {});
+
+  const unique = new Map<
+    string,
+    { selection: Record<string, string>; priceModifier: number }
+  >();
+  for (const result of results) {
+    unique.set(canonicalSelection(result.selection), result);
+  }
+  return [...unique.values()];
+}
+
 export function getAvailableOptions(
   variation: ProductVariationDefinition,
   allVariations: ProductVariationDefinition[],

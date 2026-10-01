@@ -1,10 +1,9 @@
 ---
-import { getEffectiveConfig } from "@config/site";
 import Layout from "@layouts/Layout.astro";
-import { env } from "cloudflare:workers";
+import { loadEffectiveConfig } from "@runtime/cloudflare";
 
 const sessionId = Astro.url.searchParams.get("session_id");
-const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
+const siteConfig = await loadEffectiveConfig();
 ---
 
 <Layout title="Order Successful" siteConfig={siteConfig}>
@@ -41,7 +40,7 @@ const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
         <div class="mt-8">
           <div class="rounded-md bg-blue-50 p-4">
             <div class="flex">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <svg
                   class="h-5 w-5 text-blue-400"
                   viewBox="0 0 20 20"

@@ -5,13 +5,12 @@ import { Image } from "astro:assets";
 import AdminNav from "@components/AdminNav";
 import DeployLiveSiteButton from "@components/DeployLiveSiteButton";
 import { DevIndicator } from "@components/DevIndicator";
-import { getEffectiveConfig } from "@config/site";
 import Layout from "@layouts/Layout.astro";
 import { getProducts, hasUnpublishedDrafts } from "@lib/stripe";
+import { loadEffectiveConfig } from "@runtime/cloudflare";
 import buildKvMeta from "virtual:bodegacat-build-kv-meta";
-import { env } from "cloudflare:workers";
 
-const siteConfig = await getEffectiveConfig(env.SETTINGS_KV);
+const siteConfig = await loadEffectiveConfig();
 const products = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(products);
 const buildKvConfigured = buildKvMeta.configured;
