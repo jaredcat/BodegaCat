@@ -9,7 +9,9 @@ const radiusOptions = [
   { value: "9999px", label: "Pill" },
 ];
 
-/** Fields the Paddleboard homepage, footer, and default shop page read. */
+/**
+Fields the Paddleboard homepage, footer, and default shop page read.
+*/
 export const paddleboardThemeSettings: ThemeSettingField[] = [
   {
     type: "text",

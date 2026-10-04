@@ -1,25 +1,34 @@
 import type { ThemeContent, ThemeLink } from "../themes/types";
 import type { SiteConfig } from "../types/product";
 
-/** Coded default in `defaultSiteConfig`. Not a real uploaded logo. */
+/**
+Coded default in `defaultSiteConfig`. Not a real uploaded logo.
+*/
 const PLACEHOLDER_LOGO = "/logo.png";
 
 function legacyText(config: SiteConfig, id: string): string | undefined {
   switch (id) {
-    case "logo":
+    case "logo": {
       return config.logo;
-    case "homeHeadline":
+    }
+    case "homeHeadline": {
       return config.homeHeadline;
-    case "shopTagline":
+    }
+    case "shopTagline": {
       return config.shopTagline;
-    case "aboutTitle":
+    }
+    case "aboutTitle": {
       return config.aboutTitle;
-    case "aboutText":
+    }
+    case "aboutText": {
       return config.aboutText;
-    case "contactEmail":
+    }
+    case "contactEmail": {
       return config.contactEmail;
-    default:
+    }
+    default: {
       return undefined;
+    }
   }
 }
 
@@ -50,7 +59,9 @@ const SEEDED_TEXT_IDS = [
   "feature3Text",
 ];
 
-/** Values to show in admin, including older site fields when content is empty. */
+/**
+Values to show in admin, including older site fields when content is empty.
+*/
 export function seedThemeContent(config: SiteConfig): ThemeContent {
   const content: ThemeContent = { ...config.content };
   for (const id of SEEDED_TEXT_IDS) {
@@ -67,22 +78,26 @@ export function seedThemeContent(config: SiteConfig): ThemeContent {
   return content;
 }
 
-/** Text, URL, or image path for a theme field. Content wins; older site fields fill gaps. */
+/**
+Text, URL, or image path for a theme field. Content wins; older site fields fill gaps.
+*/
 export function themeText(
   config: SiteConfig,
   id: string,
   fallback = "",
 ): string {
   const stored = config.content?.[id];
-  if (typeof stored === "string") return stored;
-  return legacyText(config, id) ?? fallback;
+  return typeof stored === "string"
+    ? stored
+    : (legacyText(config, id) ?? fallback);
 }
 
-/** Link rows for a theme field. Content wins; older footer and social lists fill gaps. */
+/**
+Link rows for a theme field. Content wins; older footer and social lists fill gaps.
+*/
 export function themeLinks(config: SiteConfig, id: string): ThemeLink[] {
   const stored = config.content?.[id];
-  if (Array.isArray(stored)) return stored;
-  return legacyLinks(config, id) ?? [];
+  return Array.isArray(stored) ? stored : (legacyLinks(config, id) ?? []);
 }
 
 const LEGACY_TEXT_IDS = [
@@ -94,7 +109,9 @@ const LEGACY_TEXT_IDS = [
   "contactEmail",
 ] as const;
 
-/** Copy theme content back onto the older site fields those ids replaced. */
+/**
+Copy theme content back onto the older site fields those ids replaced.
+*/
 export function legacyFromContent(
   content: ThemeContent,
 ): Partial<

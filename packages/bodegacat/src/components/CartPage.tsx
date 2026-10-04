@@ -21,8 +21,6 @@ export default function CartPage() {
     initializeCart();
   }, []);
 
-  const cartItemsArray = Object.values(items);
-
   if (count === 0) {
     return (
       <div className="mx-auto max-w-2xl">
@@ -61,6 +59,8 @@ export default function CartPage() {
       </div>
     );
   }
+
+  const cartItemsArray = Object.values(items);
 
   return (
     <div className="mx-auto max-w-2xl">

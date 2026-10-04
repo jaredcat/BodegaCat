@@ -21,7 +21,7 @@ if (!product) {
 }
 
 const catalogAll = await getProducts({ includeUnpublished: true });
-const previewCatalogHasDraftProducts = hasUnpublishedDrafts(catalogAll);
+const isPreviewCatalogHasDraftProducts = hasUnpublishedDrafts(catalogAll);
 ---
 
 <Layout
@@ -29,7 +29,7 @@ const previewCatalogHasDraftProducts = hasUnpublishedDrafts(catalogAll);
   description={product.description}
   siteConfig={siteConfig}
   storefrontPreview={true}
-  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
+  previewCatalogHasDraftProducts={isPreviewCatalogHasDraftProducts}
   previewProduct={{
     id: product.id,
     draft: product.metadata.publishedToStorefront === false,

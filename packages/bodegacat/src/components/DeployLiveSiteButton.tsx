@@ -4,15 +4,14 @@ export default function DeployLiveSiteButton() {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | undefined>(undefined);
 
   async function deploy() {
     setStatus("loading");
-    setMessage(null);
+    setMessage(undefined);
     try {
       const res = await fetch("/api/admin/trigger-deploy", {
         method: "POST",
-        credentials: "same-origin",
       });
       const body = (await res.json()) as {
         ok?: boolean;
@@ -33,9 +32,9 @@ export default function DeployLiveSiteButton() {
       setMessage(
         "Deploy started. The live storefront will update when the build finishes (usually a few minutes).",
       );
-    } catch (e: unknown) {
+    } catch (error: unknown) {
       setStatus("error");
-      setMessage(e instanceof Error ? e.message : "Request failed");
+      setMessage(error instanceof Error ? error.message : "Request failed");
     }
   }
 
@@ -66,7 +65,7 @@ export default function DeployLiveSiteButton() {
           <span className="text-sm font-medium text-red-700">Failed</span>
         )}
       </div>
-      {message !== null && (
+      {message !== undefined && (
         <p
           className={`text-sm ${
             status === "error" ? "text-red-700" : "text-gray-700"

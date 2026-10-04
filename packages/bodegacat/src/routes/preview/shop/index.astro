@@ -12,14 +12,14 @@ import ThemeShopPage from "@themes/runtime/ShopPage.astro";
 const siteConfig = await loadEffectiveConfig();
 const t = getTranslations(siteConfig.locale);
 const products = await getProducts({ includeUnpublished: true });
-const previewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
+const isPreviewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
 ---
 
 <Layout
   title={t.shop.title}
   siteConfig={siteConfig}
   storefrontPreview={true}
-  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
+  previewCatalogHasDraftProducts={isPreviewCatalogHasDraftProducts}
 >
   <Navbar siteConfig={siteConfig} client:load />
   <ThemeShopPage

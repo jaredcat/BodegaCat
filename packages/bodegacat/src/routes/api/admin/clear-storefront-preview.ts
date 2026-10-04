@@ -4,7 +4,9 @@ export const prerender = false;
 
 const STOREFRONT_PREVIEW_COOKIE = "bodegacat_storefront_preview";
 
-/** Clears the storefront preview cookie (must match middleware set/delete options). */
+/**
+Clears the storefront preview cookie (must match middleware set/delete options).
+*/
 export const POST: APIRoute = ({ cookies }) => {
   const isDevelopment =
     import.meta.env.DEV || import.meta.env.NODE_ENV === "development";
@@ -20,5 +22,5 @@ export const POST: APIRoute = ({ cookies }) => {
     });
   }
 
-  return new Response(null, { status: 204 });
+  return new Response(undefined, { status: 204 });
 };

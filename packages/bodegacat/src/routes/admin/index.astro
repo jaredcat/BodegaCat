@@ -13,7 +13,7 @@ import buildKvMeta from "virtual:bodegacat-build-kv-meta";
 const siteConfig = await loadEffectiveConfig();
 const products = await getProducts({ includeUnpublished: true });
 const hasUnpublishedProducts = hasUnpublishedDrafts(products);
-const buildKvConfigured = buildKvMeta.configured;
+const isBuildKvConfigured = buildKvMeta.configured;
 ---
 
 <Layout title="Admin Dashboard" useSiteTheme={false}>
@@ -160,7 +160,7 @@ const buildKvConfigured = buildKvMeta.configured;
             </p>
             <p class="mt-2 text-gray-700">
               <span class="font-medium">Store Settings on the live site:</span>{" "}
-              {buildKvConfigured ? (
+              {isBuildKvConfigured ? (
                 <span class="font-medium text-green-700">enabled</span>
               ) : (
                 <span class="font-medium text-amber-700">not enabled</span>

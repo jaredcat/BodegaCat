@@ -1,11 +1,11 @@
 import { clearCart, type CartItem } from "./cartStore";
 
 /**
- * Starts Stripe Checkout for the current cart lines.
- * Clears the cart once the session URL is ready, then navigates there.
- * `beforeRedirect` runs after the cart is cleared and before navigation
- * (the drawer uses it to close).
- */
+Starts Stripe Checkout for the current cart lines.
+Clears the cart once the session URL is ready, then navigates there.
+`beforeRedirect` runs after the cart is cleared and before navigation
+(the drawer uses it to close).
+*/
 export async function beginCheckout(
   items: Record<string, CartItem>,
   options?: { readonly beforeRedirect?: () => void },
@@ -32,7 +32,7 @@ export async function beginCheckout(
 
     clearCart();
     options?.beforeRedirect?.();
-    window.location.href = data.url;
+    globalThis.location.assign(data.url);
   } catch (error) {
     console.error("Checkout error:", error);
     alert("Failed to start checkout. Please try again.");

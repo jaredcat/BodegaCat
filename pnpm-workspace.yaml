@@ -14,6 +14,7 @@ catalog:
   react-dom: ^19.3.0
   husky: ^9.1.7
   lint-staged: ^17.6.0
+  "eslint-config-narwhal": ^2.1.1
 overrides:
   react: "catalog:"
   react-dom: "catalog:"
@@ -34,3 +35,16 @@ minimumReleaseAgeExclude:
   - "@stripe/stripe-js@10.0.0"
   - "stripe@23.0.0"
   - eslint@10.12.0
+  - eslint-config-narwhal@1.0.2 || 2.1.0 || 2.1.1
+  - eslint-plugin-unicorn@77.0.0
+  - "@typescript-eslint/eslint-plugin@8.71.1"
+  - "@typescript-eslint/parser@8.71.1"
+  - "@typescript-eslint/project-service@8.71.1"
+  - "@typescript-eslint/scope-manager@8.71.1"
+  - "@typescript-eslint/tsconfig-utils@8.71.1"
+  - "@typescript-eslint/type-utils@8.71.1"
+  - "@typescript-eslint/types@8.71.1"
+  - "@typescript-eslint/typescript-estree@8.71.1"
+  - "@typescript-eslint/utils@8.71.1"
+  - "@typescript-eslint/visitor-keys@8.71.1"
+  - typescript-eslint@8.71.1

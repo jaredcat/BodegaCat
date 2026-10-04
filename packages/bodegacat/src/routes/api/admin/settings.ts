@@ -1,12 +1,12 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
 import { getCloudflareRuntime } from "@runtime/cloudflare";
+import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async () => {
   const runtime = getCloudflareRuntime();
   const settings = await runtime.settings.get();
-  return new Response(JSON.stringify(settings), {
+  return Response.json(settings, {
     headers: { "Content-Type": "application/json" },
   });
 };
@@ -18,24 +18,34 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(
+      { error: "Invalid JSON" },
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
-  if (typeof body !== "object" || body === null) {
-    return new Response(JSON.stringify({ error: "Body must be an object" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  // `typeof null === "object"` — reject null via falsiness after the typeof check.
+  if (typeof body !== "object" || !body) {
+    return Response.json(
+      { error: "Body must be an object" },
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   const { stripe: _stripe, ...safeSettings } = body as Record<string, unknown>;
 
   await runtime.settings.save(safeSettings);
 
-  return new Response(JSON.stringify({ ok: true }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(
+    { ok: true },
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 };

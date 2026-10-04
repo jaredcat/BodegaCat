@@ -12,29 +12,35 @@ function isLoopbackHostname(hostname: string): boolean {
   );
 }
 
-/** `BODEGACAT_ADMIN_LOCAL_BYPASS=true` + loopback only — for `wrangler dev` on built output. */
+/**
+`BODEGACAT_ADMIN_LOCAL_BYPASS=true` + loopback only — for `wrangler dev` on built output.
+*/
 function isAdminLocalPreviewBypass(
   context: APIContext,
   bypassRaw: string | undefined,
 ): boolean {
-  if (bypassRaw !== "true" && bypassRaw !== "1") {
-    return false;
-  }
-  return isLoopbackHostname(context.url.hostname);
+  return (
+    (bypassRaw === "true" || bypassRaw === "1") &&
+    isLoopbackHostname(context.url.hostname)
+  );
 }
 
 /**
- * Staff-only routes: admin UI, draft preview, and admin APIs.
- * Public APIs (`/api/stripe-webhook`, checkout, etc.) stay unauthenticated here.
- */
+Staff-only routes: admin UI, draft preview, and admin APIs.
+Public APIs (`/api/stripe-webhook`, checkout, etc.) stay unauthenticated here.
+*/
 function requiresStaffAccess(pathname: string): boolean {
-  if (pathname.startsWith("/api/admin")) return true;
-  if (pathname.startsWith("/admin")) return true;
-  if (pathname === "/preview" || pathname.startsWith("/preview/")) return true;
-  return false;
+  return (
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/admin") ||
+    pathname === "/preview" ||
+    pathname.startsWith("/preview/")
+  );
 }
 
-/** Authenticated draft preview catalog (includes unpublished products). */
+/**
+Authenticated draft preview catalog (includes unpublished products).
+*/
 function isPreviewCatalogPath(pathname: string): boolean {
   return (
     pathname === "/preview" ||

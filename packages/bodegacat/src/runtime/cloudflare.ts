@@ -33,9 +33,9 @@ function cloudflareFiles(): FileStore {
       );
     },
     async get(key) {
-      if (!bucket) return null;
+      if (!bucket) return;
       const object = await bucket.get(key);
-      if (!object) return null;
+      if (!object) return;
       return {
         body: object.body,
         contentType: object.httpMetadata?.contentType,
@@ -44,14 +44,16 @@ function cloudflareFiles(): FileStore {
   };
 }
 
-/** The only runtime adapter this pass ships. */
+/**
+The only runtime adapter this pass ships.
+*/
 export function getCloudflareRuntime(): BodegaCatRuntime {
   return {
     settings: cloudflareSettings(),
     files: cloudflareFiles(),
     getAdminIdentity(request) {
       const identity = getCloudflareAdminIdentity(request);
-      return identity ? { email: identity.email } : null;
+      return identity ? { email: identity.email } : undefined;
     },
   };
 }

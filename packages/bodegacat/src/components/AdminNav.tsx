@@ -4,19 +4,19 @@ import MobileMenuButton from "./MobileMenuButton";
 export type AdminNavPage =
   "dashboard" | "products" | "new" | "settings" | "product-types" | "edit";
 
-interface AdminNavProps {
+interface AdminNavProperties {
   readonly currentPage?: AdminNavPage;
   /**
-   * From `getProducts({ includeUnpublished: true })` + `hasUnpublishedDrafts`.
-   * When true, links go to `/preview` (SSR, staff-only) so drafts are visible.
-   */
+  From `getProducts({ includeUnpublished: true })` + `hasUnpublishedDrafts`.
+  When true, links go to `/preview` (SSR, staff-only) so drafts are visible.
+  */
   readonly hasUnpublishedProducts?: boolean;
 }
 
 export default function AdminNav({
   currentPage = "dashboard",
   hasUnpublishedProducts = false,
-}: Readonly<AdminNavProps>) {
+}: Readonly<AdminNavProperties>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const viewStorefrontHref = hasUnpublishedProducts ? "/preview" : "/";
@@ -26,7 +26,7 @@ export default function AdminNav({
     href: string;
     label: string;
     icon: string;
-    page: AdminNavPage | null;
+    page: AdminNavPage | undefined;
   }[] = [
     { href: "/admin", label: "Dashboard", icon: "📊", page: "dashboard" },
     {
@@ -59,21 +59,21 @@ export default function AdminNav({
         ? "View storefront (drafts)"
         : "View storefront",
       icon: "🏪",
-      page: null,
+      page: undefined,
     },
   ];
 
-  const isActive = (page: AdminNavPage | null) =>
-    page !== null && currentPage === page;
+  const isActive = (page: AdminNavPage | undefined) =>
+    page !== undefined && currentPage === page;
 
-  const linkClass = (page: AdminNavPage | null) =>
+  const linkClass = (page: AdminNavPage | undefined) =>
     `inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium ${
       isActive(page)
         ? "border-primary text-gray-900"
         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
     }`;
 
-  const mobileLinkClass = (page: AdminNavPage | null) =>
+  const mobileLinkClass = (page: AdminNavPage | undefined) =>
     `block border-l-4 py-2 pr-4 pl-3 text-base font-medium ${
       isActive(page)
         ? "bg-primary-50 border-primary text-primary-700"
@@ -103,7 +103,7 @@ export default function AdminNav({
                 </a>
               ))}
               {hasUnpublishedProducts && (
-                <a href={viewLiveHref} className={linkClass(null)}>
+                <a href={viewLiveHref} className={linkClass(undefined)}>
                   <span className="mr-2">👤</span>
                   <span>View live (customers)</span>
                 </a>
@@ -142,7 +142,7 @@ export default function AdminNav({
           {hasUnpublishedProducts && (
             <a
               href={viewLiveHref}
-              className={mobileLinkClass(null)}
+              className={mobileLinkClass(undefined)}
               onClick={() => {
                 setIsMobileMenuOpen(false);
               }}

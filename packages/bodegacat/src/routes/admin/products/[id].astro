@@ -17,12 +17,13 @@ if (!id) {
 
 const siteConfig = await loadEffectiveConfig();
 const product = await getProductById(id);
-const catalogAll = await getProducts({ includeUnpublished: true });
-const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 
 if (!product) {
   return Astro.redirect("/admin/products");
 }
+
+const catalogAll = await getProducts({ includeUnpublished: true });
+const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
 ---
 
 <Layout title={`Edit ${product.name}`}>
@@ -149,16 +150,14 @@ if (!product) {
               if (!res.ok) {
                 throw new Error(body.error ?? "Failed to update product");
               }
-              const nowPublished =
+              const isNowPublished =
                 productData.metadata?.publishedToStorefront !== false;
-              if (nowPublished) {
-                window.location.href = "/";
-              } else {
-                window.location.href = `/preview/shop/${product.slug}`;
-              }
+              globalThis.location.assign(
+                isNowPublished ? "/" : `/preview/shop/${product.slug}`,
+              );
             }}
             onCancel={() => {
-              window.location.href = "/admin/products";
+              globalThis.location.assign("/admin/products");
             }}
             client:load
           />

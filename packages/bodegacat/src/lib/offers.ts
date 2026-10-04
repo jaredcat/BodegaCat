@@ -11,7 +11,9 @@ export function findOffer(
   );
 }
 
-/** Cents for a cart line. Prefer the stored Stripe price, then the variation selection. */
+/**
+Cents for a cart line. Prefer the stored Stripe price, then the variation selection.
+*/
 export function unitAmountFor(
   product: Product,
   priceId: string,
@@ -20,6 +22,5 @@ export function unitAmountFor(
   const priced = product.offers.find((offer) => offer.priceId === priceId);
   if (priced) return priced.unitAmount;
   const matched = findOffer(product, selection);
-  if (matched) return matched.unitAmount;
-  return 0;
+  return matched ? matched.unitAmount : 0;
 }

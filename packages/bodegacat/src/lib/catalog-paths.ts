@@ -1,4 +1,6 @@
-/** Authenticated draft preview (SSR). Public catalog uses `/shop` without this prefix. */
+/**
+Authenticated draft preview (SSR). Public catalog uses `/shop` without this prefix.
+*/
 export const PREVIEW_CATALOG_PREFIX = "/preview" as const;
 
 export function publicShopIndexPath(): string {

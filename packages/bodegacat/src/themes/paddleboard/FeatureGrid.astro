@@ -1,21 +1,21 @@
 ---
 /**
- * Paddleboard theme FeatureGrid component.
- *
- * Renders a "Why choose us" style 3-column grid with icon circles.
- * Icon circles use --color-primary or --color-accent depending on accentColor.
- *
- * Usage:
- *   import FeatureGrid from '../themes/paddleboard/FeatureGrid.astro';
- *   <FeatureGrid
- *     heading="Why Choose Us?"
- *     features={[
- *       { title: 'Safety First', description: '...', icon: '🛡️', accentColor: 'primary' },
- *       { title: 'Flexibility',  description: '...', icon: '⚡', accentColor: 'accent' },
- *       { title: 'Memories',     description: '...', icon: '🎥', accentColor: 'primary' },
- *     ]}
- *   />
- */
+Paddleboard theme FeatureGrid component.
+
+Renders a "Why choose us" style 3-column grid with icon circles.
+Icon circles use --color-primary or --color-accent depending on accentColor.
+
+Usage:
+  import FeatureGrid from '../themes/paddleboard/FeatureGrid.astro';
+  <FeatureGrid
+    heading="Why Choose Us?"
+    features={[
+      { title: 'Safety First', description: '...', icon: '🛡️', accentColor: 'primary' },
+      { title: 'Flexibility',  description: '...', icon: '⚡', accentColor: 'accent' },
+      { title: 'Memories',     description: '...', icon: '🎥', accentColor: 'primary' },
+    ]}
+  />
+*/
 
 export interface Feature {
   title: string;
@@ -54,9 +54,9 @@ if (features.length === 1) {
     )}
 
     <div class={`grid grid-cols-1 gap-8 lg:gap-12 ${gridCols}`}>
-      {features.map((feature, i) => {
+      {features.map((feature, index) => {
         const color =
-          feature.accentColor ?? (i % 2 === 0 ? "primary" : "accent");
+          feature.accentColor ?? (index % 2 === 0 ? "primary" : "accent");
         return (
           <article class="text-center">
             <div class={`feature-icon feature-icon-${color}`}>

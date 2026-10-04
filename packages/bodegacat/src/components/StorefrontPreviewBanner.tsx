@@ -2,16 +2,24 @@ import { useState } from "react";
 
 export interface PreviewProductContext {
   readonly id: string;
-  /** True when this product is still a storefront draft (`bodegacat_published` false). */
+  /**
+  True when this product is still a storefront draft (`bodegacat_published` false).
+  */
   readonly draft: boolean;
 }
 
-interface StorefrontPreviewBannerProps {
-  /** Public home (`/`) — opens the prerendered storefront. */
+interface StorefrontPreviewBannerProperties {
+  /**
+  Public home (`/`) — opens the prerendered storefront.
+  */
   readonly exitHref: string;
-  /** When set on `/preview/shop/[slug]`, Publish can promote this draft to live in Stripe. */
-  readonly previewProduct?: PreviewProductContext | null;
-  /** True if any product is unpublished — shows “Back to admin” and draft-oriented copy. */
+  /**
+  When set on `/preview/shop/[slug]`, Publish can promote this draft to live in Stripe.
+  */
+  readonly previewProduct?: PreviewProductContext;
+  /**
+  True if any product is unpublished — shows “Back to admin” and draft-oriented copy.
+  */
   readonly catalogHasDraftProducts: boolean;
 }
 
@@ -19,49 +27,47 @@ export default function StorefrontPreviewBanner({
   exitHref,
   previewProduct,
   catalogHasDraftProducts,
-}: Readonly<StorefrontPreviewBannerProps>) {
-  const [busy, setBusy] = useState<"publish" | "back" | null>(null);
-  const [error, setError] = useState<string | null>(null);
+}: Readonly<StorefrontPreviewBannerProperties>) {
+  const [busy, setBusy] = useState<"publish" | "back" | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const canPublish = previewProduct?.draft === true;
-  const showBackToAdmin = catalogHasDraftProducts;
+  const isShowBackToAdmin = catalogHasDraftProducts;
 
   async function publish() {
     if (!previewProduct?.draft) return;
-    setError(null);
+    setError(undefined);
     setBusy("publish");
     try {
       const res = await fetch("/api/admin/publish-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: previewProduct.id }),
-        credentials: "same-origin",
       });
       if (!res.ok) {
         const body = (await res.json()) as { error?: string };
         throw new Error(body.error ?? "Publish failed");
       }
-      window.location.href = "/";
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Publish failed");
+      globalThis.location.assign("/");
+    } catch (error_: unknown) {
+      setError(error_ instanceof Error ? error_.message : "Publish failed");
     } finally {
-      setBusy(null);
+      setBusy(undefined);
     }
   }
 
   async function backToAdmin() {
-    setError(null);
+    setError(undefined);
     setBusy("back");
     try {
       await fetch("/api/admin/clear-storefront-preview", {
         method: "POST",
-        credentials: "same-origin",
       });
-      window.location.href = "/admin/products";
+      globalThis.location.assign("/admin/products");
     } catch {
       setError("Could not navigate back");
     } finally {
-      setBusy(null);
+      setBusy(undefined);
     }
   }
 
@@ -84,7 +90,7 @@ export default function StorefrontPreviewBanner({
           <button
             type="button"
             className="rounded border border-white/50 bg-white/15 px-3 py-1 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60"
-            disabled={busy !== null}
+            disabled={busy !== undefined}
             onClick={() => {
               void publish();
             }}
@@ -92,11 +98,11 @@ export default function StorefrontPreviewBanner({
             {busy === "publish" ? "Publishing…" : "Publish product"}
           </button>
         )}
-        {showBackToAdmin && (
+        {isShowBackToAdmin && (
           <button
             type="button"
             className="rounded border border-white/50 bg-white/15 px-3 py-1 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60"
-            disabled={busy !== null}
+            disabled={busy !== undefined}
             onClick={() => {
               void backToAdmin();
             }}
@@ -111,7 +117,7 @@ export default function StorefrontPreviewBanner({
           View live site
         </a>
       </div>
-      {error !== null && (
+      {error !== undefined && (
         <p className="w-full text-center text-xs text-red-100 sm:order-last">
           {error}
         </p>

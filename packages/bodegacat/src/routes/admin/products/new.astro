@@ -62,14 +62,14 @@ const hasUnpublishedProducts = hasUnpublishedDrafts(catalogAll);
           }
           const slug = body.product?.metadata?.slug;
           const isDraft = productData.metadata?.publishedToStorefront === false;
-          if (isDraft && typeof slug === "string" && slug.length > 0) {
-            window.location.href = `/preview/shop/${slug}`;
-          } else {
-            window.location.href = "/admin/products";
-          }
+          globalThis.location.assign(
+            isDraft && typeof slug === "string" && slug.length > 0
+              ? `/preview/shop/${slug}`
+              : "/admin/products",
+          );
         }}
         onCancel={() => {
-          window.location.href = "/admin/products";
+          globalThis.location.assign("/admin/products");
         }}
         client:load
       />

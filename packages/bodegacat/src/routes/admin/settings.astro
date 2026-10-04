@@ -31,8 +31,8 @@ const activeBuiltInTheme =
   builtInThemes.find((t) => builtInThemeMap[t] === siteConfig.theme.name) ??
   "bodegacat";
 
-const isCustomTheme = !builtInThemes.some(
-  (t) => builtInThemeMap[t] === siteConfig.theme.name,
+const isCustomTheme = builtInThemes.every(
+  (t) => builtInThemeMap[t] !== siteConfig.theme.name,
 );
 
 const themeChoices = {

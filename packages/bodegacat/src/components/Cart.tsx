@@ -1,6 +1,5 @@
 import { useStore } from "@nanostores/react";
 import { useEffect, type ReactNode } from "react";
-import { beginCheckout } from "../lib/checkout";
 import {
   cartCount,
   cartItems,
@@ -8,8 +7,9 @@ import {
   clearCart,
   closeCart,
   initializeCart,
-  isCartOpen,
+  cartOpen,
 } from "../lib/cartStore";
+import { beginCheckout } from "../lib/checkout";
 import { useIsClient } from "../lib/useIsClient";
 import CartLine from "./CartLine";
 
@@ -60,7 +60,7 @@ export default function Cart() {
   const items = useStore(cartItems);
   const total = useStore(cartTotal);
   const count = useStore(cartCount);
-  const open = useStore(isCartOpen);
+  const isOpen = useStore(cartOpen);
   const isClient = useIsClient();
 
   useEffect(() => {
@@ -68,8 +68,8 @@ export default function Cart() {
   }, []);
 
   // Don't render if cart is not open
-  if (!open) {
-    return null;
+  if (!isOpen) {
+    return;
   }
 
   const cartItemsArray = Object.values(items);

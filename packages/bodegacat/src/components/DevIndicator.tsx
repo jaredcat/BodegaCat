@@ -1,12 +1,14 @@
 import React from "react";
 
-interface DevIndicatorProps {
+interface DevelopmentIndicatorProperties {
   isDevelopment?: boolean;
-  /** Built app + wrangler on localhost with BODEGACAT_ADMIN_LOCAL_BYPASS */
+  /**
+  Built app + wrangler on localhost with BODEGACAT_ADMIN_LOCAL_BYPASS
+  */
   localPreviewBypass?: boolean;
 }
 
-export const DevIndicator: React.FC<DevIndicatorProps> = ({
+export const DevIndicator: React.FC<DevelopmentIndicatorProperties> = ({
   isDevelopment,
   localPreviewBypass,
 }) => {
@@ -21,7 +23,7 @@ export const DevIndicator: React.FC<DevIndicatorProps> = ({
   }
 
   if (!isDevelopment) {
-    return null;
+    return;
   }
 
   return (

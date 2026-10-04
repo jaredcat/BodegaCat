@@ -3,11 +3,13 @@ import { fileURLToPath } from "node:url";
 
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
-import type { AstroIntegration, ViteUserConfig } from "astro";
+import type { AstroIntegration } from "astro";
 import { envField } from "astro/config";
 import type { ProductType } from "./types/product";
 
-/** Directory containing this file (`packages/bodegacat/src`). */
+/**
+Directory containing this file (`packages/bodegacat/src`).
+*/
 const packageSrcDir = path.dirname(fileURLToPath(import.meta.url));
 
 function viteAliases(): Record<string, string> {
@@ -26,24 +28,30 @@ function viteAliases(): Record<string, string> {
 }
 
 export interface ThemeSlotPaths {
-  /** Module Vite can import, such as `./src/shore/Home.astro`. Props: siteConfig, t, copyrightYear, catalogShopHref. */
+  /**
+  Module Vite can import, such as `./src/shore/Home.astro`. Props: siteConfig, t, copyrightYear, catalogShopHref.
+  */
   home?: string;
-  /** Module Vite can import. Props: product, siteConfig. */
+  /**
+  Module Vite can import. Props: product, siteConfig.
+  */
   productExtra?: string;
-  /** Module Vite can import. Props: siteConfig, products, t, productPath. Replaces the catalog page. */
+  /**
+  Module Vite can import. Props: siteConfig, products, t, productPath. Replaces the catalog page.
+  */
   shop?: string;
 }
 
 export interface BodegaCatUserOptions {
   /**
-   * Layouts keyed by theme id. CSS variables still come from the theme object
-   * (site config or Admin → Settings). These files are not stored in KV.
-   */
+  Layouts keyed by theme id. CSS variables still come from the theme object
+  (site config or Admin → Settings). These files are not stored in KV.
+  */
   themeSlots?: Record<string, ThemeSlotPaths>;
   /**
-   * Optional dev override for default product types before KV exists.
-   * Merchants should use **Admin → Product types** (KV); no code is required for normal setup.
-   */
+  Optional dev override for default product types before KV exists.
+  Merchants should use **Admin → Product types** (KV); no code is required for normal setup.
+  */
   productTypes?: ProductType[];
 }
 
@@ -69,10 +77,10 @@ function userProductTypesVitePlugin(productTypes: ProductType[] | undefined) {
 }
 
 async function fetchBuildKvSettings(): Promise<Record<string, unknown>> {
-  const enabled =
+  const isEnabled =
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "true" ||
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "1";
-  if (!enabled) return {};
+  if (!isEnabled) return {};
 
   const token =
     process.env.CLOUDFLARE_API_TOKEN ??
@@ -106,12 +114,11 @@ async function fetchBuildKvSettings(): Promise<Record<string, unknown>> {
       return {};
     }
     const text = await res.text();
-    if (!text) return {};
-    return JSON.parse(text) as Record<string, unknown>;
-  } catch (e) {
+    return text ? (JSON.parse(text) as Record<string, unknown>) : {};
+  } catch (error) {
     console.warn(
       "[bodegacat] build KV fetch error — continuing without KV settings",
-      e,
+      error,
     );
     return {};
   }
@@ -124,7 +131,7 @@ function getBuildKvMeta(): {
   hasNamespaceId: boolean;
   configured: boolean;
 } {
-  const enabled =
+  const isEnabled =
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "true" ||
     process.env.BODEGACAT_BUILD_FETCH_KV_SETTINGS === "1";
   const hasToken = Boolean(
@@ -140,11 +147,11 @@ function getBuildKvMeta(): {
     process.env.SETTINGS_KV_NAMESPACE_ID,
   );
   return {
-    enabled,
+    enabled: isEnabled,
     hasToken,
     hasAccountId,
     hasNamespaceId,
-    configured: enabled && hasToken && hasAccountId && hasNamespaceId,
+    configured: isEnabled && hasToken && hasAccountId && hasNamespaceId,
   };
 }
 
@@ -188,7 +195,7 @@ function themeSlotsVitePlugin(
 
   const imports: string[] = [];
   const body: string[] = [];
-  entries.forEach(([id, slots], index) => {
+  for (const [index, [id, slots]] of entries.entries()) {
     const fields: string[] = [];
     if (slots.home) {
       const local = `home_${String(index)}`;
@@ -212,7 +219,7 @@ function themeSlotsVitePlugin(
       fields.push(`shop: ${local}`);
     }
     body.push(`${JSON.stringify(id)}: { ${fields.join(", ")} }`);
-  });
+  }
 
   const source = `${imports.join("\n")}
 export const slots = {${body.join(",")}};
@@ -230,8 +237,7 @@ export const slots = {${body.join(",")}};
 }
 
 function resolveSlotSpecifier(root: string, specifier: string): string {
-  if (specifier.startsWith(".")) return path.resolve(root, specifier);
-  return specifier;
+  return specifier.startsWith(".") ? path.resolve(root, specifier) : specifier;
 }
 
 function routeEntry(pathFromIntegration: string): URL {
@@ -275,7 +281,7 @@ export default function bodegacat(
               ),
               buildKvSettingsVitePlugin(),
               tailwindcss(),
-            ] as unknown as NonNullable<ViteUserConfig["plugins"]>,
+            ],
             define: {
               global: "globalThis",
             },
@@ -331,19 +337,19 @@ export default function bodegacat(
                 optional: true,
               }),
               /**
-               * When `true` or `1`, Stripe product/price webhook events call `BUILD_HOOK_URL`.
-               * Omit or set to `false` to avoid a production deploy on every Stripe save — use
-               * **Deploy live site** in admin when ready instead.
-               */
+              When `true` or `1`, Stripe product/price webhook events call `BUILD_HOOK_URL`.
+              Omit or set to `false` to avoid a production deploy on every Stripe save — use
+              **Deploy live site** in admin when ready instead.
+              */
               STRIPE_WEBHOOK_AUTO_DEPLOY: envField.string({
                 context: "server",
                 access: "secret",
                 optional: true,
               }),
               /**
-               * When `true` or `1`, allow `/admin` without Cloudflare Access **only** on loopback
-               * (localhost / 127.0.0.1). For `wrangler dev` / built preview. Never set in production.
-               */
+              When `true` or `1`, allow `/admin` without Cloudflare Access **only** on loopback
+              (localhost / 127.0.0.1). For `wrangler dev` / built preview. Never set in production.
+              */
               BODEGACAT_ADMIN_LOCAL_BYPASS: envField.string({
                 context: "server",
                 access: "secret",

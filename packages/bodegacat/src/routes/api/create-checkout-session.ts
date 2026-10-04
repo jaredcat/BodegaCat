@@ -10,10 +10,13 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
-      return new Response(JSON.stringify({ error: "Cart is empty" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(
+        { error: "Cart is empty" },
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     const lines = body.items.map((item) => ({
@@ -22,11 +25,11 @@ export const POST: APIRoute = async ({ request }) => {
     }));
 
     if (lines.some((line) => line.priceId === "")) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           error:
             "An item in the cart has no price. Remove it and add it again.",
-        }),
+        },
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -36,8 +39,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const session = await createCheckoutSession(lines, request.url);
     if (!session.url) {
-      return new Response(
-        JSON.stringify({ error: "Failed to create checkout session" }),
+      return Response.json(
+        { error: "Failed to create checkout session" },
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
@@ -45,10 +48,13 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(
+      { url: session.url },
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Error creating checkout session:", error);
     const message =
@@ -60,9 +66,12 @@ export const POST: APIRoute = async ({ request }) => {
       message.startsWith("Quantity")
         ? 400
         : 500;
-    return new Response(JSON.stringify({ error: message }), {
-      status,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(
+      { error: message },
+      {
+        status,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 };

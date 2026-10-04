@@ -1,13 +1,13 @@
 /**
- * Bodega Cat built-in themes.
- *
- * To create a custom theme, implement the BodegaCatTheme interface:
- *   import type { BodegaCatTheme } from 'bodegacat/themes';
- *
- * Simple themes are a single .ts file with variables + optional css.
- * A theme that replaces a layout passes slot files to bodegacat({ themeSlots }),
- * keyed by theme id. See docs/THEMES.md.
- */
+Bodega Cat built-in themes.
+
+To create a custom theme, implement the BodegaCatTheme interface:
+  import type { BodegaCatTheme } from 'bodegacat/themes';
+
+Simple themes are a single .ts file with variables + optional css.
+A theme that replaces a layout passes slot files to bodegacat({ themeSlots }),
+keyed by theme id. See docs/THEMES.md.
+*/
 export type {
   BodegaCatTheme,
   ThemeContent,

@@ -15,7 +15,7 @@ export function cartLineAmount(item: CartItem): number {
 
 // Cart state using map for better performance
 export const cartItems = map<Record<string, CartItem>>({});
-export const isCartOpen = atom(false);
+export const cartOpen = atom(false);
 
 // Computed values
 export const cartCount = computed(cartItems, (items) =>
@@ -54,7 +54,7 @@ export function addToCart(
     });
   }
 
-  isCartOpen.set(true);
+  cartOpen.set(true);
 }
 
 export function removeFromCart(itemKey: string) {
@@ -72,11 +72,12 @@ export function updateQuantity(itemKey: string, quantity: number) {
   }
 
   const currentItems = cartItems.get();
-
-  if (Object.hasOwn(currentItems, itemKey)) {
-    const existingItem = currentItems[itemKey];
-    cartItems.setKey(itemKey, { ...existingItem, quantity });
+  if (!Object.hasOwn(currentItems, itemKey)) {
+    return;
   }
+
+  const existingItem = currentItems[itemKey];
+  cartItems.setKey(itemKey, { ...existingItem, quantity });
 }
 
 export function clearCart() {
@@ -85,25 +86,25 @@ export function clearCart() {
 }
 
 export function toggleCart() {
-  const currentState = isCartOpen.get();
-  console.log("Toggling cart from:", currentState, "to:", !currentState);
-  isCartOpen.set(!currentState);
+  const isCurrentlyOpen = cartOpen.get();
+  console.log("Toggling cart from:", isCurrentlyOpen, "to:", !isCurrentlyOpen);
+  cartOpen.set(!isCurrentlyOpen);
 }
 
 export function closeCart() {
   console.log("Closing cart");
-  isCartOpen.set(false);
+  cartOpen.set(false);
 }
 
 // Initialize cart from localStorage only on client side
-let isInitialized = false;
+const cartInitialization = { done: false };
 
 export function initializeCart() {
-  if (isInitialized || typeof window === "undefined") {
+  if (typeof window === "undefined" || cartInitialization.done) {
     return;
   }
 
-  isInitialized = true;
+  cartInitialization.done = true;
 
   // Load cart from localStorage on client side
   const savedCart = localStorage.getItem("bodegacat-cart");
@@ -124,7 +125,7 @@ export function initializeCart() {
   });
 
   // Debug cart state changes
-  isCartOpen.subscribe((open) => {
+  cartOpen.subscribe((open) => {
     console.log("Cart open state changed to:", open);
   });
 }

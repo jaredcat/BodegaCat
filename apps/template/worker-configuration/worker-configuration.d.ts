@@ -312,14 +312,14 @@ interface ServiceWorkerGlobalScope extends WorkerGlobalScope {
     msDelay?: number,
     ...args: Args
   ): number;
-  clearTimeout(timeoutId: number | null): void;
+  clearTimeout(timeoutId: number | undefined): void;
   setInterval(callback: (...args: any[]) => void, msDelay?: number): number;
   setInterval<Args extends any[]>(
     callback: (...args: Args) => void,
     msDelay?: number,
     ...args: Args
   ): number;
-  clearInterval(timeoutId: number | null): void;
+  clearInterval(timeoutId: number | undefined): void;
   queueMicrotask(task: Function): void;
   structuredClone<T>(value: T, options?: StructuredSerializeOptions): T;
   reportError(error: any): void;
@@ -429,7 +429,7 @@ declare function setTimeout<Args extends any[]>(
   ...args: Args
 ): number;
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/clearTimeout) */
-declare function clearTimeout(timeoutId: number | null): void;
+declare function clearTimeout(timeoutId: number | undefined): void;
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/setInterval) */
 declare function setInterval(
   callback: (...args: any[]) => void,
@@ -442,7 +442,7 @@ declare function setInterval<Args extends any[]>(
   ...args: Args
 ): number;
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/clearInterval) */
-declare function clearInterval(timeoutId: number | null): void;
+declare function clearInterval(timeoutId: number | undefined): void;
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/queueMicrotask) */
 declare function queueMicrotask(task: Function): void;
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/structuredClone) */
@@ -640,10 +640,10 @@ interface DurableObjectState<Props = unknown> {
   acceptWebSocket(ws: WebSocket, tags?: string[]): void;
   getWebSockets(tag?: string): WebSocket[];
   setWebSocketAutoResponse(maybeReqResp?: WebSocketRequestResponsePair): void;
-  getWebSocketAutoResponse(): WebSocketRequestResponsePair | null;
-  getWebSocketAutoResponseTimestamp(ws: WebSocket): Date | null;
+  getWebSocketAutoResponse(): WebSocketRequestResponsePair | undefined;
+  getWebSocketAutoResponseTimestamp(ws: WebSocket): Date | undefined;
   setHibernatableWebSocketEventTimeout(timeoutMs?: number): void;
-  getHibernatableWebSocketEventTimeout(): number | null;
+  getHibernatableWebSocketEventTimeout(): number | undefined;
   getTags(ws: WebSocket): string[];
   abort(reason?: string): void;
 }
@@ -671,7 +671,7 @@ interface DurableObjectTransaction {
   delete(key: string, options?: DurableObjectPutOptions): Promise<boolean>;
   delete(keys: string[], options?: DurableObjectPutOptions): Promise<number>;
   rollback(): void;
-  getAlarm(options?: DurableObjectGetAlarmOptions): Promise<number | null>;
+  getAlarm(options?: DurableObjectGetAlarmOptions): Promise<number | undefined>;
   setAlarm(
     scheduledTime: number | Date,
     options?: DurableObjectSetAlarmOptions,
@@ -705,7 +705,7 @@ interface DurableObjectStorage {
   transaction<T>(
     closure: (txn: DurableObjectTransaction) => Promise<T>,
   ): Promise<T>;
-  getAlarm(options?: DurableObjectGetAlarmOptions): Promise<number | null>;
+  getAlarm(options?: DurableObjectGetAlarmOptions): Promise<number | undefined>;
   setAlarm(
     scheduledTime: number | Date,
     options?: DurableObjectSetAlarmOptions,
@@ -754,9 +754,9 @@ interface AnalyticsEngineDataset {
   writeDataPoint(event?: AnalyticsEngineDataPoint): void;
 }
 interface AnalyticsEngineDataPoint {
-  indexes?: ((ArrayBuffer | string) | null)[];
+  indexes?: ((ArrayBuffer | string) | undefined)[];
   doubles?: number[];
-  blobs?: ((ArrayBuffer | string) | null)[];
+  blobs?: ((ArrayBuffer | string) | undefined)[];
 }
 /**
  * The **`Event`** interface represents an event which takes place on an `EventTarget`.
@@ -1000,9 +1000,9 @@ declare abstract class AbortSignal extends EventTarget {
    */
   get reason(): any;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/AbortSignal/abort_event) */
-  get onabort(): any | null;
+  get onabort(): any | undefined;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/AbortSignal/abort_event) */
-  set onabort(value: any | null);
+  set onabort(value: any | undefined);
   /**
    * The **`throwIfAborted()`** method throws the signal's abort AbortSignal.reason if the signal has been aborted; otherwise it does nothing.
    *
@@ -1297,7 +1297,7 @@ declare abstract class SubtleCrypto {
   deriveBits(
     algorithm: string | SubtleCryptoDeriveKeyAlgorithm,
     baseKey: CryptoKey,
-    length?: number | null,
+    length?: number | undefined,
   ): Promise<ArrayBuffer>;
   /**
    * The **`importKey()`** method of the SubtleCrypto interface imports a key: that is, it takes as input a key in an external, portable format and gives you a CryptoKey object that you can use in the Web Crypto API.
@@ -1605,7 +1605,7 @@ declare class MessageEvent extends Event {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessageEvent/origin)
    */
-  readonly origin: string | null;
+  readonly origin: string | undefined;
   /**
    * The **`lastEventId`** read-only property of the unique ID for the event.
    *
@@ -1617,7 +1617,7 @@ declare class MessageEvent extends Event {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessageEvent/source)
    */
-  readonly source: MessagePort | null;
+  readonly source: MessagePort | undefined;
   /**
    * The **`ports`** read-only property of the containing all MessagePort objects sent with the message, in order.
    *
@@ -1683,7 +1683,7 @@ declare class FormData {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/get)
    */
-  get(name: string): (File | string) | null;
+  get(name: string): (File | string) | undefined;
   /**
    * The **`getAll()`** method of the FormData interface returns all the values associated with a given key from within a `FormData` object.
    *
@@ -1755,16 +1755,16 @@ interface HTMLRewriterDocumentContentHandlers {
   end?(end: DocumentEnd): void | Promise<void>;
 }
 interface Doctype {
-  readonly name: string | null;
-  readonly publicId: string | null;
-  readonly systemId: string | null;
+  readonly name: string | undefined;
+  readonly publicId: string | undefined;
+  readonly systemId: string | undefined;
 }
 interface Element {
   tagName: string;
   readonly attributes: IterableIterator<string[]>;
   readonly removed: boolean;
   readonly namespaceURI: string;
-  getAttribute(name: string): string | null;
+  getAttribute(name: string): string | undefined;
   hasAttribute(name: string): boolean;
   setAttribute(name: string, value: string): Element;
   removeAttribute(name: string): Element;
@@ -1871,7 +1871,7 @@ declare class Headers {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Headers/get)
    */
-  get(name: string): string | null;
+  get(name: string): string | undefined;
   getAll(name: string): string[];
   /**
    * The **`getSetCookie()`** method of the Headers interface returns an array containing the values of all Set-Cookie headers associated with a response.
@@ -1927,7 +1927,7 @@ type BodyInit =
   | AsyncIterable<ArrayBuffer | ArrayBufferView>;
 declare abstract class Body {
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request/body) */
-  get body(): ReadableStream | null;
+  get body(): ReadableStream | undefined;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request/bodyUsed) */
   get bodyUsed(): boolean;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request/arrayBuffer) */
@@ -1950,7 +1950,7 @@ declare abstract class Body {
  */
 declare var Response: {
   prototype: Response;
-  new (body?: BodyInit | null, init?: ResponseInit): Response;
+  new (body?: BodyInit | undefined, init?: ResponseInit): Response;
   error(): Response;
   redirect(url: string, status?: number): Response;
   json(any: any, maybeInit?: ResponseInit | Response): Response;
@@ -2003,7 +2003,7 @@ interface Response extends Body {
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response/url)
    */
   url: string;
-  webSocket: WebSocket | null;
+  webSocket: WebSocket | undefined;
   cf: any | undefined;
   /**
    * The **`type`** read-only property of the Response interface contains the type of the response.
@@ -2017,7 +2017,7 @@ interface ResponseInit {
   statusText?: string;
   headers?: HeadersInit;
   cf?: any;
-  webSocket?: WebSocket | null;
+  webSocket?: WebSocket | undefined;
   encodeBody?: "automatic" | "manual";
 }
 type RequestInfo<CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>> =
@@ -2073,7 +2073,7 @@ interface Request<
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request/redirect)
    */
   redirect: string;
-  fetcher: Fetcher | null;
+  fetcher: Fetcher | undefined;
   /**
    * The read-only **`signal`** property of the Request interface returns the AbortSignal associated with the request.
    *
@@ -2105,18 +2105,18 @@ interface RequestInit<Cf = CfProperties> {
   method?: string;
   /* A Headers object, an object literal, or an array of two-item arrays to set request's headers. */
   headers?: HeadersInit;
-  /* A BodyInit object or null to set request's body. */
-  body?: BodyInit | null;
+  /* A BodyInit object or undefined to set request's body. */
+  body?: BodyInit | undefined;
   /* A string indicating whether request follows redirects, results in an error upon encountering a redirect, or returns the redirect (in an opaque fashion). Sets request's redirect. */
   redirect?: string;
-  fetcher?: Fetcher | null;
+  fetcher?: Fetcher | undefined;
   cf?: Cf;
   /* A string indicating how the request will interact with the browser's cache to set request's cache. */
   cache?: "no-store" | "no-cache";
   /* A cryptographic hash of the resource to be fetched by request. Sets request's integrity. */
   integrity?: string;
   /* An AbortSignal to set request's signal. */
-  signal?: AbortSignal | null;
+  signal?: AbortSignal | undefined;
   encodeResponseBody?: "automatic" | "manual";
 }
 type Service<
@@ -2151,58 +2151,58 @@ type KVNamespaceListResult<Metadata, Key extends string = string> =
       list_complete: false;
       keys: KVNamespaceListKey<Metadata, Key>[];
       cursor: string;
-      cacheStatus: string | null;
+      cacheStatus: string | undefined;
     }
   | {
       list_complete: true;
       keys: KVNamespaceListKey<Metadata, Key>[];
-      cacheStatus: string | null;
+      cacheStatus: string | undefined;
     };
 interface KVNamespace<Key extends string = string> {
   get(
     key: Key,
     options?: Partial<KVNamespaceGetOptions<undefined>>,
-  ): Promise<string | null>;
-  get(key: Key, type: "text"): Promise<string | null>;
+  ): Promise<string | undefined>;
+  get(key: Key, type: "text"): Promise<string | undefined>;
   get<ExpectedValue = unknown>(
     key: Key,
     type: "json",
-  ): Promise<ExpectedValue | null>;
-  get(key: Key, type: "arrayBuffer"): Promise<ArrayBuffer | null>;
-  get(key: Key, type: "stream"): Promise<ReadableStream | null>;
+  ): Promise<ExpectedValue | undefined>;
+  get(key: Key, type: "arrayBuffer"): Promise<ArrayBuffer | undefined>;
+  get(key: Key, type: "stream"): Promise<ReadableStream | undefined>;
   get(
     key: Key,
     options?: KVNamespaceGetOptions<"text">,
-  ): Promise<string | null>;
+  ): Promise<string | undefined>;
   get<ExpectedValue = unknown>(
     key: Key,
     options?: KVNamespaceGetOptions<"json">,
-  ): Promise<ExpectedValue | null>;
+  ): Promise<ExpectedValue | undefined>;
   get(
     key: Key,
     options?: KVNamespaceGetOptions<"arrayBuffer">,
-  ): Promise<ArrayBuffer | null>;
+  ): Promise<ArrayBuffer | undefined>;
   get(
     key: Key,
     options?: KVNamespaceGetOptions<"stream">,
-  ): Promise<ReadableStream | null>;
-  get(key: Array<Key>, type: "text"): Promise<Map<string, string | null>>;
+  ): Promise<ReadableStream | undefined>;
+  get(key: Array<Key>, type: "text"): Promise<Map<string, string | undefined>>;
   get<ExpectedValue = unknown>(
     key: Array<Key>,
     type: "json",
-  ): Promise<Map<string, ExpectedValue | null>>;
+  ): Promise<Map<string, ExpectedValue | undefined>>;
   get(
     key: Array<Key>,
     options?: Partial<KVNamespaceGetOptions<undefined>>,
-  ): Promise<Map<string, string | null>>;
+  ): Promise<Map<string, string | undefined>>;
   get(
     key: Array<Key>,
     options?: KVNamespaceGetOptions<"text">,
-  ): Promise<Map<string, string | null>>;
+  ): Promise<Map<string, string | undefined>>;
   get<ExpectedValue = unknown>(
     key: Array<Key>,
     options?: KVNamespaceGetOptions<"json">,
-  ): Promise<Map<string, ExpectedValue | null>>;
+  ): Promise<Map<string, ExpectedValue | undefined>>;
   list<Metadata = unknown>(
     options?: KVNamespaceListOptions,
   ): Promise<KVNamespaceListResult<Metadata, Key>>;
@@ -2275,8 +2275,8 @@ interface KVNamespace<Key extends string = string> {
 }
 interface KVNamespaceListOptions {
   limit?: number;
-  prefix?: string | null;
-  cursor?: string | null;
+  prefix?: string | undefined;
+  cursor?: string | undefined;
 }
 interface KVNamespaceGetOptions<Type> {
   type: Type;
@@ -2285,12 +2285,12 @@ interface KVNamespaceGetOptions<Type> {
 interface KVNamespacePutOptions {
   expiration?: number;
   expirationTtl?: number;
-  metadata?: any | null;
+  metadata?: any | undefined;
 }
 interface KVNamespaceGetWithMetadataResult<Value, Metadata> {
-  value: Value | null;
-  metadata: Metadata | null;
-  cacheStatus: string | null;
+  value: Value | undefined;
+  metadata: Metadata | undefined;
+  cacheStatus: string | undefined;
 }
 type QueueContentType = "text" | "bytes" | "json" | "v8";
 interface Queue<Body = unknown> {
@@ -2351,26 +2351,26 @@ interface R2ListOptions {
   include?: ("httpMetadata" | "customMetadata")[];
 }
 declare abstract class R2Bucket {
-  head(key: string): Promise<R2Object | null>;
+  head(key: string): Promise<R2Object | undefined>;
   get(
     key: string,
     options: R2GetOptions & {
       onlyIf: R2Conditional | Headers;
     },
-  ): Promise<R2ObjectBody | R2Object | null>;
-  get(key: string, options?: R2GetOptions): Promise<R2ObjectBody | null>;
+  ): Promise<R2ObjectBody | R2Object | undefined>;
+  get(key: string, options?: R2GetOptions): Promise<R2ObjectBody | undefined>;
   put(
     key: string,
     value:
-      ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob,
+      ReadableStream | ArrayBuffer | ArrayBufferView | string | undefined | Blob,
     options?: R2PutOptions & {
       onlyIf: R2Conditional | Headers;
     },
-  ): Promise<R2Object | null>;
+  ): Promise<R2Object | undefined>;
   put(
     key: string,
     value:
-      ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob,
+      ReadableStream | ArrayBuffer | ArrayBufferView | string | undefined | Blob,
     options?: R2PutOptions,
   ): Promise<R2Object>;
   createMultipartUpload(
@@ -2737,7 +2737,7 @@ declare abstract class ReadableStreamBYOBRequest {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReadableStreamBYOBRequest/view)
    */
-  get view(): Uint8Array | null;
+  get view(): Uint8Array | undefined;
   /**
    * The **`respond()`** method of the ReadableStreamBYOBRequest interface is used to signal to the associated readable byte stream that the specified number of bytes were written into the ReadableStreamBYOBRequest.view.
    *
@@ -2750,7 +2750,7 @@ declare abstract class ReadableStreamBYOBRequest {
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReadableStreamBYOBRequest/respondWithNewView)
    */
   respondWithNewView(view: ArrayBuffer | ArrayBufferView): void;
-  get atLeast(): number | null;
+  get atLeast(): number | undefined;
 }
 /**
  * The **`ReadableStreamDefaultController`** interface of the Streams API represents a controller allowing control of a ReadableStream's state and internal queue.
@@ -2763,7 +2763,7 @@ declare abstract class ReadableStreamDefaultController<R = any> {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReadableStreamDefaultController/desiredSize)
    */
-  get desiredSize(): number | null;
+  get desiredSize(): number | undefined;
   /**
    * The **`close()`** method of the ReadableStreamDefaultController interface closes the associated stream.
    *
@@ -2790,17 +2790,17 @@ declare abstract class ReadableStreamDefaultController<R = any> {
  */
 declare abstract class ReadableByteStreamController {
   /**
-   * The **`byobRequest`** read-only property of the ReadableByteStreamController interface returns the current BYOB request, or `null` if there are no pending requests.
+   * The **`byobRequest`** read-only property of the ReadableByteStreamController interface returns the current BYOB request, or `undefined` if there are no pending requests.
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReadableByteStreamController/byobRequest)
    */
-  get byobRequest(): ReadableStreamBYOBRequest | null;
+  get byobRequest(): ReadableStreamBYOBRequest | undefined;
   /**
    * The **`desiredSize`** read-only property of the ReadableByteStreamController interface returns the number of bytes required to fill the stream's internal queue to its 'desired size'.
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/ReadableByteStreamController/desiredSize)
    */
-  get desiredSize(): number | null;
+  get desiredSize(): number | undefined;
   /**
    * The **`close()`** method of the ReadableByteStreamController interface closes the associated stream.
    *
@@ -2850,7 +2850,7 @@ declare abstract class TransformStreamDefaultController<O = any> {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/TransformStreamDefaultController/desiredSize)
    */
-  get desiredSize(): number | null;
+  get desiredSize(): number | undefined;
   /**
    * The **`enqueue()`** method of the TransformStreamDefaultController interface enqueues the given chunk in the readable side of the stream.
    *
@@ -2938,7 +2938,7 @@ declare class WritableStreamDefaultWriter<W = any> {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WritableStreamDefaultWriter/desiredSize)
    */
-  get desiredSize(): number | null;
+  get desiredSize(): number | undefined;
   /**
    * The **`abort()`** method of the the producer can no longer successfully write to the stream and it is to be immediately moved to an error state, with any queued writes discarded.
    *
@@ -3117,12 +3117,12 @@ interface TraceItem {
         | TraceItemCustomEventInfo
         | TraceItemHibernatableWebSocketEventInfo
       )
-    | null;
-  readonly eventTimestamp: number | null;
+    | undefined;
+  readonly eventTimestamp: number | undefined;
   readonly logs: TraceLog[];
   readonly exceptions: TraceException[];
   readonly diagnosticsChannelEvents: TraceDiagnosticChannelEvent[];
-  readonly scriptName: string | null;
+  readonly scriptName: string | undefined;
   readonly entrypoint?: string;
   readonly scriptVersion?: ScriptVersion;
   readonly dispatchNamespace?: string;
@@ -3155,7 +3155,7 @@ interface TraceItemTailEventInfo {
   readonly consumedEvents: TraceItemTailEventInfoTailItem[];
 }
 interface TraceItemTailEventInfoTailItem {
-  readonly scriptName: string | null;
+  readonly scriptName: string | undefined;
 }
 interface TraceItemFetchEventInfo {
   readonly response?: TraceItemFetchEventInfoResponse;
@@ -3372,7 +3372,7 @@ declare class URL {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/URL/parse_static)
    */
-  static parse(url: string, base?: string): URL | null;
+  static parse(url: string, base?: string): URL | undefined;
   /**
    * The **`createObjectURL()`** static method of the URL interface creates a string containing a URL representing the object given in the parameter.
    *
@@ -3418,7 +3418,7 @@ declare class URLSearchParams {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/URLSearchParams/get)
    */
-  get(name: string): string | null;
+  get(name: string): string | undefined;
   /**
    * The **`getAll()`** method of the URLSearchParams interface returns all the values associated with a given search parameter as an array.
    *
@@ -3481,7 +3481,7 @@ declare class URLPattern {
   exec(
     input?: string | URLPatternInit,
     baseURL?: string,
-  ): URLPatternResult | null;
+  ): URLPatternResult | undefined;
 }
 interface URLPatternInit {
   protocol?: string;
@@ -3586,7 +3586,7 @@ interface WebSocket extends EventTarget<WebSocketEventMap> {
    */
   close(code?: number, reason?: string): void;
   serializeAttachment(attachment: any): void;
-  deserializeAttachment(): any | null;
+  deserializeAttachment(): any | undefined;
   /**
    * The **`WebSocket.readyState`** read-only property returns the current state of the WebSocket connection.
    *
@@ -3598,19 +3598,19 @@ interface WebSocket extends EventTarget<WebSocketEventMap> {
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebSocket/url)
    */
-  url: string | null;
+  url: string | undefined;
   /**
    * The **`WebSocket.protocol`** read-only property returns the name of the sub-protocol the server selected; this will be one of the strings specified in the `protocols` parameter when creating the WebSocket object, or the empty string if no connection is established.
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebSocket/protocol)
    */
-  protocol: string | null;
+  protocol: string | undefined;
   /**
    * The **`WebSocket.extensions`** read-only property returns the extensions selected by the server.
    *
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebSocket/extensions)
    */
-  extensions: string | null;
+  extensions: string | undefined;
   /**
    * The **`WebSocket.binaryType`** property controls the type of binary data being received over the WebSocket connection.
    *
@@ -3644,7 +3644,7 @@ interface SqlStorage {
   Statement: typeof SqlStorageStatement;
 }
 declare abstract class SqlStorageStatement {}
-type SqlStorageValue = ArrayBuffer | string | number | null;
+type SqlStorageValue = ArrayBuffer | string | number | undefined;
 declare abstract class SqlStorageCursor<
   T extends Record<string, SqlStorageValue>,
 > {
@@ -3723,17 +3723,17 @@ declare class EventSource extends EventTarget {
    */
   get readyState(): number;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/open_event) */
-  get onopen(): any | null;
+  get onopen(): any | undefined;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/open_event) */
-  set onopen(value: any | null);
+  set onopen(value: any | undefined);
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/message_event) */
-  get onmessage(): any | null;
+  get onmessage(): any | undefined;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/message_event) */
-  set onmessage(value: any | null);
+  set onmessage(value: any | undefined);
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/error_event) */
-  get onerror(): any | null;
+  get onerror(): any | undefined;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventSource/error_event) */
-  set onerror(value: any | null);
+  set onerror(value: any | undefined);
   static readonly CONNECTING: number;
   static readonly OPEN: number;
   static readonly CLOSED: number;
@@ -3787,8 +3787,8 @@ declare abstract class MessagePort extends EventTarget {
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/MessagePort/start)
    */
   start(): void;
-  get onmessage(): any | null;
-  set onmessage(value: any | null);
+  get onmessage(): any | undefined;
+  set onmessage(value: any | undefined);
 }
 /**
  * The **`MessageChannel`** interface of the Channel Messaging API allows us to create a new message channel and send data through it via its two MessagePort properties.
@@ -3862,7 +3862,7 @@ interface WorkerStubEntrypointOptions {
 }
 interface WorkerLoader {
   get(
-    name: string | null,
+    name: string | undefined,
     getCode: () => WorkerLoaderWorkerCode | Promise<WorkerLoaderWorkerCode>,
   ): WorkerStub;
   load(code: WorkerLoaderWorkerCode): WorkerStub;
@@ -3883,7 +3883,7 @@ interface WorkerLoaderWorkerCode {
   mainModule: string;
   modules: Record<string, WorkerLoaderModule | string>;
   env?: any;
-  globalOutbound?: Fetcher | null;
+  globalOutbound?: Fetcher | undefined;
   tails?: Fetcher[];
   streamingTails?: Fetcher[];
 }
@@ -3913,7 +3913,7 @@ interface AiSearchNameNotSetError extends Error {}
 type AiSearchSearchRequest = {
   messages: Array<{
     role: "system" | "developer" | "user" | "assistant" | "tool";
-    content: string | null;
+    content: string | undefined;
   }>;
   ai_search_options?: {
     retrieval?: {
@@ -3947,7 +3947,7 @@ type AiSearchSearchRequest = {
 type AiSearchChatCompletionsRequest = {
   messages: Array<{
     role: "system" | "developer" | "user" | "assistant" | "tool";
-    content: string | null;
+    content: string | undefined;
   }>;
   model?: string;
   stream?: boolean;
@@ -4210,7 +4210,7 @@ declare abstract class BaseAiTextEmbeddings {
 }
 type RoleScopedChatInput = {
   role:
-    "user" | "assistant" | "system" | "tool" | (string & NonNullable<unknown>);
+    "user" | "assistant" | "system" | "tool" | (string & Nonundefinedable<unknown>);
   content: string;
   name?: string;
 };
@@ -4218,7 +4218,7 @@ type AiTextGenerationToolLegacyInput = {
   name: string;
   description: string;
   parameters?: {
-    type: "object" | (string & NonNullable<unknown>);
+    type: "object" | (string & Nonundefinedable<unknown>);
     properties: {
       [key: string]: {
         type: string;
@@ -4229,12 +4229,12 @@ type AiTextGenerationToolLegacyInput = {
   };
 };
 type AiTextGenerationToolInput = {
-  type: "function" | (string & NonNullable<unknown>);
+  type: "function" | (string & Nonundefinedable<unknown>);
   function: {
     name: string;
     description: string;
     parameters?: {
-      type: "object" | (string & NonNullable<unknown>);
+      type: "object" | (string & Nonundefinedable<unknown>);
       properties: {
         [key: string]: {
           type: string;
@@ -4270,7 +4270,7 @@ type AiTextGenerationInput = {
   tools?:
     | AiTextGenerationToolInput[]
     | AiTextGenerationToolLegacyInput[]
-    | (object & NonNullable<unknown>);
+    | (object & Nonundefinedable<unknown>);
   functions?: AiTextGenerationFunctionsInput[];
 };
 type AiTextGenerationToolLegacyOutput = {
@@ -4354,50 +4354,50 @@ declare abstract class BaseAiTranslation {
  * We plan to add those incrementally as model + platform capabilities evolve.
  */
 type ResponsesInput = {
-  background?: boolean | null;
-  conversation?: string | ResponseConversationParam | null;
-  include?: Array<ResponseIncludable> | null;
+  background?: boolean | undefined;
+  conversation?: string | ResponseConversationParam | undefined;
+  include?: Array<ResponseIncludable> | undefined;
   input?: string | ResponseInput;
-  instructions?: string | null;
-  max_output_tokens?: number | null;
-  parallel_tool_calls?: boolean | null;
-  previous_response_id?: string | null;
+  instructions?: string | undefined;
+  max_output_tokens?: number | undefined;
+  parallel_tool_calls?: boolean | undefined;
+  previous_response_id?: string | undefined;
   prompt_cache_key?: string;
-  reasoning?: Reasoning | null;
+  reasoning?: Reasoning | undefined;
   safety_identifier?: string;
-  service_tier?: "auto" | "default" | "flex" | "scale" | "priority" | null;
-  stream?: boolean | null;
-  stream_options?: StreamOptions | null;
-  temperature?: number | null;
+  service_tier?: "auto" | "default" | "flex" | "scale" | "priority" | undefined;
+  stream?: boolean | undefined;
+  stream_options?: StreamOptions | undefined;
+  temperature?: number | undefined;
   text?: ResponseTextConfig;
   tool_choice?: ToolChoiceOptions | ToolChoiceFunction;
   tools?: Array<Tool>;
-  top_p?: number | null;
-  truncation?: "auto" | "disabled" | null;
+  top_p?: number | undefined;
+  truncation?: "auto" | "disabled" | undefined;
 };
 type ResponsesOutput = {
   id?: string;
   created_at?: number;
   output_text?: string;
-  error?: ResponseError | null;
-  incomplete_details?: ResponseIncompleteDetails | null;
-  instructions?: string | Array<ResponseInputItem> | null;
+  error?: ResponseError | undefined;
+  incomplete_details?: ResponseIncompleteDetails | undefined;
+  instructions?: string | Array<ResponseInputItem> | undefined;
   object?: "response";
   output?: Array<ResponseOutputItem>;
   parallel_tool_calls?: boolean;
-  temperature?: number | null;
+  temperature?: number | undefined;
   tool_choice?: ToolChoiceOptions | ToolChoiceFunction;
   tools?: Array<Tool>;
-  top_p?: number | null;
-  max_output_tokens?: number | null;
-  previous_response_id?: string | null;
-  prompt?: ResponsePrompt | null;
-  reasoning?: Reasoning | null;
+  top_p?: number | undefined;
+  max_output_tokens?: number | undefined;
+  previous_response_id?: string | undefined;
+  prompt?: ResponsePrompt | undefined;
+  reasoning?: Reasoning | undefined;
   safety_identifier?: string;
-  service_tier?: "auto" | "default" | "flex" | "scale" | "priority" | null;
+  service_tier?: "auto" | "default" | "flex" | "scale" | "priority" | undefined;
   status?: ResponseStatus;
   text?: ResponseTextConfig;
-  truncation?: "auto" | "disabled" | null;
+  truncation?: "auto" | "disabled" | undefined;
   usage?: ResponseUsage;
 };
 type EasyInputMessage = {
@@ -4409,10 +4409,10 @@ type ResponsesFunctionTool = {
   name: string;
   parameters: {
     [key: string]: unknown;
-  } | null;
-  strict: boolean | null;
+  } | undefined;
+  strict: boolean | undefined;
   type: "function";
-  description?: string | null;
+  description?: string | undefined;
 };
 type ResponseIncompleteDetails = {
   reason?: "max_output_tokens" | "content_filter";
@@ -4421,13 +4421,13 @@ type ResponsePrompt = {
   id: string;
   variables?: {
     [key: string]: string | ResponseInputText | ResponseInputImage;
-  } | null;
-  version?: string | null;
+  } | undefined;
+  version?: string | undefined;
 };
 type Reasoning = {
-  effort?: ReasoningEffort | null;
-  generate_summary?: "auto" | "concise" | "detailed" | null;
-  summary?: "auto" | "concise" | "detailed" | null;
+  effort?: ReasoningEffort | undefined;
+  generate_summary?: "auto" | "concise" | "detailed" | undefined;
+  summary?: "auto" | "concise" | "detailed" | undefined;
 };
 type ResponseContent =
   | ResponseInputText
@@ -4476,9 +4476,9 @@ type ResponseError = {
   message: string;
 };
 type ResponseErrorEvent = {
-  code: string | null;
+  code: string | undefined;
   message: string;
-  param: string | null;
+  param: string | undefined;
   sequence_number: number;
   type: "error";
 };
@@ -4504,7 +4504,7 @@ type ResponseFormatTextJSONSchemaConfig = {
   };
   type: "json_schema";
   description?: string;
-  strict?: boolean | null;
+  strict?: boolean | undefined;
 };
 type ResponseFunctionCallArgumentsDeltaEvent = {
   delta: string;
@@ -4557,15 +4557,15 @@ type ResponseInputImage = {
   /**
    * Base64 encoded image
    */
-  image_url?: string | null;
+  image_url?: string | undefined;
 };
 type ResponseInputImageContent = {
   type: "input_image";
-  detail?: "low" | "high" | "auto" | null;
+  detail?: "low" | "high" | "auto" | undefined;
   /**
    * Base64 encoded image
    */
-  image_url?: string | null;
+  image_url?: string | undefined;
 };
 type ResponseInputItem =
   | EasyInputMessage
@@ -4578,8 +4578,8 @@ type ResponseInputItemFunctionCallOutput = {
   call_id: string;
   output: string | ResponseFunctionCallOutputItemList;
   type: "function_call_output";
-  id?: string | null;
-  status?: "in_progress" | "completed" | "incomplete" | null;
+  id?: string | undefined;
+  status?: "in_progress" | "completed" | "incomplete" | undefined;
 };
 type ResponseInputItemMessage = {
   content: ResponseInputMessageContentList;
@@ -4643,7 +4643,7 @@ type ResponseReasoningItem = {
   summary: Array<ResponseReasoningSummaryItem>;
   type: "reasoning";
   content?: Array<ResponseReasoningContentItem>;
-  encrypted_content?: string | null;
+  encrypted_content?: string | undefined;
   status?: "in_progress" | "completed" | "incomplete";
 };
 type ResponseReasoningSummaryItem = {
@@ -4716,7 +4716,7 @@ type ResponseCompletedEvent = {
 };
 type ResponseTextConfig = {
   format?: ResponseFormatTextConfig;
-  verbosity?: "low" | "medium" | "high" | null;
+  verbosity?: "low" | "medium" | "high" | undefined;
 };
 type ResponseTextDeltaEvent = {
   content_index: number;
@@ -4756,7 +4756,7 @@ type ToolChoiceFunction = {
   type: "function";
 };
 type ToolChoiceOptions = "none";
-type ReasoningEffort = "minimal" | "low" | "medium" | "high" | null;
+type ReasoningEffort = "minimal" | "low" | "medium" | "high" | undefined;
 type StreamOptions = {
   include_obfuscation?: boolean;
 };
@@ -5007,7 +5007,7 @@ type Ai_Cf_Unum_Uform_Gen2_Qwen_500M_Input =
        * Increases the likelihood of the model introducing new topics.
        */
       presence_penalty?: number;
-      image: number[] | (string & NonNullable<unknown>);
+      image: number[] | (string & Nonundefinedable<unknown>);
       /**
        * The maximum number of tokens to generate in the response.
        */
@@ -5295,7 +5295,7 @@ interface Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Prompt {
    * The input text prompt for the model to generate a response.
    */
   prompt: string;
-  image?: number[] | (string & NonNullable<unknown>);
+  image?: number[] | (string & Nonundefinedable<unknown>);
   /**
    * If true, a chat template is not applied and you must adhere to the specific model's expected formatting.
    */
@@ -5383,7 +5383,7 @@ interface Ai_Cf_Meta_Llama_3_2_11B_Vision_Instruct_Messages {
           };
         };
   }[];
-  image?: number[] | (string & NonNullable<unknown>);
+  image?: number[] | (string & Nonundefinedable<unknown>);
   functions?: {
     name: string;
     code: string;
@@ -8041,13 +8041,13 @@ interface Ai_Cf_Qwen_Qwen3_30B_A3B_Fp8_Chat_Completion_Response {
      */
     finish_reason?: string;
     /**
-     * Stop reason (may be null)
+     * Stop reason (may be undefined)
      */
-    stop_reason?: string | null;
+    stop_reason?: string | undefined;
     /**
      * Log probabilities (if requested)
      */
-    logprobs?: {} | null;
+    logprobs?: {} | undefined;
   }[];
   /**
    * Usage statistics for the inference request
@@ -8069,7 +8069,7 @@ interface Ai_Cf_Qwen_Qwen3_30B_A3B_Fp8_Chat_Completion_Response {
   /**
    * Log probabilities for the prompt (if requested)
    */
-  prompt_logprobs?: {} | null;
+  prompt_logprobs?: {} | undefined;
 }
 interface Ai_Cf_Qwen_Qwen3_30B_A3B_Fp8_Text_Completion_Response {
   /**
@@ -8105,17 +8105,17 @@ interface Ai_Cf_Qwen_Qwen3_30B_A3B_Fp8_Text_Completion_Response {
      */
     finish_reason: string;
     /**
-     * Stop reason (may be null)
+     * Stop reason (may be undefined)
      */
-    stop_reason?: string | null;
+    stop_reason?: string | undefined;
     /**
      * Log probabilities (if requested)
      */
-    logprobs?: {} | null;
+    logprobs?: {} | undefined;
     /**
      * Log probabilities for the prompt (if requested)
      */
-    prompt_logprobs?: {} | null;
+    prompt_logprobs?: {} | undefined;
   }[];
   /**
    * Usage statistics for the inference request
@@ -9080,13 +9080,13 @@ interface Ai_Cf_Aisingapore_Gemma_Sea_Lion_V4_27B_It_Chat_Completion_Response {
      */
     finish_reason?: string;
     /**
-     * Stop reason (may be null)
+     * Stop reason (may be undefined)
      */
-    stop_reason?: string | null;
+    stop_reason?: string | undefined;
     /**
      * Log probabilities (if requested)
      */
-    logprobs?: {} | null;
+    logprobs?: {} | undefined;
   }[];
   /**
    * Usage statistics for the inference request
@@ -9108,7 +9108,7 @@ interface Ai_Cf_Aisingapore_Gemma_Sea_Lion_V4_27B_It_Chat_Completion_Response {
   /**
    * Log probabilities for the prompt (if requested)
    */
-  prompt_logprobs?: {} | null;
+  prompt_logprobs?: {} | undefined;
 }
 interface Ai_Cf_Aisingapore_Gemma_Sea_Lion_V4_27B_It_Text_Completion_Response {
   /**
@@ -9144,17 +9144,17 @@ interface Ai_Cf_Aisingapore_Gemma_Sea_Lion_V4_27B_It_Text_Completion_Response {
      */
     finish_reason: string;
     /**
-     * Stop reason (may be null)
+     * Stop reason (may be undefined)
      */
-    stop_reason?: string | null;
+    stop_reason?: string | undefined;
     /**
      * Log probabilities (if requested)
      */
-    logprobs?: {} | null;
+    logprobs?: {} | undefined;
     /**
      * Log probabilities for the prompt (if requested)
      */
-    prompt_logprobs?: {} | null;
+    prompt_logprobs?: {} | undefined;
   }[];
   /**
    * Usage statistics for the inference request
@@ -9554,7 +9554,7 @@ interface InferenceUpstreamError extends Error {}
 interface AiInternalError extends Error {}
 type AiModelListType = Record<string, any>;
 declare abstract class Ai<AiModelList extends AiModelListType = AiModels> {
-  aiGatewayLogId: string | null;
+  aiGatewayLogId: string | undefined;
   gateway(gatewayId: string): AiGateway;
   /**
    * Access the AI Search API for managing AI-powered search instances.
@@ -9643,7 +9643,7 @@ type GatewayOptions = {
   cacheKey?: string;
   cacheTtl?: number;
   skipCache?: boolean;
-  metadata?: Record<string, number | string | boolean | null | bigint>;
+  metadata?: Record<string, number | string | boolean | undefined | bigint>;
   collectLog?: boolean;
   eventId?: string;
   requestTimeoutMs?: number;
@@ -9656,9 +9656,9 @@ type UniversalGatewayOptions = Exclude<GatewayOptions, "id"> & {
   id?: string;
 };
 type AiGatewayPatchLog = {
-  score?: number | null;
-  feedback?: -1 | 1 | null;
-  metadata?: Record<string, number | string | boolean | null | bigint> | null;
+  score?: number | undefined;
+  feedback?: -1 | 1 | undefined;
+  metadata?: Record<string, number | string | boolean | undefined | bigint> | undefined;
 };
 type AiGatewayLog = {
   id: string;
@@ -9675,7 +9675,7 @@ type AiGatewayLog = {
   cached: boolean;
   tokens_in?: number;
   tokens_out?: number;
-  metadata?: Record<string, number | string | boolean | null | bigint>;
+  metadata?: Record<string, number | string | boolean | undefined | bigint>;
   step?: number;
   cost?: number;
   custom_cost?: boolean;
@@ -9710,7 +9710,7 @@ type AIGatewayProviders =
   | "adobe-firefly";
 type AIGatewayHeaders = {
   "cf-aig-metadata":
-    Record<string, number | string | boolean | null | bigint> | string;
+    Record<string, number | string | boolean | undefined | bigint> | string;
   "cf-aig-custom-cost":
     | {
         per_token_in?: number;
@@ -9832,14 +9832,14 @@ type AutoRagSearchResponse = {
     file_id: string;
     filename: string;
     score: number;
-    attributes: Record<string, string | number | boolean | null>;
+    attributes: Record<string, string | number | boolean | undefined>;
     content: {
       type: "text";
       text: string;
     }[];
   }[];
   has_more: boolean;
-  next_page: string | null;
+  next_page: string | undefined;
 };
 /**
  * @deprecated AutoRAG has been replaced by AI Search.
@@ -10413,7 +10413,7 @@ interface IncomingRequestCfPropertiesCloudflareAccessOrApiShield {
    * either Cloudflare Access or API Shield (mTLS)
    * and the presented SSL certificate has a valid
    * [Certificate Serial Number](https://ldapwiki.com/wiki/Certificate%20Serial%20Number)
-   * (i.e., not `null` or `""`).
+   * (i.e., not `undefined` or `""`).
    *
    * Otherwise, a set of placeholder values are used.
    *
@@ -11004,14 +11004,14 @@ declare abstract class D1DatabaseSession {
   batch<T = unknown>(statements: D1PreparedStatement[]): Promise<D1Result<T>[]>;
   /**
    * @returns The latest session bookmark across all executed queries on the session.
-   *          If no query has been executed yet, `null` is returned.
+   *          If no query has been executed yet, `undefined` is returned.
    */
-  getBookmark(): D1SessionBookmark | null;
+  getBookmark(): D1SessionBookmark | undefined;
 }
 declare abstract class D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
-  first<T = unknown>(colName: string): Promise<T | null>;
-  first<T = Record<string, unknown>>(): Promise<T | null>;
+  first<T = unknown>(colName: string): Promise<T | undefined>;
+  first<T = Record<string, unknown>>(): Promise<T | undefined>;
   run<T = Record<string, unknown>>(): Promise<D1Result<T>>;
   all<T = Record<string, unknown>>(): Promise<D1Result<T>>;
   raw<T = unknown[]>(options: {
@@ -11333,15 +11333,15 @@ interface HostedImagesBinding {
   /**
    * Get detailed metadata for a hosted image
    * @param imageId The ID of the image (UUID or custom ID)
-   * @returns Image metadata, or null if not found
+   * @returns Image metadata, or undefined if not found
    */
-  details(imageId: string): Promise<ImageMetadata | null>;
+  details(imageId: string): Promise<ImageMetadata | undefined>;
   /**
    * Get the raw image data for a hosted image
    * @param imageId The ID of the image (UUID or custom ID)
-   * @returns ReadableStream of image bytes, or null if not found
+   * @returns ReadableStream of image bytes, or undefined if not found
    */
-  image(imageId: string): Promise<ReadableStream<Uint8Array> | null>;
+  image(imageId: string): Promise<ReadableStream<Uint8Array> | undefined>;
   /**
    * Upload a new hosted image
    * @param image The image file to upload
@@ -11563,7 +11563,7 @@ declare module "cloudflare:node" {
   interface NodeStyleServer {
     listen(...args: unknown[]): this;
     address(): {
-      port?: number | null | undefined;
+      port?: number | undefined | undefined;
     };
   }
   export function httpServerHandler(port: number): ExportedHandler;
@@ -11760,7 +11760,7 @@ declare namespace Rpc {
   type BaseType =
     | void
     | undefined
-    | null
+    | undefined
     | boolean
     | number
     | bigint
@@ -12151,7 +12151,7 @@ interface StreamVideo {
   /**
    * A user-defined identifier for the media creator.
    */
-  creator: string | null;
+  creator: string | undefined;
   /**
    * The thumbnail URL for the video.
    */
@@ -12167,7 +12167,7 @@ interface StreamVideo {
   /**
    * The date and time the video became ready to stream.
    */
-  readyToStreamAt: string | null;
+  readyToStreamAt: string | undefined;
   /**
    * Processing status information.
    */
@@ -12187,7 +12187,7 @@ interface StreamVideo {
   /**
    * The date and time at which the video will be deleted.
    */
-  scheduledDeletion: string | null;
+  scheduledDeletion: string | undefined;
   /**
    * The size of the video in bytes.
    */
@@ -12203,23 +12203,23 @@ interface StreamVideo {
   /**
    * Indicates whether signed URLs are required.
    */
-  requireSignedURLs: boolean | null;
+  requireSignedURLs: boolean | undefined;
   /**
    * The date and time the video was uploaded.
    */
-  uploaded: string | null;
+  uploaded: string | undefined;
   /**
    * The date and time when the upload URL expires.
    */
-  uploadExpiry: string | null;
+  uploadExpiry: string | undefined;
   /**
    * The maximum size in bytes for direct uploads.
    */
-  maxSizeBytes: number | null;
+  maxSizeBytes: number | undefined;
   /**
    * The maximum duration in seconds for direct uploads.
    */
-  maxDurationSeconds: number | null;
+  maxDurationSeconds: number | undefined;
   /**
    * The video duration in seconds. -1 indicates unknown.
    */
@@ -12236,19 +12236,19 @@ interface StreamVideo {
   /**
    * The watermark applied to the video, if any.
    */
-  watermark: StreamWatermark | null;
+  watermark: StreamWatermark | undefined;
   /**
    * The live input id associated with the video, if any.
    */
-  liveInputId?: string | null;
+  liveInputId?: string | undefined;
   /**
    * The source video id if this is a clip.
    */
-  clippedFromId: string | null;
+  clippedFromId: string | undefined;
   /**
    * Public details associated with the video.
    */
-  publicDetails: StreamPublicDetails | null;
+  publicDetails: StreamPublicDetails | undefined;
 }
 type StreamVideoStatus = {
   /**
@@ -12286,19 +12286,19 @@ type StreamPublicDetails = {
   /**
    * The public title for the video.
    */
-  title: string | null;
+  title: string | undefined;
   /**
    * The public share link.
    */
-  share_link: string | null;
+  share_link: string | undefined;
   /**
    * The public channel link.
    */
-  channel_link: string | null;
+  channel_link: string | undefined;
   /**
    * The public logo URL.
    */
-  logo: string | null;
+  logo: string | undefined;
 };
 type StreamDirectUpload = {
   /**
@@ -12312,11 +12312,11 @@ type StreamDirectUpload = {
   /**
    * The watermark profile applied to the upload.
    */
-  watermark: StreamWatermark | null;
+  watermark: StreamWatermark | undefined;
   /**
    * The scheduled deletion time, if any.
    */
-  scheduledDeletion: string | null;
+  scheduledDeletion: string | undefined;
 };
 type StreamDirectUploadCreateParams = {
   /**
@@ -12350,10 +12350,10 @@ type StreamDirectUploadCreateParams = {
    */
   thumbnailTimestampPct?: number;
   /**
-   * The date and time at which the video will be deleted. Include `null` to remove
+   * The date and time at which the video will be deleted. Include `undefined` to remove
    * a scheduled deletion.
    */
-  scheduledDeletion?: string | null;
+  scheduledDeletion?: string | undefined;
   /**
    * The watermark profile to apply.
    */
@@ -12389,11 +12389,11 @@ type StreamUrlUploadParams = {
   requireSignedURLs?: boolean;
   /**
    * Indicates the date and time at which the video will be deleted. Omit
-   * the field to indicate no change, or include with a `null` value to remove an
+   * the field to indicate no change, or include with a `undefined` value to remove an
    * existing scheduled deletion. If specified, must be at least 30 days from upload
    * time.
    */
-  scheduledDeletion?: string | null;
+  scheduledDeletion?: string | undefined;
   /**
    * The timestamp for a thumbnail image calculated as a percentage value
    * of the video's duration. To convert from a second-wise timestamp to a
@@ -12577,11 +12577,11 @@ type StreamUpdateVideoParams = {
   requireSignedURLs?: boolean;
   /**
    * Indicates the date and time at which the video will be deleted. Omit
-   * the field to indicate no change, or include with a `null` value to remove an
+   * the field to indicate no change, or include with a `undefined` value to remove an
    * existing scheduled deletion. If specified, must be at least 30 days from upload
    * time.
    */
-  scheduledDeletion?: string | null;
+  scheduledDeletion?: string | undefined;
   /**
    * The timestamp for a thumbnail image calculated as a percentage value
    * of the video's duration. To convert from a second-wise timestamp to a
@@ -12664,9 +12664,9 @@ type StreamWatermark = {
   created: string;
   /**
    * The source URL for a downloaded image. If the watermark profile was created via
-   * direct upload, this field is null.
+   * direct upload, this field is undefined.
    */
-  downloadedFrom: string | null;
+  downloadedFrom: string | undefined;
   /**
    * A short description of the watermark profile.
    */
@@ -12894,7 +12894,7 @@ declare namespace TailStream {
   }
   interface TraceEventInfo {
     readonly type: "trace";
-    readonly traces: (string | null)[];
+    readonly traces: (string | undefined)[];
   }
   interface HibernatableWebSocketEventInfoMessage {
     readonly type: "message";
@@ -13109,12 +13109,12 @@ type VectorizeVectorMetadataFilterCollectionOp = "$in" | "$nin";
 type VectorizeVectorMetadataFilter = {
   [field: string]:
     | Exclude<VectorizeVectorMetadataValue, string[]>
-    | null
+    | undefined
     | {
         [Op in VectorizeVectorMetadataFilterOp]?: Exclude<
           VectorizeVectorMetadataValue,
           string[]
-        > | null;
+        > | undefined;
       }
     | {
         [Op in VectorizeVectorMetadataFilterCollectionOp]?: Exclude<

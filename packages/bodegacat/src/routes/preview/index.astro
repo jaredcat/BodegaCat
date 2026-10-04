@@ -15,7 +15,7 @@ const siteConfig = await loadEffectiveConfig();
 const t = getTranslations(siteConfig.locale);
 
 const products = await getProducts({ includeUnpublished: true });
-const previewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
+const isPreviewCatalogHasDraftProducts = hasUnpublishedDrafts(products);
 const featuredProducts = products.slice(0, 6);
 const copyrightYear = new Date().getFullYear();
 
@@ -33,7 +33,7 @@ const socialLinks = themeLinks(siteConfig, "socialLinks");
   title="Home (preview)"
   siteConfig={siteConfig}
   storefrontPreview={true}
-  previewCatalogHasDraftProducts={previewCatalogHasDraftProducts}
+  previewCatalogHasDraftProducts={isPreviewCatalogHasDraftProducts}
 >
   <Navbar siteConfig={siteConfig} client:load />
 

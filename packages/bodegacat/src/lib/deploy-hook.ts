@@ -6,8 +6,8 @@ export type DeployHookResult =
   | { ok: false; skipped: false; status: number; detail?: string };
 
 /**
- * POSTs to the Cloudflare Pages deploy hook (or CI URL) configured as `BUILD_HOOK_URL`.
- */
+POSTs to the Cloudflare Pages deploy hook (or CI URL) configured as `BUILD_HOOK_URL`.
+*/
 export async function triggerProductionDeployHook(
   reason: string,
   data: Record<string, unknown> = {},
@@ -35,7 +35,12 @@ export async function triggerProductionDeployHook(
       return { ok: true, skipped: false };
     }
 
-    const detail = await response.text().catch(() => "");
+    let detail = "";
+    try {
+      detail = await response.text();
+    } catch {
+      detail = "";
+    }
     console.error(`[deploy-hook] Failed (${reason}):`, response.status, detail);
     return {
       ok: false,

@@ -9,7 +9,9 @@ const radiusOptions = [
   { value: "9999px", label: "Pill" },
 ];
 
-/** Fields the Bodega Cat homepage and catalog read. */
+/**
+Fields the Bodega Cat homepage and catalog read.
+*/
 const settings: ThemeSettingField[] = [
   { type: "image", id: "logo", label: "Logo" },
   {

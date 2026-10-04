@@ -23,16 +23,12 @@ interface VerifiedLine {
 }
 
 function isPhysical(deliveryType: string | undefined): boolean {
-  return (
-    deliveryType === undefined ||
-    deliveryType === "" ||
-    deliveryType === "physical"
-  );
+  return deliveryType === undefined || ["", "physical"].includes(deliveryType);
 }
 
 async function verifyLine(line: CheckoutLine): Promise<VerifiedLine> {
   if (
-    !Number.isInteger(line.quantity) ||
+    !Number.isSafeInteger(line.quantity) ||
     line.quantity < 1 ||
     line.quantity > 99
   ) {
@@ -68,9 +64,9 @@ async function verifyLine(line: CheckoutLine): Promise<VerifiedLine> {
 }
 
 /**
- * One Checkout Session for one line or many. Amounts come from Stripe Prices
- * created when the product was published. The browser cannot set the charge.
- */
+One Checkout Session for one line or many. Amounts come from Stripe Prices
+created when the product was published. The browser cannot set the charge.
+*/
 export async function createCheckoutSession(
   lines: CheckoutLine[],
   requestUrl?: string,
@@ -89,7 +85,7 @@ export async function createCheckoutSession(
   }
 
   const verified = await Promise.all(
-    [...merged.values()].map((line) => verifyLine(line)),
+    merged.values().map((line) => verifyLine(line)),
   );
 
   const summary = JSON.stringify(
@@ -111,42 +107,39 @@ export async function createCheckoutSession(
       requestUrl,
     ),
     cancel_url: checkoutUrl("/shop", requestUrl),
-    ...(verified.some((line) => line.physical)
-      ? {
-          shipping_address_collection: {
-            allowed_countries: [
-              "AU",
-              "AT",
-              "BE",
-              "CA",
-              "DK",
-              "FI",
-              "FR",
-              "DE",
-              "IE",
-              "IT",
-              "JP",
-              "MX",
-              "NL",
-              "NZ",
-              "NO",
-              "PT",
-              "SG",
-              "KR",
-              "ES",
-              "SE",
-              "CH",
-              "GB",
-              "US",
-            ],
-          },
-        }
-      : {}),
+    ...(verified.some((line) => line.physical) && {
+      shipping_address_collection: {
+        allowed_countries: [
+          "AU",
+          "AT",
+          "BE",
+          "CA",
+          "DK",
+          "FI",
+          "FR",
+          "DE",
+          "IE",
+          "IT",
+          "JP",
+          "MX",
+          "NL",
+          "NZ",
+          "NO",
+          "PT",
+          "SG",
+          "KR",
+          "ES",
+          "SE",
+          "CH",
+          "GB",
+          "US",
+        ],
+      },
+    }),
     metadata: {
-      ...(summary.length <= 500 ? { bodegacat_lines: summary } : {}),
-      ...(verified.length === 1 && verified[0]
-        ? { productId: verified[0].productId }
-        : {}),
+      ...(summary.length <= 500 && { bodegacat_lines: summary }),
+      ...(verified.length === 1 &&
+        verified[0] && { productId: verified[0].productId }),
     },
   });
 

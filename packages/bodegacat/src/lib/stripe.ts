@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import type { Product, ProductOffer } from "../types/product";
 import {
   isUnsellablePrice,
   listActivePrices,
@@ -6,9 +7,7 @@ import {
 } from "./catalog-prices";
 import { stripe } from "./stripe-client";
 import { readVariationMetadata } from "./variation-metadata";
-import type { Product, ProductOffer } from "../types/product";
 
-export { stripe };
 export function isPublishedOnStorefront(
   metadata: Stripe.Metadata | Record<string, string>,
 ): boolean {
@@ -16,11 +15,15 @@ export function isPublishedOnStorefront(
 }
 
 export interface GetProductsOptions {
-  /** Include products not yet published to the public storefront (preview mode). */
+  /**
+  Include products not yet published to the public storefront (preview mode).
+  */
   includeUnpublished?: boolean;
 }
 
-/** True when any product is a draft (`bodegacat_published` / publishedToStorefront false). */
+/**
+True when any product is a draft (`bodegacat_published` / publishedToStorefront false).
+*/
 export function hasUnpublishedDrafts(products: Product[]): boolean {
   return products.some((p) => p.metadata.publishedToStorefront === false);
 }
@@ -30,9 +33,9 @@ function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, "") // Remove special characters except spaces and hyphens
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replaceAll(/[^\w\s-]/g, "") // Remove special characters except spaces and hyphens
+    .replaceAll(/\s+/g, "-") // Replace spaces with hyphens
+    .replaceAll(/-+/g, "-") // Replace multiple hyphens with single hyphen
     .replace(/^-/, "") // Remove leading hyphen
     .replace(/-$/, ""); // Remove trailing hyphen
 }
@@ -67,7 +70,7 @@ export async function getProducts(
 export async function getProduct(
   slug: string,
   options: GetProductsOptions = {},
-): Promise<Product | null> {
+): Promise<Product | undefined> {
   const { includeUnpublished = false } = options;
   const products = await stripe.products.list({
     active: true,
@@ -76,41 +79,65 @@ export async function getProduct(
 
   const product = products.data.find((p) => {
     const productSlug = p.metadata.slug || generateSlug(p.name);
-    const activeOk = p.metadata.bodegacat_active === "true";
-    const publishedOk =
+    const isActiveOk = p.metadata.bodegacat_active === "true";
+    const isPublishedOk =
       includeUnpublished || isPublishedOnStorefront(p.metadata);
-    return productSlug === slug && activeOk && publishedOk;
+    return productSlug === slug && isActiveOk && isPublishedOk;
   });
 
-  if (!product) return null;
+  if (!product) return undefined;
 
   const prices = await listActivePrices(product.id);
 
-  if (prices.length === 0) return null;
-
-  return transformStripeProduct(product, prices);
+  return prices.length === 0
+    ? undefined
+    : transformStripeProduct(product, prices);
 }
 
 export async function getProductById(
   productId: string,
-): Promise<Product | null> {
+): Promise<Product | undefined> {
   try {
     const product = await stripe.products.retrieve(productId, {
       expand: ["default_price"],
     });
 
     if (product.metadata.bodegacat_active !== "true") {
-      return null;
+      return undefined;
     }
 
     const prices = await listActivePrices(product.id);
 
-    if (prices.length === 0) return null;
-
-    return transformStripeProduct(product, prices);
+    return prices.length === 0
+      ? undefined
+      : transformStripeProduct(product, prices);
   } catch (error) {
     console.error("Error fetching product by ID:", error);
-    return null;
+    return undefined;
+  }
+}
+
+function lowestUnitAmountPrice(
+  prices: Stripe.Price[],
+): Stripe.Price | undefined {
+  let lowest: Stripe.Price | undefined;
+  for (const price of prices) {
+    if (price.unit_amount == undefined) continue;
+    if (!lowest || price.unit_amount < (lowest.unit_amount ?? 0)) {
+      lowest = price;
+    }
+  }
+  return lowest;
+}
+
+function parseBookingConfig(
+  raw: string | undefined,
+): import("../types/product").BookingConfig | undefined {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw) as import("../types/product").BookingConfig;
+  } catch {
+    return undefined;
   }
 }
 
@@ -118,24 +145,12 @@ function transformStripeProduct(
   product: Stripe.Product,
   prices: Stripe.Price[],
 ): Product {
-  // Find the lowest price to use as base price
-  const lowestPrice = prices.reduce<Stripe.Price | null>((lowest, price) => {
-    if (
-      price.unit_amount &&
-      (!lowest ||
-        (lowest.unit_amount && price.unit_amount < lowest.unit_amount))
-    ) {
-      return price;
-    }
-    return lowest;
-  }, null);
-
+  const lowestPrice = lowestUnitAmountPrice(prices);
   if (!lowestPrice) {
     throw new Error(`No valid prices found for product ${product.id}`);
   }
 
   const baseCurrency = lowestPrice.currency;
-
   const variations = readVariationMetadata(product.metadata) ?? [];
 
   const metaBase = product.metadata.bodegacat_base_price;
@@ -147,19 +162,11 @@ function transformStripeProduct(
   let offerPrices = prices.filter(
     (price) =>
       price.currency === baseCurrency &&
-      price.unit_amount != null &&
+      price.unit_amount != undefined &&
       !isUnsellablePrice(price),
   );
   if (variations.length === 0) {
-    const only = offerPrices.reduce<Stripe.Price | undefined>(
-      (lowest, price) => {
-        if (!lowest || (price.unit_amount ?? 0) < (lowest.unit_amount ?? 0)) {
-          return price;
-        }
-        return lowest;
-      },
-      undefined,
-    );
+    const only = lowestUnitAmountPrice(offerPrices);
     offerPrices = only ? [only] : [];
   }
 
@@ -170,7 +177,6 @@ function transformStripeProduct(
     selection: selectionFromPrice(price),
   }));
 
-  // Generate slug if not provided
   const slug = product.metadata.slug || generateSlug(product.name);
 
   return {
@@ -188,19 +194,9 @@ function transformStripeProduct(
       sku: product.metadata.sku,
       deliveryType: product.metadata.deliveryType as
         "physical" | "digital" | "service" | "booking" | undefined,
-      bookingConfig: product.metadata.bookingConfig
-        ? (() => {
-            try {
-              return JSON.parse(
-                product.metadata.bookingConfig,
-              ) as import("../types/product").BookingConfig;
-            } catch {
-              return undefined;
-            }
-          })()
-        : undefined,
+      bookingConfig: parseBookingConfig(product.metadata.bookingConfig),
       weight: product.metadata.weight
-        ? Number.parseFloat(product.metadata.weight)
+        ? Number(product.metadata.weight)
         : undefined,
       dimensions: product.metadata.dimensions
         ? (JSON.parse(product.metadata.dimensions) as {
@@ -222,3 +218,5 @@ function transformStripeProduct(
     updatedAt: new Date(),
   };
 }
+
+export { stripe } from "./stripe-client";

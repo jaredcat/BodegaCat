@@ -7,9 +7,9 @@ export interface ProductType {
   name: string;
   description?: string;
   /**
-   * Variation template shown in the admin UI when creating/editing a product.
-   * Stored and edited using the same robust variation schema as products.
-   */
+  Variation template shown in the admin UI when creating/editing a product.
+  Stored and edited using the same robust variation schema as products.
+  */
   variationDefinitions: ProductVariationDefinition[];
 }
 
@@ -65,9 +65,9 @@ export interface ProductVariationOption {
 // ─── Product ───────────────────────────────────────────────────────────────────
 
 /**
- * All supported delivery types. Add new values here — the type is derived
- * automatically everywhere it's used.
- */
+All supported delivery types. Add new values here — the type is derived
+automatically everywhere it's used.
+*/
 export const DELIVERY_TYPES = [
   "physical",
   "digital",
@@ -77,9 +77,9 @@ export const DELIVERY_TYPES = [
 export type DeliveryType = (typeof DELIVERY_TYPES)[number];
 
 /**
- * All supported booking providers. Add new values here — the discriminated
- * union type is derived automatically.
- */
+All supported booking providers. Add new values here — the discriminated
+union type is derived automatically.
+*/
 export const BOOKING_PROVIDERS = ["calcom", "calendly", "url"] as const;
 export type BookingProvider = (typeof BOOKING_PROVIDERS)[number];
 
@@ -92,21 +92,25 @@ export interface ProductMetadata {
   productTypeId: string;
   tags: string[];
   /**
-   * When false, the product is hidden from the public storefront (still editable in admin).
-   * Stored in Stripe as `bodegacat_published`. Omitted or true means visible.
-   */
+  When false, the product is hidden from the public storefront (still editable in admin).
+  Stored in Stripe as `bodegacat_published`. Omitted or true means visible.
+  */
   publishedToStorefront?: boolean;
   category?: string;
   brand?: string;
   sku?: string;
-  /** How the product is delivered. Determines which fields and UI are shown. */
+  /**
+  How the product is delivered. Determines which fields and UI are shown.
+  */
   deliveryType?: DeliveryType;
   /**
-   * External booking provider config. Only used when deliveryType is 'booking'.
-   * The product page renders a BookingEmbed instead of the Add to Cart flow.
-   */
+  External booking provider config. Only used when deliveryType is 'booking'.
+  The product page renders a BookingEmbed instead of the Add to Cart flow.
+  */
   bookingConfig?: BookingConfig;
-  /** Physical dimensions — only relevant when deliveryType is 'physical'. */
+  /**
+  Physical dimensions — only relevant when deliveryType is 'physical'.
+  */
   weight?: number;
   dimensions?: {
     length: number;
@@ -115,13 +119,19 @@ export interface ProductMetadata {
   };
 }
 
-/** A Stripe Price written when the product is published. The browser checks out with this id. */
+/**
+A Stripe Price written when the product is published. The browser checks out with this id.
+*/
 export interface ProductOffer {
   priceId: string;
-  /** Charge in the smallest currency unit (cents). */
+  /**
+  Charge in the smallest currency unit (cents).
+  */
   unitAmount: number;
   currency: string;
-  /** Variation id to option id. Empty when the product has no variations. */
+  /**
+  Variation id to option id. Empty when the product has no variations.
+  */
   selection: Record<string, string>;
 }
 
@@ -133,11 +143,15 @@ export interface Product {
   images: string[];
   active: boolean;
   slug: string;
-  /** Admin base price in cents, before option modifiers. */
+  /**
+  Admin base price in cents, before option modifiers.
+  */
   basePrice: number;
   currency: string;
   variationDefinitions: ProductVariationDefinition[];
-  /** Sellable Stripe Prices. One entry per available combination. */
+  /**
+  Sellable Stripe Prices. One entry per available combination.
+  */
   offers: ProductOffer[];
   createdAt: Date;
   updatedAt: Date;
@@ -161,18 +175,26 @@ export interface Cart {
 
 // ─── Site Config ───────────────────────────────────────────────────────────────
 
-/** A link shown in the site footer navigation. */
+/**
+A link shown in the site footer navigation.
+*/
 export interface FooterLink {
   label: string;
   href: string;
 }
 
-/** A social media or external profile link. */
+/**
+A social media or external profile link.
+*/
 export interface SocialLink {
-  /** Short identifier, e.g. 'instagram', 'tiktok', 'bluesky'. Displayed as label if label is not set. */
+  /**
+  Short identifier, e.g. 'instagram', 'tiktok', 'bluesky'. Displayed as label if label is not set.
+  */
   platform: string;
   url: string;
-  /** Accessible label for screen readers. Defaults to platform if omitted. */
+  /**
+  Accessible label for screen readers. Defaults to platform if omitted.
+  */
   label?: string;
 }
 
@@ -185,19 +207,31 @@ export interface SiteConfig {
   contactEmail?: string;
 
   // ─── Internationalization ───────────────────────────────────────────────
-  /** BCP 47 locale tag, e.g. 'en-US', 'fr-FR', 'ja-JP'. Used for <html lang>, Intl formatting. */
+  /**
+  BCP 47 locale tag, e.g. 'en-US', 'fr-FR', 'ja-JP'. Used for <html lang>, Intl formatting.
+  */
   locale: string;
-  /** ISO 4217 currency code, e.g. 'USD', 'EUR', 'JPY'. */
+  /**
+  ISO 4217 currency code, e.g. 'USD', 'EUR', 'JPY'.
+  */
   currency: string;
 
   // ─── Customizable copy ──────────────────────────────────────────────────
-  /** Main homepage headline (H1). If omitted, the homepage falls back to "Welcome to {name}". */
+  /**
+  Main homepage headline (H1). If omitted, the homepage falls back to "Welcome to {name}".
+  */
   homeHeadline?: string;
-  /** Tagline displayed on the shop listing page below the "Shop" heading. */
+  /**
+  Tagline displayed on the shop listing page below the "Shop" heading.
+  */
   shopTagline: string;
-  /** Heading for the about section on the homepage. */
+  /**
+  Heading for the about section on the homepage.
+  */
   aboutTitle: string;
-  /** Body text for the about section on the homepage. */
+  /**
+  Body text for the about section on the homepage.
+  */
   aboutText: string;
 
   // ─── Navigation & Footer ────────────────────────────────────────────────
@@ -206,19 +240,21 @@ export interface SiteConfig {
 
   // ─── Appearance ─────────────────────────────────────────────────────────
   /**
-   * Active theme. Install third-party themes via npm and set them here.
-   * See src/themes/types.ts for the BodegaCatTheme interface.
-   */
+  Active theme. Install third-party themes via npm and set them here.
+  See src/themes/types.ts for the BodegaCatTheme interface.
+  */
   theme: BodegaCatTheme;
 
   /**
-   * Values for the active theme's text, link, and image fields.
-   * Older shops may still have the same copy on the fields above.
-   */
+  Values for the active theme's text, link, and image fields.
+  Older shops may still have the same copy on the fields above.
+  */
   content?: ThemeContent;
 
   // ─── Product variation templates ────────────────────────────────────────
-  /** Templates shown in the admin UI when creating a new product. Leave empty to start from scratch. */
+  /**
+  Templates shown in the admin UI when creating a new product. Leave empty to start from scratch.
+  */
   productTypes: ProductType[];
 
   // ─── Stripe (env-var only — never set these in admin UI) ────────────────

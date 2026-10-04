@@ -8,7 +8,7 @@ import type {
 import { BOOKING_PROVIDERS, DELIVERY_TYPES } from "../types/product";
 import VariationManager from "./VariationManager";
 
-interface ProductFormProps {
+interface ProductFormProperties {
   readonly product?: Product;
   readonly productTypes: ProductType[];
   readonly onSubmit: (productData: Partial<Product>) => Promise<void>;
@@ -20,7 +20,7 @@ export default function ProductForm({
   productTypes,
   onSubmit,
   onCancel,
-}: Readonly<ProductFormProps>) {
+}: Readonly<ProductFormProperties>) {
   const [formData, setFormData] = useState({
     name: product?.name ?? "",
     description: product?.description ?? "",
@@ -61,7 +61,7 @@ export default function ProductForm({
       newErrors.description = "Product description is required";
     }
 
-    if (!formData.basePrice || Number.parseFloat(formData.basePrice) <= 0) {
+    if (!formData.basePrice || Number(formData.basePrice) <= 0) {
       newErrors.basePrice = "Valid price is required";
     }
 
@@ -76,7 +76,7 @@ export default function ProductForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -88,7 +88,7 @@ export default function ProductForm({
     const productData = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      basePrice: Math.round(Number.parseFloat(formData.basePrice) * 100),
+      basePrice: Math.round(Number(formData.basePrice) * 100),
       currency: formData.currency,
       metadata: {
         productTypeId: formData.productTypeId,
@@ -109,31 +109,31 @@ export default function ProductForm({
       variationDefinitions: variations,
     };
 
-    onSubmit(productData)
-      .catch((error: unknown) => {
-        console.error("Error submitting product:", error);
-        setErrors({ submit: "Failed to save product. Please try again." });
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+    try {
+      await onSubmit(productData);
+    } catch (error: unknown) {
+      console.error("Error submitting product:", error);
+      setErrors({ submit: "Failed to save product. Please try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+    const files = [...(e.target.files ?? [])];
     // For now, we'll just store the file names
     // In a real implementation, you'd upload these to a CDN
     const newImageUrls = files.map((file) => URL.createObjectURL(file));
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...newImageUrls],
+    setFormData((previous) => ({
+      ...previous,
+      images: [...previous.images, ...newImageUrls],
     }));
   };
 
   const removeImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
+    setFormData((previous) => ({
+      ...previous,
+      images: previous.images.filter((_, index_) => index_ !== index),
     }));
   };
 
@@ -142,7 +142,12 @@ export default function ProductForm({
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={(event) => {
+        void handleSubmit(event);
+      }}
+      className="space-y-6"
+    >
       {productTypes.length === 0 && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           <p className="font-medium">No product types yet</p>
@@ -167,7 +172,10 @@ export default function ProductForm({
               type="text"
               value={formData.name}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, name: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  name: e.target.value,
+                }));
               }}
               className={`w-full rounded border px-3 py-2 ${
                 errors.name ? "border-red-500" : "border-gray-300"
@@ -190,8 +198,8 @@ export default function ProductForm({
               id="description"
               value={formData.description}
               onChange={(e) => {
-                setFormData((prev) => ({
-                  ...prev,
+                setFormData((previous) => ({
+                  ...previous,
                   description: e.target.value,
                 }));
               }}
@@ -219,7 +227,10 @@ export default function ProductForm({
               step="0.01"
               value={formData.basePrice}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, basePrice: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  basePrice: e.target.value,
+                }));
               }}
               className={`w-full rounded border px-3 py-2 ${
                 errors.basePrice ? "border-red-500" : "border-gray-300"
@@ -242,7 +253,10 @@ export default function ProductForm({
               id="currency"
               value={formData.currency}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, currency: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  currency: e.target.value,
+                }));
               }}
               className="w-full rounded border border-gray-300 px-3 py-2"
             >
@@ -266,8 +280,8 @@ export default function ProductForm({
               id="productType"
               value={formData.productTypeId}
               onChange={(e) => {
-                setFormData((prev) => ({
-                  ...prev,
+                setFormData((previous) => ({
+                  ...previous,
                   productTypeId: e.target.value,
                 }));
               }}
@@ -301,7 +315,10 @@ export default function ProductForm({
               type="text"
               value={formData.category}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, category: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  category: e.target.value,
+                }));
               }}
               className="w-full rounded border border-gray-300 px-3 py-2"
               placeholder="e.g., Clothing, Electronics"
@@ -317,7 +334,10 @@ export default function ProductForm({
               type="text"
               value={formData.brand}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, brand: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  brand: e.target.value,
+                }));
               }}
               className="w-full rounded border border-gray-300 px-3 py-2"
               placeholder="Brand name"
@@ -333,7 +353,10 @@ export default function ProductForm({
               type="text"
               value={formData.sku}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, sku: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  sku: e.target.value,
+                }));
               }}
               className="w-full rounded border border-gray-300 px-3 py-2"
               placeholder="Stock keeping unit"
@@ -349,7 +372,10 @@ export default function ProductForm({
               type="text"
               value={formData.tags}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, tags: e.target.value }));
+                setFormData((previous) => ({
+                  ...previous,
+                  tags: e.target.value,
+                }));
               }}
               className="w-full rounded border border-gray-300 px-3 py-2"
               placeholder="tag1, tag2, tag3"
@@ -362,7 +388,10 @@ export default function ProductForm({
               type="checkbox"
               checked={formData.active}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, active: e.target.checked }));
+                setFormData((previous) => ({
+                  ...previous,
+                  active: e.target.checked,
+                }));
               }}
               className="mr-2"
             />
@@ -377,8 +406,8 @@ export default function ProductForm({
               type="checkbox"
               checked={formData.publishedToStorefront}
               onChange={(e) => {
-                setFormData((prev) => ({
-                  ...prev,
+                setFormData((previous) => ({
+                  ...previous,
                   publishedToStorefront: e.target.checked,
                 }));
               }}
@@ -404,8 +433,8 @@ export default function ProductForm({
               value={formData.deliveryType}
               onChange={(e) => {
                 const next = e.target.value as DeliveryType | "";
-                setFormData((prev) => ({
-                  ...prev,
+                setFormData((previous) => ({
+                  ...previous,
                   deliveryType: next === "" ? undefined : next,
                 }));
               }}
@@ -453,8 +482,7 @@ export default function ProductForm({
                   <option key={p} value={p}>
                     {(() => {
                       if (p === "calcom") return "Cal.com";
-                      if (p === "calendly") return "Calendly";
-                      return "Custom URL";
+                      return p === "calendly" ? "Calendly" : "Custom URL";
                     })()}
                   </option>
                 ))}
@@ -475,12 +503,12 @@ export default function ProductForm({
                     type="text"
                     value={bookingConfig.eventSlug}
                     onChange={(e) => {
-                      setBookingConfig((prev) => ({
+                      setBookingConfig((previous) => ({
                         provider: "calcom",
                         eventSlug: e.target.value,
                         namespace:
-                          prev.provider === "calcom"
-                            ? prev.namespace
+                          previous.provider === "calcom"
+                            ? previous.namespace
                             : undefined,
                       }));
                     }}
@@ -504,10 +532,12 @@ export default function ProductForm({
                         : ""
                     }
                     onChange={(e) => {
-                      setBookingConfig((prev) => ({
+                      setBookingConfig((previous) => ({
                         provider: "calcom",
                         eventSlug:
-                          prev.provider === "calcom" ? prev.eventSlug : "",
+                          previous.provider === "calcom"
+                            ? previous.eventSlug
+                            : "",
                         namespace: e.target.value || undefined,
                       }));
                     }}
@@ -556,10 +586,13 @@ export default function ProductForm({
                     type="url"
                     value={bookingConfig.url}
                     onChange={(e) => {
-                      setBookingConfig((prev) => ({
+                      setBookingConfig((previous) => ({
                         provider: "url",
                         url: e.target.value,
-                        label: prev.provider === "url" ? prev.label : undefined,
+                        label:
+                          previous.provider === "url"
+                            ? previous.label
+                            : undefined,
                       }));
                     }}
                     className="w-full rounded border border-gray-300 px-3 py-2"
@@ -582,9 +615,9 @@ export default function ProductForm({
                         : ""
                     }
                     onChange={(e) => {
-                      setBookingConfig((prev) => ({
+                      setBookingConfig((previous) => ({
                         provider: "url",
-                        url: prev.provider === "url" ? prev.url : "",
+                        url: previous.provider === "url" ? previous.url : "",
                         label: e.target.value || undefined,
                       }));
                     }}

@@ -12,24 +12,24 @@ const localeMap: Record<string, Translations> = {
 };
 
 /**
- * Returns the translation object for the given BCP 47 locale tag.
- * Falls back to English if the locale is not yet available.
- *
- * Usage in Astro pages:
- *   const t = getTranslations(siteConfig.locale);
- *   <p>{t.shop.title}</p>
- */
+Returns the translation object for the given BCP 47 locale tag.
+Falls back to English if the locale is not yet available.
+
+Usage in Astro pages:
+  const t = getTranslations(siteConfig.locale);
+  <p>{t.shop.title}</p>
+*/
 export function getTranslations(locale: string): Translations {
-  const lang = locale.split("-")[0];
+  const lang = locale.split("-", 1)[0];
   return localeMap[lang] ?? localeMap.en;
 }
 
 /**
- * Format a monetary amount using the browser/server's Intl API.
- * @param amountInCents - Amount in the currency's smallest unit (e.g. cents for USD)
- * @param currency - ISO 4217 currency code (e.g. 'USD', 'EUR', 'JPY')
- * @param locale - BCP 47 locale tag (e.g. 'en-US', 'fr-FR', 'ja-JP')
- */
+Format a monetary amount using the browser/server's Intl API.
+@param amountInCents - Amount in the currency's smallest unit (e.g. cents for USD)
+@param currency - ISO 4217 currency code (e.g. 'USD', 'EUR', 'JPY')
+@param locale - BCP 47 locale tag (e.g. 'en-US', 'fr-FR', 'ja-JP')
+*/
 export function formatPrice(
   amountInCents: number,
   currency: string,
@@ -43,10 +43,10 @@ export function formatPrice(
 }
 
 /**
- * Format a date using the Intl API.
- * @param date - Date object or ISO string
- * @param locale - BCP 47 locale tag
- */
+Format a date using the Intl API.
+@param date - Date object or ISO string
+@param locale - BCP 47 locale tag
+*/
 export function formatDate(date: Date | string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
     year: "numeric",
@@ -56,9 +56,9 @@ export function formatDate(date: Date | string, locale: string): string {
 }
 
 /**
- * Returns the divisor to convert from minor units to major units.
- * Most currencies use 100 (cents), but some (JPY, KRW, etc.) use 1.
- */
+Returns the divisor to convert from minor units to major units.
+Most currencies use 100 (cents), but some (JPY, KRW, etc.) use 1.
+*/
 function getMinorUnitDivisor(currency: string): number {
   const zeroCurrencies = new Set([
     "BIF",
@@ -83,4 +83,4 @@ function getMinorUnitDivisor(currency: string): number {
   return zeroCurrencies.has(currency.toUpperCase()) ? 1 : 100;
 }
 
-export type { Translations };
+export { type Translations } from "./locales/en";

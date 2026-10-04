@@ -7,7 +7,7 @@ import type {
   ThemeVariables,
 } from "../themes/types";
 
-interface ThemeSettingsEditorProps {
+interface ThemeSettingsEditorProperties {
   themes: Record<string, BodegaCatTheme>;
   initialThemeId: string;
   initialBaseId: string;
@@ -28,14 +28,20 @@ const themeOrder = ["bodegacat", "voidkitten", "paddleboard"] as const;
 function isCssVariable(field: ThemeSettingField): field is ThemeSettingField & {
   variable: `--${string}`;
 } {
-  return (
-    field.type === "color" ||
-    field.type === "select" ||
-    ((field.type === "text" ||
-      field.type === "textarea" ||
-      field.type === "url") &&
-      field.variable !== undefined)
-  );
+  switch (field.type) {
+    case "color":
+    case "select": {
+      return true;
+    }
+    case "text":
+    case "textarea":
+    case "url": {
+      return field.variable !== undefined;
+    }
+    default: {
+      return false;
+    }
+  }
 }
 
 function textValue(content: ThemeContent, id: string): string {
@@ -59,13 +65,13 @@ export default function ThemeSettingsEditor({
   initialContent,
   initialVariables,
   filesAvailable,
-}: Readonly<ThemeSettingsEditorProps>) {
+}: Readonly<ThemeSettingsEditorProperties>) {
   const [themeId, setThemeId] = useState(initialThemeId);
   const [baseId, setBaseId] = useState(initialBaseId);
   const [content, setContent] = useState<ThemeContent>(initialContent);
   const [variables, setVariables] = useState<ThemeVariables>(initialVariables);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | undefined>(undefined);
+  const [uploading, setUploading] = useState<string | undefined>(undefined);
 
   const fieldThemeId = themeId === "custom" ? baseId : themeId;
   const fields = themes[fieldThemeId].settings ?? [];
@@ -104,7 +110,7 @@ export default function ThemeSettingsEditor({
   }
 
   async function uploadImage(id: string, file: File) {
-    setUploadError(null);
+    setUploadError(undefined);
     setUploading(id);
     try {
       const body = new FormData();
@@ -125,7 +131,7 @@ export default function ThemeSettingsEditor({
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Upload failed");
     } finally {
-      setUploading(null);
+      setUploading(undefined);
     }
   }
 
@@ -193,7 +199,7 @@ export default function ThemeSettingsEditor({
   );
 }
 
-interface ThemeFieldProps {
+interface ThemeFieldProperties {
   field: ThemeSettingField;
   content: ThemeContent;
   variables: ThemeVariables;
@@ -223,13 +229,14 @@ function ImageField({
   onUpload: (file: File) => void;
 }>) {
   const fileInput = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const showPreview =
+  const [fileName, setFileName] = useState("");
+  const [failedUrl, setFailedUrl] = useState<string | undefined>(undefined);
+  const isShowPreview =
     failedUrl !== url &&
     (url.startsWith("/files/") ||
       url.startsWith("http://") ||
       url.startsWith("https://"));
+  const selectedFileLabel = fileName === "" ? "No file selected" : fileName;
 
   return (
     <div>
@@ -240,7 +247,7 @@ function ImageField({
         {label}
       </label>
       {help && <p className="mb-2 text-xs text-gray-500">{help}</p>}
-      {showPreview && (
+      {isShowPreview && (
         <img
           src={url}
           alt=""
@@ -262,9 +269,7 @@ function ImageField({
           >
             Browse
           </button>
-          <span className="text-sm text-gray-500">
-            {fileName ?? "No file selected"}
-          </span>
+          <span className="text-sm text-gray-500">{selectedFileLabel}</span>
           <input
             ref={fileInput}
             id={fieldId}
@@ -300,7 +305,7 @@ function ThemeField({
   onLinks,
   onVariable,
   onUpload,
-}: Readonly<ThemeFieldProps>) {
+}: Readonly<ThemeFieldProperties>) {
   if (isCssVariable(field) && field.type === "color") {
     const value = variables[field.variable] ?? "";
     return (
@@ -337,7 +342,7 @@ function ThemeField({
 
   if (isCssVariable(field) && field.type === "select") {
     const value = variables[field.variable] ?? "";
-    const known = field.options.some((option) => option.value === value);
+    const isKnown = field.options.some((option) => option.value === value);
     return (
       <div>
         <label
@@ -354,7 +359,7 @@ function ThemeField({
             onVariable(field.variable, event.target.value);
           }}
         >
-          {!known && value && <option value={value}>{value}</option>}
+          {!isKnown && value && <option value={value}>{value}</option>}
           {field.options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -468,7 +473,9 @@ function LinkRows({
 }>) {
   function update(index: number, key: keyof ThemeLink, value: string) {
     onChange(
-      links.map((link, i) => (i === index ? { ...link, [key]: value } : link)),
+      links.map((link, index_) =>
+        index_ === index ? { ...link, [key]: value } : link,
+      ),
     );
   }
 
@@ -503,7 +510,7 @@ function LinkRows({
               type="button"
               className="btn btn-outline px-3 text-red-500"
               onClick={() => {
-                onChange(links.filter((_, i) => i !== index));
+                onChange(links.filter((_, index_) => index_ !== index));
               }}
             >
               ✕

@@ -2,21 +2,22 @@ import paddleboardHome from "./paddleboard/runtime/HomePage.astro";
 import { slots as themeSlotsFromApp } from "virtual:bodegacat-theme-slots";
 import type { BodegaCatTheme, ThemeSlots } from "./types";
 
-/** Built-in layouts. CSS-only themes are absent and use the default pages. */
+/**
+Built-in layouts. CSS-only themes are absent and use the default pages.
+*/
 const builtInSlots: Record<string, ThemeSlots> = {
   paddleboard: { home: paddleboardHome },
 };
 
 /**
- * Layout for the active theme. App slots passed to bodegacat({ themeSlots })
- * win, then slots on the theme object, then a built-in layout for the same id.
- */
+Layout for the active theme. App slots passed to bodegacat({ themeSlots })
+win, then slots on the theme object, then a built-in layout for the same id.
+*/
 function slotsForId(
   map: Record<string, ThemeSlots>,
   id: string,
 ): ThemeSlots | undefined {
-  if (!Object.hasOwn(map, id)) return undefined;
-  return map[id];
+  return Object.hasOwn(map, id) ? map[id] : undefined;
 }
 
 export function resolveThemeSlots(theme: BodegaCatTheme): ThemeSlots {

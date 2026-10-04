@@ -8,7 +8,7 @@ import {
 } from "../lib/variationEngine";
 import type { Product } from "../types/product";
 
-interface ProductVariationsProps {
+interface ProductVariationsProperties {
   product: Product;
   onVariationChange?: (
     selections: Record<string, string>,
@@ -16,21 +16,21 @@ interface ProductVariationsProps {
   ) => void;
 }
 
-function addToCartLabel(ready: boolean, hasOffer: boolean): string {
-  if (!ready) return "Please select required options";
-  if (!hasOffer) return "Unavailable";
-  return "Add to Cart";
+function addToCartLabel(isReady: boolean, hasOffer: boolean): string {
+  if (!isReady) return "Please select required options";
+  return hasOffer ? "Add to Cart" : "Unavailable";
 }
 
 export default function ProductVariations({
   product,
   onVariationChange,
-}: Readonly<ProductVariationsProps>) {
+}: Readonly<ProductVariationsProperties>) {
   const autoSelections = useMemo(() => {
     if (product.variationDefinitions.length !== 1) return {};
     const variation = product.variationDefinitions[0];
-    if (variation.options.length !== 1) return {};
-    return { [variation.id]: variation.options[0].id };
+    return variation.options.length === 1
+      ? { [variation.id]: variation.options[0].id }
+      : {};
   }, [product.variationDefinitions]);
 
   const [selections, setSelections] = useState(autoSelections);
@@ -55,10 +55,10 @@ export default function ProductVariations({
   // Handle selection changes
   const handleSelectionChange = useCallback(
     (variationId: string, optionId: string) => {
-      setSelections((prev) =>
+      setSelections((previous) =>
         updateSelection(
           product.variationDefinitions,
-          prev,
+          previous,
           variationId,
           optionId,
         ),
@@ -71,7 +71,7 @@ export default function ProductVariations({
   useEffect(() => {
     if (Object.keys(autoSelections).length === 0) return;
     queueMicrotask(() => {
-      setSelections((prev) => ({ ...autoSelections, ...prev }));
+      setSelections((previous) => ({ ...autoSelections, ...previous }));
     });
   }, [autoSelections]);
 
@@ -82,7 +82,7 @@ export default function ProductVariations({
   };
 
   // If no variations, show simple add to cart
-  if (!product.variationDefinitions.length) {
+  if (product.variationDefinitions.length === 0) {
     return (
       <div className="space-y-6">
         {/* Quantity Selector */}
@@ -161,10 +161,10 @@ export default function ProductVariations({
                     (depends on{" "}
                     {variation.dependsOn
                       ?.map((id) => {
-                        const dep = product.variationDefinitions.find(
+                        const dependency = product.variationDefinitions.find(
                           (v) => v.id === id,
                         );
-                        return dep?.displayName ?? id;
+                        return dependency?.displayName ?? id;
                       })
                       .join(", ")}
                     )
@@ -307,7 +307,7 @@ export default function ProductVariations({
         onClick={handleAddToCart}
         disabled={!variationState.isValid || !offer}
         className={`w-full rounded-md px-4 py-3 font-medium transition-colors ${
-          variationState.isValid && offer
+          offer && variationState.isValid
             ? "bg-primary hover:bg-primary/90 text-white"
             : "cursor-not-allowed bg-gray-300 text-gray-500"
         }`}
@@ -323,21 +323,22 @@ export default function ProductVariations({
           product.images,
         );
 
-        if (currentImage) {
-          return (
-            <div className="border-t pt-4">
-              <h3 className="mb-2 text-sm font-medium">
-                Selected Option Preview:
-              </h3>
-              <img
-                src={currentImage}
-                alt="Selected option preview"
-                className="h-24 w-24 rounded-lg object-cover"
-              />
-            </div>
-          );
+        if (!currentImage) {
+          return;
         }
-        return null;
+
+        return (
+          <div className="border-t pt-4">
+            <h3 className="mb-2 text-sm font-medium">
+              Selected Option Preview:
+            </h3>
+            <img
+              src={currentImage}
+              alt="Selected option preview"
+              className="h-24 w-24 rounded-lg object-cover"
+            />
+          </div>
+        );
       })()}
 
       {/* Validation Errors */}

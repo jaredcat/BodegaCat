@@ -1,31 +1,33 @@
 import type { AdminIdentity } from "./types";
 
-function parseAccessJwtEmail(token: string | undefined): string | null {
-  if (!token) return null;
+function parseAccessJwtEmail(token: string | undefined): string | undefined {
+  if (!token) return undefined;
   try {
-    const payloadB64 = token.split(".").at(1);
-    if (payloadB64 === undefined || payloadB64 === "") return null;
+    const payloadB64 = token.split(".", 2).at(1);
+    if (payloadB64 === undefined || payloadB64 === "") return undefined;
     const parsed: unknown = JSON.parse(atob(payloadB64));
-    if (parsed === null || typeof parsed !== "object" || !("email" in parsed)) {
-      return null;
+    // `typeof null === "object"` — reject null via falsiness after the typeof check.
+    if (typeof parsed !== "object" || !parsed || !("email" in parsed)) {
+      return undefined;
     }
     const { email } = parsed as { email?: unknown };
-    return typeof email === "string" ? email : null;
+    return typeof email === "string" ? email : undefined;
   } catch {
-    return null;
+    return undefined;
   }
 }
 
-/** Cloudflare Access identity from the request. Does not read Worker bindings. */
+/**
+Cloudflare Access identity from the request. Does not read Worker bindings.
+*/
 export function getCloudflareAdminIdentity(
   request: Request,
-): (AdminIdentity & { jwt: string }) | null {
+): (AdminIdentity & { jwt: string }) | undefined {
   const jwt =
     request.headers.get("cf-access-jwt-assertion") ?? accessCookie(request);
   const email =
     request.headers.get("cf-access-user-email") ?? parseAccessJwtEmail(jwt);
-  if (!jwt || !email) return null;
-  return { email, jwt };
+  return !jwt || !email ? undefined : { email, jwt };
 }
 
 function accessCookie(request: Request): string | undefined {

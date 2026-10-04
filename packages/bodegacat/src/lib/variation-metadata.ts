@@ -1,6 +1,8 @@
 import type { ProductVariationDefinition } from "../types/product";
 
-/** Stripe metadata values are limited to 500 characters. */
+/**
+Stripe metadata values are limited to 500 characters.
+*/
 const STRIPE_METADATA_VALUE_LIMIT = 500;
 
 export function readVariationMetadata(
@@ -10,7 +12,7 @@ export function readVariationMetadata(
   let json: string | undefined;
   if (partsRaw) {
     const count = Number(partsRaw);
-    if (!Number.isInteger(count) || count < 1) return undefined;
+    if (!Number.isSafeInteger(count) || count < 1) return undefined;
     let joined = "";
     for (let index = 0; index < count; index += 1) {
       joined += metadata[`variations_${String(index)}`] ?? "";
@@ -23,17 +25,18 @@ export function readVariationMetadata(
   if (!json) return undefined;
   try {
     const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) return undefined;
-    return parsed as ProductVariationDefinition[];
+    return Array.isArray(parsed)
+      ? (parsed as ProductVariationDefinition[])
+      : undefined;
   } catch {
     return undefined;
   }
 }
 
 /**
- * Metadata patch for variation definitions. Existing chunk keys are cleared
- * with an empty string, which Stripe treats as a delete.
- */
+Metadata patch for variation definitions. Existing chunk keys are cleared
+with an empty string, which Stripe treats as a delete.
+*/
 export function variationMetadataPatch(
   definitions: ProductVariationDefinition[],
   existingKeys: string[],

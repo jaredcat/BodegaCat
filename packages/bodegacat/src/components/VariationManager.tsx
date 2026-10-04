@@ -4,7 +4,7 @@ import type {
   ProductVariationOptionDefinition,
 } from "../types/product";
 
-interface VariationManagerProps {
+interface VariationManagerProperties {
   variations: ProductVariationDefinition[];
   onChange: (variations: ProductVariationDefinition[]) => void;
   productType?: string;
@@ -14,7 +14,7 @@ export default function VariationManager({
   variations,
   onChange,
   productType,
-}: Readonly<VariationManagerProps>) {
+}: Readonly<VariationManagerProperties>) {
   const addVariation = () => {
     const newVariation: ProductVariationDefinition = {
       id: `variation_${String(Date.now())}`,
@@ -89,10 +89,12 @@ export default function VariationManager({
   };
 
   const loadExampleVariations = () => {
-    if (productType) {
-      const examples = createExampleVariations(productType);
-      onChange(examples);
+    if (!productType) {
+      return;
     }
+
+    const examples = createExampleVariations(productType);
+    onChange(examples);
   };
 
   const moveVariation = (id: string, direction: "up" | "down") => {
@@ -103,10 +105,12 @@ export default function VariationManager({
     if (newIndex < 0 || newIndex >= variations.length) return;
 
     const updated = [...variations];
-    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    const moving = updated[index];
+    updated[index] = updated[newIndex];
+    updated[newIndex] = moving;
 
     // Update order numbers
-    const reordered = updated.map((v, i) => ({ ...v, order: i + 1 }));
+    const reordered = updated.map((v, index_) => ({ ...v, order: index_ + 1 }));
     onChange(reordered);
   };
 
@@ -374,7 +378,7 @@ export default function VariationManager({
                             onChange={(e) => {
                               updateOption(variation.id, option.id, {
                                 priceModifier: Math.round(
-                                  Number.parseFloat(e.target.value) * 100,
+                                  Number(e.target.value) * 100,
                                 ),
                               });
                             }}

@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
+import type { ProductVariationDefinition } from "../types/product";
 import { canonicalSelection } from "./selection";
 import { stripe } from "./stripe-client";
-import type { ProductVariationDefinition } from "../types/product";
 import { listSellableCombinations } from "./variationEngine";
 
 const OPTIONS_KEY = "bodegacat_options";
@@ -40,7 +40,7 @@ export async function listActivePrices(
       product: productId,
       active: true,
       limit: 100,
-      ...(startingAfter ? { starting_after: startingAfter } : {}),
+      ...(startingAfter && { starting_after: startingAfter }),
     });
     prices.push(...page.data);
     if (!page.has_more || page.data.length === 0) break;
@@ -51,7 +51,7 @@ export async function listActivePrices(
   return prices;
 }
 
-function priceMatches(
+function isPriceMatch(
   price: Stripe.Price,
   desired: DesiredPrice,
   currency: string,
@@ -105,9 +105,9 @@ async function desiredPrices(input: {
 }
 
 /**
- * Writes one active Stripe Price per sellable combination.
- * Amounts are fixed here. Checkout later charges these Price ids and does not add modifiers.
- */
+Writes one active Stripe Price per sellable combination.
+Amounts are fixed here. Checkout later charges these Price ids and does not add modifiers.
+*/
 export async function syncCatalogPrices(input: {
   productId: string;
   basePrice: number;
@@ -121,7 +121,7 @@ export async function syncCatalogPrices(input: {
   const keepIds: string[] = [];
 
   for (const item of desired) {
-    const match = existing.find((price) => priceMatches(price, item, currency));
+    const match = existing.find((price) => isPriceMatch(price, item, currency));
 
     if (match) {
       keepIds.push(match.id);
@@ -136,7 +136,7 @@ export async function syncCatalogPrices(input: {
       transfer_lookup_key: true,
       metadata: {
         [OPTIONS_KEY]: item.canonical,
-        ...(item.unsellable ? { [UNSELLABLE_KEY]: "true" } : {}),
+        ...(item.unsellable && { [UNSELLABLE_KEY]: "true" }),
       },
     });
     keepIds.push(created.id);
@@ -148,15 +148,13 @@ export async function syncCatalogPrices(input: {
   }
 
   const kept = await listActivePrices(input.productId);
-  const defaultPrice = kept.reduce<Stripe.Price | undefined>(
-    (lowest, price) => {
-      if (price.unit_amount == null) return lowest;
-      if (!lowest || (lowest.unit_amount ?? 0) > price.unit_amount)
-        return price;
-      return lowest;
-    },
-    undefined,
-  );
+  let defaultPrice: Stripe.Price | undefined;
+  for (const price of kept) {
+    if (price.unit_amount == undefined) continue;
+    if (!defaultPrice || (defaultPrice.unit_amount ?? 0) > price.unit_amount) {
+      defaultPrice = price;
+    }
+  }
 
   if (defaultPrice) {
     await stripe.products.update(input.productId, {
@@ -176,11 +174,8 @@ export function selectionFromPrice(
   if (!raw) return {};
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (
-      parsed === null ||
-      typeof parsed !== "object" ||
-      Array.isArray(parsed)
-    ) {
+    // `typeof null === "object"` — reject null via falsiness after the typeof check.
+    if (typeof parsed !== "object" || !parsed || Array.isArray(parsed)) {
       return {};
     }
     const selection: Record<string, string> = {};

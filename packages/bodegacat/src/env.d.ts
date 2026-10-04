@@ -11,10 +11,10 @@ declare module "virtual:bodegacat-user-product-types" {
 }
 
 /**
- * Mirrors `astro:env` output for the schema defined in `integration.ts`.
- * The consuming app also generates `.astro/env.d.ts`; these declarations let
- * the package typecheck before/with that file.
- */
+Mirrors `astro:env` output for the schema defined in `integration.ts`.
+The consuming app also generates `.astro/env.d.ts`; these declarations let
+the package typecheck before/with that file.
+*/
 declare module "astro:env/client" {
   export const STRIPE_PUBLISHABLE_KEY: string;
   export const STRIPE_API_VERSION: string;
@@ -50,12 +50,12 @@ declare module "virtual:bodegacat-build-kv-meta" {
 }
 
 declare module "cloudflare:workers" {
-  const env: {
+  const environment: {
     SETTINGS_KV?: CloudflareKVNamespace;
     SESSION?: CloudflareKVNamespace;
     FILES?: CloudflareR2Bucket;
   };
-  export { env };
+  export { environment as env };
 }
 
 interface ImportMetaEnv {
@@ -79,10 +79,12 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-/** Minimal typing for Cloudflare KV namespaces available in the Worker runtime. */
+/**
+Minimal typing for Cloudflare KV namespaces available in the Worker runtime.
+*/
 interface CloudflareKVNamespace {
   get(key: string, type: "json"): Promise<unknown>;
-  get(key: string, type?: "text"): Promise<string | null>;
+  get(key: string, type?: "text"): Promise<string | undefined>;
   put(key: string, value: string): Promise<void>;
   delete(key: string): Promise<void>;
 }
@@ -98,7 +100,7 @@ interface CloudflareR2Bucket {
     value: ArrayBuffer | ReadableStream,
     options?: { httpMetadata?: { contentType?: string } },
   ): Promise<unknown>;
-  get(key: string): Promise<CloudflareR2Object | null>;
+  get(key: string): Promise<CloudflareR2Object | undefined>;
 }
 
 declare namespace App {
@@ -107,13 +109,15 @@ declare namespace App {
       email: string;
       jwt: string;
       isDevelopment?: boolean;
-      /** Mock admin via BODEGACAT_ADMIN_LOCAL_BYPASS on localhost wrangler preview */
+      /**
+      Mock admin via BODEGACAT_ADMIN_LOCAL_BYPASS on localhost wrangler preview
+      */
       localPreviewBypass?: boolean;
     };
     /**
-     * True on `/preview/*` draft storefront routes (SSR, staff-only).
-     * Public `/` and `/shop` are prerendered with published products only.
-     */
+    True on `/preview/*` draft storefront routes (SSR, staff-only).
+    Public `/` and `/shop` are prerendered with published products only.
+    */
     storefrontPreview?: boolean;
   }
 }

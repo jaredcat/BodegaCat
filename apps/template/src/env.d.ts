@@ -1,11 +1,11 @@
 /// <reference types="astro/client" />
 
 declare module "cloudflare:workers" {
-  const env: {
+  const environment: {
     SETTINGS_KV?: CloudflareKVNamespace;
     SESSION?: CloudflareKVNamespace;
   };
-  export { env };
+  export { environment as env };
 }
 
 interface ImportMetaEnv {
@@ -28,10 +28,12 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-/** Minimal typing for Cloudflare KV namespaces available in the Worker runtime. */
+/**
+Minimal typing for Cloudflare KV namespaces available in the Worker runtime.
+*/
 interface CloudflareKVNamespace {
   get(key: string, type: "json"): Promise<unknown>;
-  get(key: string, type?: "text"): Promise<string | null>;
+  get(key: string, type?: "text"): Promise<string | undefined>;
   put(key: string, value: string): Promise<void>;
   delete(key: string): Promise<void>;
 }

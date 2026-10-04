@@ -1,14 +1,14 @@
 ---
 /**
- * Paddleboard theme Footer component.
- *
- * Dark footer (--color-footer-bg) with site name, description, quick links,
- * social links, and a contact email. Matches the anybodypaddlesports.com footer.
- *
- * Usage:
- *   import Footer from '../themes/paddleboard/Footer.astro';
- *   <Footer siteConfig={siteConfig} t={t} copyrightYear={new Date().getFullYear()} />
- */
+Paddleboard theme Footer component.
+
+Dark footer (--color-footer-bg) with site name, description, quick links,
+social links, and a contact email. Matches the anybodypaddlesports.com footer.
+
+Usage:
+  import Footer from '../themes/paddleboard/Footer.astro';
+  <Footer siteConfig={siteConfig} t={t} copyrightYear={new Date().getFullYear()} />
+*/
 
 import type { Translations } from "../../i18n";
 import { themeLinks, themeText } from "../../lib/theme-content";
@@ -25,8 +25,10 @@ const contactEmail = themeText(siteConfig, "contactEmail");
 const footerLinks = themeLinks(siteConfig, "footerLinks");
 const socialLinks = themeLinks(siteConfig, "socialLinks");
 
-/** Canonical repo link for the “Powered by” attribution (not user-controlled). */
-const bodegaCatRepoUrl = "https://github.com/bodegacat/bodegacat";
+/**
+Canonical repo link for the “Powered by” attribution (not user-controlled).
+*/
+const bodegaCatRepositoryUrl = "https://github.com/bodegacat/bodegacat";
 ---
 
 <footer class="site-footer py-12">
@@ -95,7 +97,7 @@ const bodegaCatRepoUrl = "https://github.com/bodegacat/bodegacat";
       {siteConfig.name}. {t.footer.allRightsReserved} |{" "}
       {t.footer.poweredByPrefix}{" "}
       <a
-        href={bodegaCatRepoUrl}
+        href={bodegaCatRepositoryUrl}
         class="text-muted hover:text-primary transition-colors"
         target="_blank"
         rel="noopener noreferrer"

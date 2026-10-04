@@ -19,8 +19,8 @@ export interface VariationState {
 }
 
 /**
- * Converts variation definitions to runtime variation state
- */
+Converts variation definitions to runtime variation state
+*/
 export function createVariationState(
   definitions: ProductVariationDefinition[],
   selections: Record<string, string> = {},
@@ -51,8 +51,8 @@ export function createVariationState(
 }
 
 /**
- * Determines if a variation should be visible based on current selections
- */
+Determines if a variation should be visible based on current selections
+*/
 function isVariationVisible(
   variation: ProductVariationDefinition,
   allVariations: ProductVariationDefinition[],
@@ -65,16 +65,18 @@ function isVariationVisible(
 
   // Dependent variations are only visible if their dependencies are satisfied
   if (variation.dependsOn && variation.dependsOn.length > 0) {
-    return variation.dependsOn.every((depId) => {
-      const depVariation = allVariations.some((v) => v.id === depId);
-      if (!depVariation) return false;
+    return variation.dependsOn.every((dependencyId) => {
+      const isDependencyVariation = allVariations.some(
+        (v) => v.id === dependencyId,
+      );
+      if (!isDependencyVariation) return false;
 
-      const selectedOptionId = selections[depId];
+      const selectedOptionId = selections[dependencyId];
       if (!selectedOptionId) return false;
 
       // Check if any option in this variation is available for the selected dependency
       return variation.options.some((option) =>
-        isOptionAvailableForSelection(option, depId, selectedOptionId),
+        isOptionAvailableForSelection(option, dependencyId, selectedOptionId),
       );
     });
   }
@@ -83,8 +85,8 @@ function isVariationVisible(
 }
 
 /**
- * Determines if an option should be visible based on current selections
- */
+Determines if an option should be visible based on current selections
+*/
 
 function isOptionVisible(
   variation: ProductVariationDefinition,
@@ -119,8 +121,8 @@ function isOptionVisible(
 }
 
 /**
- * Checks if an option is available for a specific selection
- */
+Checks if an option is available for a specific selection
+*/
 function isOptionAvailableForSelection(
   option: ProductVariationOptionDefinition,
   variationId: string,
@@ -131,46 +133,45 @@ function isOptionAvailableForSelection(
   const condition = option.availableFor.find(
     (c) => c.variationId === variationId,
   );
-  if (!condition) return true;
-
-  return condition.optionIds.includes(selectedOptionId);
+  return !condition || condition.optionIds.includes(selectedOptionId);
 }
 
 /**
- * Calculates total price based on base price and selected variations
- */
+Calculates total price based on base price and selected variations
+*/
 function calculateTotalPrice(
   definitions: ProductVariationDefinition[],
   selections: Record<string, string>,
 ): number {
   let total = 0; // Base price will be added by the caller
 
-  Object.entries(selections).forEach(([variationId, optionId]) => {
+  for (const [variationId, optionId] of Object.entries(selections)) {
     const variation = definitions.find((v) => v.id === variationId);
     const option = variation?.options.find((o) => o.id === optionId);
 
     if (option) {
       total += option.priceModifier;
     }
-  });
+  }
 
   return total;
 }
 
 /**
- * Validates that all required variations have selections
- */
+Validates that all required variations have selections
+*/
 function validateSelections(
   definitions: ProductVariationDefinition[],
   selections: Record<string, string>,
 ): { isValid: boolean; missingRequired: string[] } {
   const missingRequired: string[] = [];
 
-  definitions.forEach((variation) => {
-    if (variation.required && !selections[variation.id]) {
+  for (const variation of definitions) {
+    const selectedOptionId = selections[variation.id];
+    if (!selectedOptionId && variation.required) {
       missingRequired.push(variation.name);
     }
-  });
+  }
 
   return {
     isValid: missingRequired.length === 0,
@@ -179,13 +180,13 @@ function validateSelections(
 }
 
 /**
- * Gets available options for a variation based on current selections
- */
+Gets available options for a variation based on current selections
+*/
 /**
- * Every combination a buyer can check out. Option `available: false` is omitted.
- * Dependent options are included only when their parent selection allows them.
- * A product with no variation definitions has one empty selection.
- */
+Every combination a buyer can check out. Option `available: false` is omitted.
+Dependent options are included only when their parent selection allows them.
+A product with no variation definitions has one empty selection.
+*/
 export function listSellableCombinations(
   definitions: ProductVariationDefinition[],
 ): { selection: Record<string, string>; priceModifier: number }[] {
@@ -203,9 +204,11 @@ export function listSellableCombinations(
     selection: Record<string, string>,
   ) {
     const ready = remaining.filter((definition) => {
-      if (!isVariationVisible(definition, definitions, selection)) return false;
-      return definition.options.some((option) =>
-        isOptionVisible(definition, option, definitions, selection),
+      return (
+        isVariationVisible(definition, definitions, selection) &&
+        definition.options.some((option) =>
+          isOptionVisible(definition, option, definitions, selection),
+        )
       );
     });
 
@@ -240,7 +243,7 @@ export function listSellableCombinations(
   for (const result of results) {
     unique.set(canonicalSelection(result.selection), result);
   }
-  return [...unique.values()];
+  return unique.values().toArray();
 }
 
 export function getAvailableOptions(
@@ -254,8 +257,8 @@ export function getAvailableOptions(
 }
 
 /**
- * Updates selections and returns new state
- */
+Updates selections and returns new state
+*/
 export function updateSelection(
   definitions: ProductVariationDefinition[],
   currentSelections: Record<string, string>,
@@ -267,11 +270,11 @@ export function updateSelection(
   // Clear dependent selections that are no longer valid
   const validSelections: Record<string, string> = {};
 
-  Object.entries(newSelections).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(newSelections)) {
     const variation = definitions.find((v) => v.id === key);
     if (!variation) {
       validSelections[key] = value;
-      return;
+      continue;
     }
 
     if (
@@ -290,14 +293,14 @@ export function updateSelection(
     } else {
       validSelections[key] = value;
     }
-  });
+  }
 
   return validSelections;
 }
 
 /**
- * Gets the current variation image based on selections
- */
+Gets the current variation image based on selections
+*/
 export function getCurrentVariationImage(
   definitions: ProductVariationDefinition[],
   selections: Record<string, string>,
@@ -318,9 +321,9 @@ export function getCurrentVariationImage(
 }
 
 /**
- * Variation definitions from the starter product type with this name or id.
- * Returns a copy so the editor does not mutate `exampleProductTypes`.
- */
+Variation definitions from the starter product type with this name or id.
+Returns a copy so the editor does not mutate `exampleProductTypes`.
+*/
 export function createExampleVariations(
   productType: string,
 ): ProductVariationDefinition[] {

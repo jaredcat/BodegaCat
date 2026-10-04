@@ -10,8 +10,6 @@ import type { BodegaCatTheme } from "../themes/types";
 import type { SiteConfig } from "../types/product";
 import { exampleProductTypes } from "./exampleProductTypes";
 
-export { exampleProductTypes };
-
 // ─── Default site configuration ───────────────────────────────────────────────
 // These values are used when no environment variable or KV override exists.
 // Override any of these using environment variables (SITE_NAME, etc.) or the
@@ -42,7 +40,9 @@ export const defaultSiteConfig: SiteConfig = {
 
   theme: bodegaCatTheme,
 
-  /** Starter templates; merchants edit in Admin → Product types (KV). Optional integration override replaces this until KV is saved. */
+  /**
+  Starter templates; merchants edit in Admin → Product types (KV). Optional integration override replaces this until KV is saved.
+  */
   productTypes: exampleProductTypes,
 
   stripe: {
@@ -54,13 +54,13 @@ export const defaultSiteConfig: SiteConfig = {
 // ─── Config loading ────────────────────────────────────────────────────────────
 
 /**
- * Returns the base site config, merging environment variable overrides over
- * the coded defaults. This is synchronous and safe to use in statically
- * prerendered pages (no KV access).
- *
- * For dynamic pages that should pick up admin UI changes, use
- * getEffectiveConfig(kv) instead.
- */
+Returns the base site config, merging environment variable overrides over
+the coded defaults. This is synchronous and safe to use in statically
+prerendered pages (no KV access).
+
+For dynamic pages that should pick up admin UI changes, use
+getEffectiveConfig(kv) instead.
+*/
 export function getSiteConfig(): SiteConfig {
   const config: SiteConfig = structuredClone(defaultSiteConfig);
 
@@ -88,9 +88,9 @@ export function getSiteConfig(): SiteConfig {
       ...config.theme,
       variables: {
         ...config.theme.variables,
-        ...(primaryColor ? { "--color-primary": primaryColor } : {}),
-        ...(secondaryColor ? { "--color-secondary": secondaryColor } : {}),
-        ...(accentColor ? { "--color-accent": accentColor } : {}),
+        ...(primaryColor && { "--color-primary": primaryColor }),
+        ...(secondaryColor && { "--color-secondary": secondaryColor }),
+        ...(accentColor && { "--color-accent": accentColor }),
       },
     };
   }
@@ -101,9 +101,9 @@ export function getSiteConfig(): SiteConfig {
 }
 
 /**
- * Returns the site config with stored settings merged on top.
- * Dynamic pages pass the host settings store. Static pages use getSiteConfig().
- */
+Returns the site config with stored settings merged on top.
+Dynamic pages pass the host settings store. Static pages use getSiteConfig().
+*/
 export async function getEffectiveConfig(
   source?: KVNamespace | SettingsStore,
 ): Promise<SiteConfig> {
@@ -118,7 +118,9 @@ function isSettingsStore(
   source: KVNamespace | SettingsStore | undefined,
 ): source is SettingsStore {
   return (
-    source != null && "available" in source && typeof source.save === "function"
+    source != undefined &&
+    "available" in source &&
+    typeof source.save === "function"
   );
 }
 
@@ -179,9 +181,9 @@ function mergeSettings(
 // ─── Theme helpers ─────────────────────────────────────────────────────────────
 
 /**
- * Returns a BodegaCatTheme with specific color overrides applied.
- * Useful for quick customization without creating a full theme package.
- */
+Returns a BodegaCatTheme with specific color overrides applied.
+Useful for quick customization without creating a full theme package.
+*/
 export function customizeTheme(
   base: BodegaCatTheme,
   overrides: Partial<BodegaCatTheme["variables"]>,
@@ -195,3 +197,5 @@ export function customizeTheme(
     variables: { ...base.variables, ...definedOverrides },
   };
 }
+
+export { exampleProductTypes } from "./exampleProductTypes";

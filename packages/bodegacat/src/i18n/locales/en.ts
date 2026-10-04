@@ -1,10 +1,10 @@
 /**
- * English (en) — the reference locale.
- *
- * When adding a new locale, copy this file and translate every value.
- * The TypeScript type is derived from this file so other locales are
- * automatically checked for completeness.
- */
+English (en) — the reference locale.
+
+When adding a new locale, copy this file and translate every value.
+The TypeScript type is derived from this file so other locales are
+automatically checked for completeness.
+*/
 export const en = {
   nav: {
     shop: "Shop",

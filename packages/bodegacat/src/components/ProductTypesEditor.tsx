@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import type { ProductType } from "../types/product";
 import VariationManager from "./VariationManager";
 
-interface ProductTypesEditorProps {
+interface ProductTypesEditorProperties {
   readonly initialProductTypes: ProductType[];
   readonly exampleDefaults: ProductType[];
   readonly canSave: boolean;
@@ -12,7 +12,7 @@ export default function ProductTypesEditor({
   initialProductTypes,
   exampleDefaults,
   canSave,
-}: Readonly<ProductTypesEditorProps>) {
+}: Readonly<ProductTypesEditorProperties>) {
   const [types, setTypes] = useState<ProductType[]>(() =>
     structuredClone(initialProductTypes),
   );
@@ -22,42 +22,51 @@ export default function ProductTypesEditor({
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined,
+  );
 
   const save = useCallback(async () => {
     if (!canSave) return;
     setStatus("saving");
-    setErrorMessage(null);
+    setErrorMessage(undefined);
     try {
-      const getRes = await fetch("/api/admin/settings");
-      if (!getRes.ok) {
-        throw new Error(`Failed to load settings (${String(getRes.status)})`);
+      const settingsResponse = await fetch("/api/admin/settings");
+      if (!settingsResponse.ok) {
+        throw new Error(
+          `Failed to load settings (${String(settingsResponse.status)})`,
+        );
       }
-      const existing = (await getRes.json()) as Record<string, unknown>;
+      const existing = (await settingsResponse.json()) as Record<
+        string,
+        unknown
+      >;
       const { stripe: _s, ...rest } = existing;
-      const postRes = await fetch("/api/admin/settings", {
+      const saveResponse = await fetch("/api/admin/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...rest, productTypes: types }),
       });
-      if (!postRes.ok) {
-        const err = (await postRes.json()) as { error?: string };
-        throw new Error(err.error ?? `Save failed (${String(postRes.status)})`);
+      if (!saveResponse.ok) {
+        const error = (await saveResponse.json()) as { error?: string };
+        throw new Error(
+          error.error ?? `Save failed (${String(saveResponse.status)})`,
+        );
       }
       setStatus("saved");
       setTimeout(() => {
         setStatus("idle");
       }, 2000);
-    } catch (e) {
+    } catch (error) {
       setStatus("error");
-      setErrorMessage(e instanceof Error ? e.message : "Save failed");
+      setErrorMessage(error instanceof Error ? error.message : "Save failed");
     }
   }, [canSave, types]);
 
   const addType = () => {
     const id = `type_${String(Date.now())}`;
-    setTypes((prev) => [
-      ...prev,
+    setTypes((previous) => [
+      ...previous,
       {
         id,
         name: "New product type",
@@ -65,32 +74,34 @@ export default function ProductTypesEditor({
         variationDefinitions: [],
       },
     ]);
-    setExpandedTypeIds((prev) => {
-      const next = new Set(prev);
+    setExpandedTypeIds((previous) => {
+      const next = new Set(previous);
       next.add(id);
       return next;
     });
   };
 
   const removeType = (id: string) => {
-    setTypes((prev) => prev.filter((t) => t.id !== id));
-    setExpandedTypeIds((prev) => {
-      const next = new Set(prev);
+    setTypes((previous) => previous.filter((t) => t.id !== id));
+    setExpandedTypeIds((previous) => {
+      const next = new Set(previous);
       next.delete(id);
       return next;
     });
   };
 
   const updateType = (id: string, patch: Partial<ProductType>) => {
-    setTypes((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+    setTypes((previous) =>
+      previous.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+    );
   };
 
   const restoreExamples = () => {
     setTypes(structuredClone(exampleDefaults));
   };
 
-  const idsOk = new Set(types.map((t) => t.id)).size === types.length;
-  const allHaveIds = types.every((t) => t.id.trim() !== "");
+  const isIdsOk = new Set(types.map((t) => t.id)).size === types.length;
+  const isAllHaveIds = types.every((t) => t.id.trim() !== "");
 
   return (
     <div className="space-y-6">
@@ -132,7 +143,9 @@ export default function ProductTypesEditor({
           onClick={() => {
             void save();
           }}
-          disabled={!canSave || !idsOk || !allHaveIds || status === "saving"}
+          disabled={
+            !canSave || !isIdsOk || !isAllHaveIds || status === "saving"
+          }
           className="btn btn-primary rounded px-4 py-2 text-sm disabled:opacity-50"
         >
           {status === "saving" ? "Saving…" : "Save product types"}
@@ -147,7 +160,7 @@ export default function ProductTypesEditor({
         )}
       </div>
 
-      {!idsOk && (
+      {!isIdsOk && (
         <p className="text-sm text-red-600">
           Each product type needs a unique ID (internal key).
         </p>
@@ -155,7 +168,7 @@ export default function ProductTypesEditor({
 
       <div className="space-y-8">
         {types.map((pt, index) => {
-          const expanded = expandedTypeIds.has(pt.id);
+          const isExpanded = expandedTypeIds.has(pt.id);
           return (
             <section
               key={pt.id}
@@ -165,8 +178,8 @@ export default function ProductTypesEditor({
                 <button
                   type="button"
                   onClick={() => {
-                    setExpandedTypeIds((prev) => {
-                      const next = new Set(prev);
+                    setExpandedTypeIds((previous) => {
+                      const next = new Set(previous);
                       if (next.has(pt.id)) next.delete(pt.id);
                       else next.add(pt.id);
                       return next;
@@ -174,11 +187,11 @@ export default function ProductTypesEditor({
                   }}
                   className="min-w-0 flex-1 text-left"
                   aria-controls={`product-type-panel-${pt.id}`}
-                  data-expanded={expanded ? "true" : "false"}
+                  data-expanded={isExpanded ? "true" : "false"}
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+                      className={`text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                       aria-hidden="true"
                     >
                       ▾
@@ -193,7 +206,7 @@ export default function ProductTypesEditor({
                     <span className="font-mono">{pt.id}</span>
                     {pt.description?.trim() ? (
                       <span className="text-gray-400"> · {pt.description}</span>
-                    ) : null}
+                    ) : undefined}
                   </p>
                 </button>
 
@@ -208,7 +221,7 @@ export default function ProductTypesEditor({
                 </button>
               </div>
 
-              {expanded && (
+              {isExpanded && (
                 <div id={`product-type-panel-${pt.id}`} className="px-6 pb-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
@@ -244,7 +257,7 @@ export default function ProductTypesEditor({
                             id: e.target.value
                               .toLowerCase()
                               .trim()
-                              .replace(/\s+/g, "-"),
+                              .replaceAll(/\s+/g, "-"),
                           });
                         }}
                         className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm"

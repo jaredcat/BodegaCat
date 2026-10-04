@@ -9,7 +9,9 @@ const radiusOptions = [
   { value: "9999px", label: "Pill" },
 ];
 
-/** Fields the Void Kitten homepage and catalog read. */
+/**
+Fields the Void Kitten homepage and catalog read.
+*/
 const settings: ThemeSettingField[] = [
   { type: "image", id: "logo", label: "Logo" },
   {

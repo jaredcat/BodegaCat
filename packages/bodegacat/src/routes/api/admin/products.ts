@@ -15,8 +15,8 @@ function variationDefinitionsFrom(
   return productData.variationDefinitions ?? [];
 }
 
-function stringMeta(value: string | undefined): string {
-  return value ?? "";
+function stringMeta(value = ""): string {
+  return value;
 }
 
 function productMetadata(
@@ -49,8 +49,8 @@ function productMetadata(
       existing.slug ||
       (productData.name ?? "")
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, ""),
+        .replaceAll(/[^a-z0-9]+/g, "-")
+        .replaceAll(/(^-|-$)/g, ""),
     deliveryType: productData.metadata?.deliveryType ?? "",
     bookingConfig: productData.metadata?.bookingConfig
       ? JSON.stringify(productData.metadata.bookingConfig)
@@ -65,7 +65,7 @@ export const GET: APIRoute = async () => {
       expand: ["data.default_price"],
     });
 
-    return new Response(JSON.stringify(products.data), {
+    return Response.json(products.data, {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -73,12 +73,15 @@ export const GET: APIRoute = async () => {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch products" }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
+    return Response.json(
+      { error: "Failed to fetch products" },
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
   }
 };
 
@@ -92,11 +95,11 @@ export const POST: APIRoute = async ({ request }) => {
       !productData.description ||
       !productData.basePrice
     ) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           error:
             "Missing required fields: name, description, and basePrice are required",
-        }),
+        },
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -126,8 +129,8 @@ export const POST: APIRoute = async ({ request }) => {
       definitions: variationDefinitionsFrom(productData),
     });
 
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         success: true,
         product: {
           id: stripeProduct.id,
@@ -141,7 +144,7 @@ export const POST: APIRoute = async ({ request }) => {
               ? stripeProduct.default_price
               : stripeProduct.default_price?.id,
         },
-      }),
+      },
       {
         status: 201,
         headers: { "Content-Type": "application/json" },
@@ -149,10 +152,10 @@ export const POST: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     console.error("Error creating product:", error);
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         error: "Failed to create product",
-      }),
+      },
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -169,10 +172,10 @@ export const PUT: APIRoute = async ({ request }) => {
     const { id, ...productData } = requestData;
 
     if (!id) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           error: "Product ID is required",
-        }),
+        },
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -209,11 +212,11 @@ export const PUT: APIRoute = async ({ request }) => {
       definitions,
     });
 
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         success: true,
         product: updatedProduct,
-      }),
+      },
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -221,10 +224,10 @@ export const PUT: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     console.error("Error updating product:", error);
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         error: "Failed to update product",
-      }),
+      },
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -235,14 +238,13 @@ export const PUT: APIRoute = async ({ request }) => {
 
 export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const requestData = (await request.json()) as { id: string };
-    const { id } = requestData;
+    const { id } = (await request.json()) as { id: string };
 
     if (!id) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           error: "Product ID is required",
-        }),
+        },
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -258,10 +260,10 @@ export const DELETE: APIRoute = async ({ request }) => {
       },
     });
 
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         success: true,
-      }),
+      },
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -269,10 +271,10 @@ export const DELETE: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     console.error("Error deleting product:", error);
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         error: "Failed to delete product",
-      }),
+      },
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

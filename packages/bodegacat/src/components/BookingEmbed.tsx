@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { BookingConfig } from "../types/product";
 
-interface BookingEmbedProps {
+interface BookingEmbedProperties {
   config: BookingConfig;
   productName: string;
 }
@@ -9,11 +9,11 @@ interface BookingEmbedProps {
 export default function BookingEmbed({
   config,
   productName,
-}: Readonly<BookingEmbedProps>) {
+}: Readonly<BookingEmbedProperties>) {
   useEffect(() => {
     if (config.provider === "calcom") {
       // Load Cal.com embed script once
-      if (!document.getElementById("cal-embed-script")) {
+      if (!document.querySelector("#cal-embed-script")) {
         const script = document.createElement("script");
         script.id = "cal-embed-script";
         script.src = "https://app.cal.com/embed/embed.js";
@@ -21,20 +21,21 @@ export default function BookingEmbed({
           "sha384-fmD6bOGG93VmhhFvXkjHtOxvQxWhqNQrcngah0Zgfhq8gkcWjxkq3tmuSajNGzi3";
         script.crossOrigin = "anonymous";
         script.async = true;
-        document.head.appendChild(script);
+        document.head.append(script);
       }
-    } else if (config.provider === "calendly") {
-      // Load Calendly widget script once
-      if (!document.getElementById("calendly-embed-script")) {
-        const script = document.createElement("script");
-        script.id = "calendly-embed-script";
-        script.src = "https://assets.calendly.com/assets/external/widget.js";
-        script.integrity =
-          "sha384-WEEajIp6+kZvWGZBQlBkWmKFk/aPXRqckwSupPdxLgRtChphG3vSWED8ThgLq7xY";
-        script.crossOrigin = "anonymous";
-        script.async = true;
-        document.head.appendChild(script);
-      }
+    } else // Load Calendly widget script once
+    if (
+      config.provider === "calendly" &&
+      !document.querySelector("#calendly-embed-script")
+    ) {
+      const script = document.createElement("script");
+      script.id = "calendly-embed-script";
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.integrity =
+        "sha384-WEEajIp6+kZvWGZBQlBkWmKFk/aPXRqckwSupPdxLgRtChphG3vSWED8ThgLq7xY";
+      script.crossOrigin = "anonymous";
+      script.async = true;
+      document.head.append(script);
     }
   }, [config.provider]);
 

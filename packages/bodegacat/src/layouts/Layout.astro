@@ -10,38 +10,48 @@ export interface Props {
   title: string;
   description?: string;
   image?: string;
-  /** Pass siteConfig from SSR pages (e.g. admin/preview with KV); public SSG pages omit and use build-time config. */
-  siteConfig?: SiteConfig;
-  /** If false, render using the default theme variables (useful for admin pages). */
-  useSiteTheme?: boolean;
-  /** Set on `/preview/*` draft storefront (SSR, staff-only). */
-  storefrontPreview?: boolean;
-  /** On `/shop/[slug]` in preview, enables “Publish” for draft products. */
-  previewProduct?: PreviewProductContext | null;
   /**
-   * Pass `true` when any product has `bodegacat_published=false` (draft on storefront).
-   * Controls “Back to admin” on the preview banner; omit/false when catalog matches live.
-   */
+  Pass siteConfig from SSR pages (e.g. admin/preview with KV); public SSG pages omit and use build-time config.
+  */
+  siteConfig?: SiteConfig;
+  /**
+  If false, render using the default theme variables (useful for admin pages).
+  */
+  useSiteTheme?: boolean;
+  /**
+  Set on `/preview/*` draft storefront (SSR, staff-only).
+  */
+  storefrontPreview?: boolean;
+  /**
+  On `/shop/[slug]` in preview, enables “Publish” for draft products.
+  */
+  previewProduct?: PreviewProductContext;
+  /**
+  Pass `true` when any product has `bodegacat_published=false` (draft on storefront).
+  Controls “Back to admin” on the preview banner; omit/false when catalog matches live.
+  */
   previewCatalogHasDraftProducts?: boolean;
 }
 
 const {
   title,
   description,
-  siteConfig: propSiteConfig,
+  siteConfig: propertySiteConfig,
   useSiteTheme = true,
   storefrontPreview = false,
-  previewProduct = null,
+  previewProduct,
   previewCatalogHasDraftProducts = false,
 } = Astro.props;
 
-/** Leave draft preview and open the public (prerendered) storefront. */
+/**
+Leave draft preview and open the public (prerendered) storefront.
+*/
 const previewBannerExitHref = "/";
 // SSR routes pass KV-loaded config; public SSG pages fall back to build-time `getSiteConfig()`.
-const siteConfig = propSiteConfig ?? getSiteConfig();
+const siteConfig = propertySiteConfig ?? getSiteConfig();
 const themeSiteConfig = useSiteTheme ? siteConfig : getSiteConfig();
 const pageDescription = description ?? siteConfig.description;
-const lang = siteConfig.locale.split("-")[0];
+const lang = siteConfig.locale.split("-", 1)[0];
 
 // Build the CSS variable block from the active theme.
 // Any custom variables added by third-party themes are automatically included.
@@ -49,7 +59,7 @@ const lang = siteConfig.locale.split("-")[0];
 // NOTE: Our base stylesheet includes default values for many of these variables.
 // To ensure KV/admin-selected theme values always win (including in preview),
 // mark the injected variables as `!important`.
-const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
+const activeThemeVariables = Object.entries(themeSiteConfig.theme.variables)
   .map(([k, v]) => `  ${k}: ${String(v)} !important;`)
   .join("\n");
 ---
@@ -57,7 +67,7 @@ const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
 <!doctype html>
 <html lang={lang}>
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="description" content={pageDescription} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
@@ -68,7 +78,7 @@ const activeThemeVars = Object.entries(themeSiteConfig.theme.variables)
     <title>{title} — {siteConfig.name}</title>
 
     <!-- Theme CSS variables -->
-    <style set:html={`:root {\n${activeThemeVars}\n}`}></style>
+    <style set:html={`:root {\n${activeThemeVariables}\n}`}></style>
 
     <!-- Optional theme-provided CSS (fonts, animations, etc.) -->
     {useSiteTheme && siteConfig.theme.css && (

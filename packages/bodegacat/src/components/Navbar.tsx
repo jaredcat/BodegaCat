@@ -6,16 +6,16 @@ import { useIsClient } from "../lib/useIsClient";
 import type { SiteConfig } from "../types/product";
 import MobileMenuButton from "./MobileMenuButton";
 
-interface NavbarProps {
+interface NavbarProperties {
   siteConfig: SiteConfig;
 }
 
-export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
+export default function Navbar({ siteConfig }: Readonly<NavbarProperties>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isClient = useIsClient();
   const count = useStore(cartCount);
   const logo = themeText(siteConfig, "logo");
-  const showLogo = logo !== "" && logo !== "/logo.png";
+  const isShowLogo = logo !== "" && logo !== "/logo.png";
 
   useEffect(() => {
     initializeCart();
@@ -32,9 +32,9 @@ export default function Navbar({ siteConfig }: Readonly<NavbarProps>) {
                 href="/"
                 className="text-primary flex items-center text-xl font-bold"
               >
-                {showLogo ? (
+                {isShowLogo ? (
                   <img src={logo} alt="" className="mr-2 h-8 w-auto" />
-                ) : null}
+                ) : undefined}
                 {siteConfig.name}
               </a>
             </div>

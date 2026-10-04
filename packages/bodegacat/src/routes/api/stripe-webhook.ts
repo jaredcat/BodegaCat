@@ -6,7 +6,7 @@ import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-function stripeWebhookShouldAutoDeploy(): boolean {
+function shouldAutoDeployFromStripeWebhook(): boolean {
   const v = STRIPE_WEBHOOK_AUTO_DEPLOY;
   return v === "true" || v === "1";
 }
@@ -14,12 +14,12 @@ function stripeWebhookShouldAutoDeploy(): boolean {
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
-  const siteConfig = getSiteConfig();
 
   if (!signature) {
     return new Response("No signature provided", { status: 400 });
   }
 
+  const siteConfig = getSiteConfig();
   let event;
 
   try {
@@ -28,8 +28,8 @@ export const POST: APIRoute = async ({ request }) => {
       signature,
       siteConfig.stripe.webhookSecret,
     );
-  } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+  } catch (error) {
+    console.error("Webhook signature verification failed:", error);
     return new Response("Invalid signature", { status: 400 });
   }
 
@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (shouldTriggerRebuild) {
     console.log(`${event.type} event received`);
     const eventData = event.data.object as { id: string };
-    if (stripeWebhookShouldAutoDeploy()) {
+    if (shouldAutoDeployFromStripeWebhook()) {
       await triggerProductionDeployHook(`stripe:${event.type}`, {
         id: eventData.id,
       });
@@ -61,10 +61,13 @@ export const POST: APIRoute = async ({ request }) => {
     console.log(`Unhandled event type: ${event.type}`);
   }
 
-  return new Response(JSON.stringify({ received: true }), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
+  return Response.json(
+    { received: true },
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 };
